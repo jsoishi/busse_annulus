@@ -14,10 +14,10 @@ import logging
 logger = logging.getLogger(__name__)
 
 # Parameters
-nx, ny = (64, 64) # resolution
+nx, ny = (128, 128) # resolution
 Lx, Ly = (2*np.pi, 1)
 
-Ra_c = 1.6e7 # roughly read off fig 2
+Ra_c = 2.979e7 # computed from Brummell & Hart (1993) eq 13
 Ra = 2.75 * Ra_c
 Pr = 1.
 beta = 5e5
@@ -43,7 +43,7 @@ problem.parameters['C'] = C
 problem.substitutions['J(A,B)'] = "dx(A) * dy(B) - dy(A) * dx(B)"
 
 problem.add_equation("dt(zeta) - beta*dx(psi) + Ra/Pr * dx(theta) + C * sbeta * zeta - dx(dx(zeta)) - dy(dy(zeta)) = -J(psi,zeta)", condition="ny != 0")
-problem.add_equation("dt(theta) - dx(psi) - (dx(dx(theta)) + dy(dy(theta)))/Pr = -J(psi,theta)", condition="ny != 0")
+problem.add_equation("dt(theta) + dx(psi) - (dx(dx(theta)) + dy(dy(theta)))/Pr = -J(psi,theta)", condition="ny != 0")
 problem.add_equation("dx(dx(psi)) + dy(dy(psi)) - zeta = 0", condition="ny != 0")
 problem.add_equation("zeta = 0", condition="ny ==0")
 problem.add_equation("theta = 0", condition="ny ==0")
@@ -75,16 +75,11 @@ snap.add_task("integ(dx(psi)**2, 'x')", name='<y kin en density>_x', scales=1)
 snap.add_task("integ(dy(psi)**2, 'x')", name='<x kin en density>_x', scales=1)
 snap.add_task("integ(zeta, 'x')", name='<vorticity>_x', scales=1)
 
-volumetric = solver.evaluator.add_file_handler('timeseries', sim_dt=1e-4)
-volumetric.add_task("integ(integ(dx(psi)**2 + dy(psi)**2,'x'),'y')", name='E_kin')
-volumetric.add_task("integ(integ(dy(psi)**2,'x'),'y')", name='E_zonal')
-
-
 # Flow properties
 flow = flow_tools.GlobalFlowProperty(solver, cadence=10)
 flow.add_property("dx(psi)**2 + dy(psi)**2", name='Ekin')
 
-dt = 1e-5
+dt = 1e-6
 
 try:
     logger.info('Starting loop')
