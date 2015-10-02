@@ -1,6 +1,6 @@
 """
 2D Busse Annulus
-ref: Rotvig & Jones (JFM, 2006)
+ref: Brummell & Hart (1993) fig 5a
 
 """
 import numpy as np
@@ -14,13 +14,12 @@ import logging
 logger = logging.getLogger(__name__)
 
 # Parameters
-nx, ny = (128, 128) # resolution
+nx, ny = (64, 64) # resolution
 Lx, Ly = (2*np.pi, 1)
 
-Ra_c = 2.979e7 # computed from Brummell & Hart (1993) eq 13
-Ra = 2.75 * Ra_c
+Ra = 32000
 Pr = 1.
-beta = 5e5
+beta = 2800
 C = 0
 
 # Create bases and domain
@@ -65,21 +64,32 @@ pert =  1e-3 * rand.standard_normal(shape) #* (yt - y) * (y - yb)
 theta['g'] = pert
 
 # Integration parameters
-solver.stop_sim_time = 0.1
+solver.stop_sim_time = 50.0
 solver.stop_wall_time = 60 * 60.
 solver.stop_iteration = np.inf
 
 # Analysis
-snap = solver.evaluator.add_file_handler('snapshots', sim_dt=1e-3, max_writes=10000)
-snap.add_task("integ(dx(psi)**2, 'x')", name='<y kin en density>_x', scales=1)
-snap.add_task("integ(dy(psi)**2, 'x')", name='<x kin en density>_x', scales=1)
-snap.add_task("integ(zeta, 'x')", name='<vorticity>_x', scales=1)
+snap = solver.evaluator.add_file_handler('snapshots', sim_dt=1e-2, max_writes=10000)
+snap.add_task("dx(psi)", name="u_y")
+snap.add_task("-dy(psi)", name="u_x")
+snap.add_task("zeta")
+snap.add_task("theta")
+snap.add_task("zeta", name="zeta_kspace", layout='c')
 
+integ = solver.evaluator.add_file_handler('integrals', sim_dt=1e-3, max_writes=10000)
+integ.add_task("integ(dx(psi)**2, 'x')", name='<y kin en density>_x', scales=1)
+integ.add_task("integ(dy(psi)**2, 'x')", name='<x kin en density>_x', scales=1)
+integ.add_task("integ(zeta, 'x')", name='<vorticity>_x', scales=1)
+
+timeseries = solver.evaluator.add_file_handler('timeseries', sim_dt=1e-3)
+timeseries.add_task("integ(integ(dx(psi)**2 + dy(psi)**2,'x'),'y')",name='Ekin')
+timeseries.add_task("integ(integ(dy(psi)**2,'x'),'y')",name='E_zonal')
+timeseries.add_task("2*Ra/Pr * integ(integ(psi*dx(theta),'x'),'y') - 2*integ(integ((dx(dx(zeta)) + dy(dy(zeta)))**2,'x'),'y')", name="dEdt")
 # Flow properties
 flow = flow_tools.GlobalFlowProperty(solver, cadence=10)
 flow.add_property("dx(psi)**2 + dy(psi)**2", name='Ekin')
 
-dt = 1e-6
+dt = 1e-4
 
 try:
     logger.info('Starting loop')
