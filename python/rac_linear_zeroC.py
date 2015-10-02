@@ -17,7 +17,7 @@ import numpy as np
 
 n = 1
 a = np.linspace(0,100,1000)
-beta = 5e5
+beta = 2800 #5e5
 
 k2 = n**2 * np.pi**2 + a**2
 Rac = k2**3/a**2 + beta**2/(4*k2)
@@ -25,8 +25,9 @@ Rac = k2**3/a**2 + beta**2/(4*k2)
 Rac_min = np.min(Rac)
 P.plot(a, Rac, 'k')
 P.axhline(Rac_min,color='k',alpha=0.4)
-P.text(5,0.31e8,r'$\mathrm{Ra_c} = %5.3e$' % Rac_min,fontsize=18)
-P.ylim(0,1e8)
+P.text(5,0.8*Rac_min,r'$\mathrm{Ra_c} = %5.3e$' % Rac_min,fontsize=18)
+P.ylim(0,1e5)
+P.xlim(0,10)
 P.xlabel(r"$\alpha$",fontsize=18)
 P.ylabel(r"$\mathrm{Ra_c}$",fontsize=18)
 P.title(r"$\beta = %7.1f$" % beta,fontsize=20)
