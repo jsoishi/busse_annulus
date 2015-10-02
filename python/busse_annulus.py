@@ -2,7 +2,20 @@
 2D Busse Annulus
 ref: Brummell & Hart (1993) fig 5a
 
+Usage:
+    busse_annulus.py [--Ra=<Ra> --beta=<beta> --C=<C> --Pr=<Pr> --restart=<restart_file> --nx=<nx> --filter=<filter>] 
+
+Options:
+    --Ra=<Ra>      Rayleigh number [default: 39000]
+    --beta=<beta>  beta [default: 2800]
+    --Pr=<Pr>      Prandtl number [default: 1]
+    --C=<C>        C parameter [default: 0]
+    --restart=<restart_file>   Restart from checkpoint
+    --nx=<nx>                  x (Fourier) resolution [default: 128]
+    --filter=<filter>          fraction of modes to keep in ICs [default: 0.5]
 """
+import os
+import sys
 import numpy as np
 from mpi4py import MPI
 import time
@@ -10,17 +23,30 @@ import time
 from dedalus import public as de
 from dedalus.extras import flow_tools
 
+from docopt import docopt
+
+# parse arguments
+args = docopt(__doc__)
+
 import logging
 logger = logging.getLogger(__name__)
 
 # Parameters
-nx, ny = (64, 64) # resolution
+nx = int(args['--nx']) # resolution
+ny = nx
 Lx, Ly = (2*np.pi, 1)
 
-Ra = 32000
-Pr = 1.
-beta = 2800
-C = 0
+Ra = float(args['--Ra'])
+Pr = float(args['--Pr'])
+beta = float(args['--beta'])
+filter_frac = float(args['--filter'])
+C = float(args['--C'])
+
+restart = args['--restart']
+
+# save data in directory named after script
+data_dir = "scratch/" + sys.argv[0].split('.py')[0]
+data_dir += "_ra{0:5.02e}_beta{1:5.02e}_C{2:5.02e}_Pr{3:5.02e}_filter{4:5.02e}_nx{5:d}/".format(Ra, beta, C, Pr, filter_frac,nx)
 
 # Create bases and domain
 start_init_time = time.time()
@@ -50,6 +76,7 @@ problem.add_equation("psi = 0", condition="ny ==0")
 
 # Build solver
 solver = problem.build_solver(de.timesteppers.MCNAB2)
+#solver = problem.build_solver(de.timesteppers.RK222)
 logger.info('Solver built')
 
 # Initial conditions
