@@ -34,7 +34,7 @@ phase_ax.plot(ts['scales/sim_time'][:],ts['tasks/dEdt'][:,0])
 phase_ax.set_xlabel('time')
 phase_ax.set_ylabel('dE/dt')
 
-im = vort_ax.imshow(snapshots['tasks/theta'][0,:,:],extent=[0,2*np.pi,0,1],aspect='auto',cmap='viridis',interpolation='none')
+im = vort_ax.imshow(snapshots['tasks/theta'][-1,:,:].T,extent=[0,2*np.pi,0,1],aspect='auto',cmap='viridis',interpolation='none')
 vort_ax.set_xlabel('x')
 vort_ax.set_ylabel('y')
 fig.colorbar(im,cax=cb_ax,label=r'$T$')
