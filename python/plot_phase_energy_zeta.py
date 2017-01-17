@@ -27,7 +27,8 @@ cb_ax = fig.add_axes([0.88,0.1,0.01,0.4])
 phase_ax = fig.add_axes([0.08,0.6,0.35,0.35])
 ts_ax = fig.add_axes([0.55,0.6,0.35,0.35])
 
-ts_ax.plot(ts['scales/sim_time'][:],ts['tasks/E_zonal'][:,0])
+A = 2*np.pi*1
+ts_ax.plot(ts['scales/sim_time'][:],ts['tasks/E_zonal'][:,0]/A)
 ts_ax.set_xlabel('time')
 ts_ax.set_ylabel('Zonal Kinetic Energy')
 
