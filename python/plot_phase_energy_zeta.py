@@ -5,7 +5,7 @@ Plot phase space, energy, and a snapshot of the vorticity (zeta)
 import os
 import sys
 import matplotlib as mpl
-
+mpl.use('Agg')
 
 import matplotlib.pyplot as plt
 import h5py
