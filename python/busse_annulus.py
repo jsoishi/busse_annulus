@@ -3,18 +3,19 @@
 ref: Brummell & Hart (1993) fig 5a
 
 Usage:
-    busse_annulus.py [--Ra=<Ra> --beta=<beta> --C=<C> --Pr=<Pr> --restart=<restart_file> --nx=<nx> --ny=<ny> --filter=<filter> --seed=<seed> --use-CFL] 
+    busse_annulus.py [--Ra=<Ra> --beta=<beta> --C=<C> --Pr=<Pr> --restart=<restart_file> --nx=<nx> --ny=<ny> --filter=<filter> --seed=<seed> --ICmode=<ICmode> --use-CFL] 
 
 Options:
-    --Ra=<Ra>      Rayleigh number [default: 39000]
-    --beta=<beta>  beta [default: 2800]
-    --Pr=<Pr>      Prandtl number [default: 1]
-    --C=<C>        C parameter [default: 0]
+    --Ra=<Ra>                  Rayleigh number [default: 39000]
+    --beta=<beta>              beta [default: 2800]
+    --Pr=<Pr>                  Prandtl number [default: 1]
+    --C=<C>                    C parameter [default: 0]
     --restart=<restart_file>   Restart from checkpoint
     --nx=<nx>                  x (Fourier) resolution [default: 128]
     --ny=<ny>                  y (Sin/Cos) resolution [default: 128]
     --filter=<filter>          fraction of modes to keep in ICs [default: 0.5]
-    --seed=<seed>  random seed for ICs [default: None]
+    --seed=<seed>              random seed for ICs [default: None]
+    --ICmode=<ICmode>          x mode to initialize [default: None]
     --use-CFL                  use CFL condition
 """
 import os
@@ -53,6 +54,7 @@ C = float(args['--C'])
 
 restart = args['--restart']
 seed = args['--seed']
+ICmode = args['--ICmode']
 CFL = args['--use-CFL']
 
 if seed == 'None':
@@ -60,9 +62,17 @@ if seed == 'None':
 else:
     seed = int(seed)
 
+if ICmode == 'None':
+    ICmode = None
+else:
+    ICmode = int(ICmode)
+
 # save data in directory named after script
 data_dir = "scratch/" + sys.argv[0].split('.py')[0]
 data_dir += "_ra{0:5.02e}_beta{1:5.02e}_C{2:5.02e}_Pr{3:5.02e}_filter{4:5.02e}_nx{5:d}_ny{6:d}".format(Ra, beta, C, Pr, filter_frac,nx,ny)
+
+if ICmode:
+    data_dir += "_ICmode{0:d}".format(ICmode)
 
 if CFL:
     data_dir += "_CFL"
@@ -123,15 +133,19 @@ if restart:
 
     logger.info("Restarting from time t = {0:10.5e}".format(solver.sim_time))
 else:
-    y = domain.grid(1)
     theta = solver.state['theta']
 
-    # Linear background + perturbations damped at walls
-    yb, yt = y_basis.interval
-    shape = domain.local_grid_shape(scales=1)
-    rand = np.random.RandomState(seed)
-    pert =  1e-3 * rand.standard_normal(shape) #* (yt - y) * (y - yb)
-    theta['g'] = pert
+    if ICmode:
+        x = domain.grid(axis=1)
+        y = domain.grid(axis=0)
+        theta['g'] = 1e-3 * np.sin(np.pi*y)*np.sin(ICmode*2*np.pi/Lx*x)
+    else:
+        # Linear background + perturbations damped at walls
+        yb, yt = y_basis.interval
+        shape = domain.local_grid_shape(scales=1)
+        rand = np.random.RandomState(seed)
+        pert =  1e-3 * rand.standard_normal(shape) #* (yt - y) * (y - yb)
+        theta['g'] = pert
 
     if CFL:
         CFL = flow_tools.CFL(solver, initial_dt=1e-4, cadence=5, safety=0.3,
@@ -151,9 +165,9 @@ if checkpointing:
     chk.set_checkpoint(solver,wall_dt=15.,write_num=chk_write, set_num=chk_set)
 
 # Integration parameters
-solver.stop_sim_time = 100.
+solver.stop_sim_time = 2.
 solver.stop_wall_time = 60.*60
-solver.stop_iteration = np.inf
+solver.stop_iteration = 10#np.inf
 
 # Analysis
 analysis_tasks = []
