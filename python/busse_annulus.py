@@ -3,7 +3,7 @@
 ref: Brummell & Hart (1993) fig 5a
 
 Usage:
-    busse_annulus.py [--Ra=<Ra> --beta=<beta> --C=<C> --Pr=<Pr> --restart=<restart_file> --nx=<nx> --ny=<ny> --filter=<filter> --seed=<seed> --ICmode=<ICmode> --use-CFL] 
+    busse_annulus.py [--Ra=<Ra> --beta=<beta> --C=<C> --Pr=<Pr> --restart=<restart_file> --nx=<nx> --ny=<ny> --filter=<filter> --seed=<seed> --ICmode=<ICmode> --stop-time=<stop_time> --use-CFL] 
 
 Options:
     --Ra=<Ra>                  Rayleigh number [default: 39000]
@@ -16,7 +16,9 @@ Options:
     --filter=<filter>          fraction of modes to keep in ICs [default: 0.5]
     --seed=<seed>              random seed for ICs [default: None]
     --ICmode=<ICmode>          x mode to initialize [default: None]
+    --stop-time=<stop_time>    simulation time to stop [default: 2.]
     --use-CFL                  use CFL condition
+
 """
 import os
 import sys
@@ -52,6 +54,7 @@ beta = float(args['--beta'])
 filter_frac = float(args['--filter'])
 C = float(args['--C'])
 
+stop_time = float(args['--stop-time'])
 restart = args['--restart']
 seed = args['--seed']
 ICmode = args['--ICmode']
@@ -98,9 +101,14 @@ problem.parameters['Ra'] = Ra
 problem.parameters['beta'] = beta
 problem.parameters['sbeta'] = np.sqrt(np.abs(beta))
 problem.parameters['C'] = C
+problem.parameters['Lx'] = Lx
+problem.parameters['Ly'] = Ly
 
 # construct the 2D Jacobian
 problem.substitutions['J(A,B)'] = "dx(A) * dy(B) - dy(A) * dx(B)"
+
+problem.substitutions['Avg_x(A)'] = "integ(A,'x')/Lx"
+problem.substitutions['Avg_y(A)'] = "integ(A,'y')/Ly"
 
 problem.add_equation("dt(zeta) - beta*dx(psi) + Ra/Pr * dx(theta) + C * sbeta * zeta - dx(dx(zeta)) - dy(dy(zeta)) = -J(psi,zeta)", condition="ny != 0")
 problem.add_equation("dt(theta) + dx(psi)/Pr - (dx(dx(theta)) + dy(dy(theta)))/Pr = -J(psi,theta)", condition="ny != 0")
@@ -134,17 +142,17 @@ if restart:
     logger.info("Restarting from time t = {0:10.5e}".format(solver.sim_time))
 else:
     theta = solver.state['theta']
+    x = domain.grid(axis=1)
+    y = domain.grid(axis=0)
 
     if ICmode:
-        x = domain.grid(axis=1)
-        y = domain.grid(axis=0)
         theta['g'] = 1e-3 * np.sin(np.pi*y)*np.sin(ICmode*2*np.pi/Lx*x)
     else:
         # Linear background + perturbations damped at walls
         yb, yt = y_basis.interval
         shape = domain.local_grid_shape(scales=1)
         rand = np.random.RandomState(seed)
-        pert =  1e-3 * rand.standard_normal(shape) #* (yt - y) * (y - yb)
+        pert =  1e-3 * rand.standard_normal(shape) * np.sin(np.pi*y) #* (yt - y) * (y - yb)
         theta['g'] = pert
 
     if CFL:
@@ -165,9 +173,9 @@ if checkpointing:
     chk.set_checkpoint(solver,wall_dt=15.,write_num=chk_write, set_num=chk_set)
 
 # Integration parameters
-solver.stop_sim_time = 2.
+solver.stop_sim_time = stop_time
 solver.stop_wall_time = 60.*60
-solver.stop_iteration = 10#np.inf
+solver.stop_iteration = np.inf
 
 # Analysis
 analysis_tasks = []
@@ -177,18 +185,21 @@ snap.add_task("-dy(psi)", name="u_x")
 snap.add_task("zeta")
 snap.add_task("theta")
 snap.add_task("zeta", name="zeta_kspace", layout='c')
+snap.add_task("theta", name="theta_kspace", layout='c')
 analysis_tasks.append(snap)
 
 integ = solver.evaluator.add_file_handler(os.path.join(data_dir,'integrals'), sim_dt=1e-3, max_writes=10000, write_num=integ_count, set_num=integ_set)
-integ.add_task("integ(dx(psi)**2, 'x')", name='<y kin en density>_x', scales=1)
-integ.add_task("integ(dy(psi)**2, 'x')", name='<x kin en density>_x', scales=1)
-integ.add_task("integ(zeta, 'x')", name='<vorticity>_x', scales=1)
+integ.add_task("Avg_x(dx(psi)**2)", name='<y kin en density>_x', scales=1)
+integ.add_task("Avg_x(dy(psi)**2)", name='<x kin en density>_x', scales=1)
+integ.add_task("Avg_x(zeta)", name='<vorticity>_x', scales=1)
+integ.add_task("Avg_x(theta)", name='<theta>_x', scales=1)
 analysis_tasks.append(integ)
 
 timeseries = solver.evaluator.add_file_handler(os.path.join(data_dir,'timeseries'), sim_dt=1e-3, write_num=ts_count, set_num=ts_set)
-timeseries.add_task("0.5*integ(integ(dx(psi)**2 + dy(psi)**2,'x'),'y')",name='Ekin')
-timeseries.add_task("0.5*integ(integ(dy(psi)**2,'x'),'y')",name='E_zonal')
-timeseries.add_task("2*Ra/Pr * integ(integ(psi*dx(theta),'x'),'y') - 2*integ(integ((dx(dx(zeta)) + dy(dy(zeta)))**2,'x'),'y')", name="dEdt")
+timeseries.add_task("Avg_y(Avg_x(dx(psi)**2 + dy(psi)**2))",name='Ekin')
+timeseries.add_task("integ(integ(dy(psi)**2,'x'),'y')/(Lx*Ly)",name='E_zonal')
+timeseries.add_task("Avg_y(Avg_x(dx(psi))**2 + Avg_x(dy(psi))**2)",name='E_zonal2')
+timeseries.add_task("2*Ra/Pr * Avg_y(Avg_x(psi*dx(theta))) - 2*Avg_y(Avg_x((dx(dx(psi)) + dy(dy(psi)))**2))", name="dEdt")
 analysis_tasks.append(timeseries)
 
 # Flow properties
