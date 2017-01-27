@@ -32,8 +32,8 @@ phase_ax = fig.add_axes([0.1,0.6,0.35,0.35])
 ts_ax = fig.add_axes([0.55,0.6,0.35,0.35])
 
 ts_ax.plot(ts['scales/sim_time'][:],2*ts['tasks/E_zonal2'][:,0])
-ts_ax.set_xlim(9,10)
-ts_ax.set_ylim(650,950)
+ts_ax.set_xlim(0.,1.)
+#ts_ax.set_ylim(100,1500)
 ts_ax.set_xlabel('$t$')
 ts_ax.set_ylabel('$E_Z$')
 
@@ -41,9 +41,9 @@ dedt = central_diff(ts['scales/sim_time'][:],2*ts['tasks/E_zonal2'][:,0])
 
 t_trim = ts['scales/sim_time'][1:-1]
 ez = ts['tasks/E_zonal2'][1:-1,0]
-t_select = (t_trim >9)
+t_select = (t_trim >0.5) & (t_trim < 0.7)
 phase_ax.scatter(2*ez[t_select],2*dedt[t_select]/1000)
-phase_ax.set_xlim(750,850)
+#phase_ax.set_xlim(750,850)
 phase_ax.set_xlabel('$E_Z$')
 phase_ax.set_ylabel('$10^{-3}\ dE_Z/dt$')
 phase_ax.get_xaxis().get_major_formatter().set_useOffset(True)
