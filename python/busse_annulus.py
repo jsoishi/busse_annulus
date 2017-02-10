@@ -193,6 +193,7 @@ integ.add_task("Avg_x(dx(psi)**2)", name='<y kin en density>_x', scales=1)
 integ.add_task("Avg_x(dy(psi)**2)", name='<x kin en density>_x', scales=1)
 integ.add_task("Avg_x(zeta)", name='<vorticity>_x', scales=1)
 integ.add_task("Avg_x(theta)", name='<theta>_x', scales=1)
+integ.add_task("Avg_x((theta-Avg_x(theta)) * (zeta - Avg_x(zeta)))", name="<theta_prime zeta_prime>_x",scales=1)
 analysis_tasks.append(integ)
 
 timeseries = solver.evaluator.add_file_handler(os.path.join(data_dir,'timeseries'), sim_dt=1e-3, write_num=ts_count, set_num=ts_set)
