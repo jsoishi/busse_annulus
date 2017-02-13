@@ -161,8 +161,7 @@ solver.stop_iteration = np.inf
 
 # Analysis
 analysis_tasks = []
-#check = solver.evaluator.add_file_handler(os.path.join(data_dir,'checkpoints'), wall_dt=3540, max_writes=50)
-check = solver.evaluator.add_file_handler(os.path.join(data_dir,'checkpoints'), wall_dt=10, max_writes=50)
+check = solver.evaluator.add_file_handler(os.path.join(data_dir,'checkpoints'), wall_dt=3540, max_writes=50)
 check.add_system(solver.state)
 analysis_tasks.append(check)
 
