@@ -20,6 +20,7 @@ Options:
     --use-CFL                  use CFL condition
 
 """
+import glob
 import os
 import sys
 import numpy as np
@@ -31,12 +32,6 @@ from dedalus.extras import flow_tools
 from dedalus.tools  import post
 import logging
 logger = logging.getLogger(__name__)
-
-try:
-    from dedalus.extras.checkpointing import Checkpoint
-except ImportError:
-    checkpointing = False
-    logger.warn("No Checkpointing module.")
 
 from docopt import docopt
 
@@ -80,6 +75,16 @@ if ICmode:
 if CFL:
     data_dir += "_CFL"
 
+if restart:
+    restart_dirs = glob.glob(data_dir+"restart*")
+    if restart_dirs:
+        restart_dirs.sort()
+        last = int(re.search("_restart(\d+)", restart_dirs[-1]).group(1))
+        data_dir += "_restart{}".format(last+1)
+    else:
+        if os.path.exists(data_dir):
+            data_dir += "_restart1"
+
 
 if MPI.COMM_WORLD.rank == 0:
     if not os.path.exists('{:s}/'.format(data_dir)):
@@ -122,24 +127,10 @@ solver = problem.build_solver(de.timesteppers.MCNAB2)
 #solver = problem.build_solver(de.timesteppers.RK222)
 logger.info('Solver built')
 
-# checkpointing
-if checkpointing:
-    chk = Checkpoint(data_dir)
-
 # Initial conditions
-chk_write = chk_set = 1
 if restart:
-    chk_write, chk_set, dt = chk.restart(restart, solver)
-    counts, sets = chk.find_output_counts()
-
-    snap_count  = counts['snapshots']
-    snap_set    = sets['snapshots']
-    integ_count = counts['integrals']
-    integ_set   = sets['integrals']
-    ts_count    = counts['timeseries']
-    ts_set      = sets['timeseries']
-
     logger.info("Restarting from time t = {0:10.5e}".format(solver.sim_time))
+    solver.load_state(restart,-1)
 else:
     theta = solver.state['theta']
     x = domain.grid(axis=1)
@@ -155,22 +146,13 @@ else:
         pert =  1e-3 * rand.standard_normal(shape) * np.sin(np.pi*y) #* (yt - y) * (y - yb)
         theta['g'] = pert
 
-    if CFL:
-        CFL = flow_tools.CFL(solver, initial_dt=1e-4, cadence=5, safety=0.3,
-                             max_change=1.5, min_change=0.5)
-        CFL.add_velocities(('dy(psi)', '-dx(psi)'))
-        dt = CFL.compute_dt()
-    else:
-        dt = 1e-4
-    snap_count  = 1
-    snap_set    = 1
-    integ_count = 1
-    integ_set   = 1
-    ts_count    = 1
-    ts_set      = 1
-
-if checkpointing:
-    chk.set_checkpoint(solver,wall_dt=15.,write_num=chk_write, set_num=chk_set)
+if CFL:
+    CFL = flow_tools.CFL(solver, initial_dt=1e-4, cadence=5, safety=0.3,
+                         max_change=1.5, min_change=0.5)
+    CFL.add_velocities(('dy(psi)', '-dx(psi)'))
+    dt = CFL.compute_dt()
+else:
+    dt = 1e-4
 
 # Integration parameters
 solver.stop_sim_time = stop_time
@@ -179,7 +161,12 @@ solver.stop_iteration = np.inf
 
 # Analysis
 analysis_tasks = []
-snap = solver.evaluator.add_file_handler(os.path.join(data_dir,'snapshots'), sim_dt=1e-2, max_writes=10000, write_num=snap_count, set_num=snap_set)
+#check = solver.evaluator.add_file_handler(os.path.join(data_dir,'checkpoints'), wall_dt=3540, max_writes=50)
+check = solver.evaluator.add_file_handler(os.path.join(data_dir,'checkpoints'), wall_dt=10, max_writes=50)
+check.add_system(solver.state)
+analysis_tasks.append(check)
+
+snap = solver.evaluator.add_file_handler(os.path.join(data_dir,'snapshots'), sim_dt=1e-2, max_writes=200)
 snap.add_task("dx(psi)", name="u_y")
 snap.add_task("-dy(psi)", name="u_x")
 snap.add_task("zeta")
@@ -188,7 +175,7 @@ snap.add_task("zeta", name="zeta_kspace", layout='c')
 snap.add_task("theta", name="theta_kspace", layout='c')
 analysis_tasks.append(snap)
 
-integ = solver.evaluator.add_file_handler(os.path.join(data_dir,'integrals'), sim_dt=1e-3, max_writes=10000, write_num=integ_count, set_num=integ_set)
+integ = solver.evaluator.add_file_handler(os.path.join(data_dir,'integrals'), sim_dt=1e-3, max_writes=200)
 integ.add_task("Avg_x(dx(psi)**2)", name='<y kin en density>_x', scales=1)
 integ.add_task("Avg_x(dy(psi)**2)", name='<x kin en density>_x', scales=1)
 integ.add_task("Avg_x(zeta)", name='<vorticity>_x', scales=1)
@@ -196,7 +183,7 @@ integ.add_task("Avg_x(theta)", name='<theta>_x', scales=1)
 integ.add_task("Avg_x((theta-Avg_x(theta)) * (zeta - Avg_x(zeta)))", name="<theta_prime zeta_prime>_x",scales=1)
 analysis_tasks.append(integ)
 
-timeseries = solver.evaluator.add_file_handler(os.path.join(data_dir,'timeseries'), sim_dt=1e-3, write_num=ts_count, set_num=ts_set)
+timeseries = solver.evaluator.add_file_handler(os.path.join(data_dir,'timeseries'), sim_dt=1e-3)
 timeseries.add_task("Avg_y(Avg_x(dx(psi)**2 + dy(psi)**2))",name='Ekin')
 timeseries.add_task("integ(integ(dy(psi)**2,'x'),'y')/(Lx*Ly)",name='E_zonal')
 timeseries.add_task("Avg_y(Avg_x(dx(psi))**2 + Avg_x(dy(psi))**2)",name='E_zonal2')
@@ -229,10 +216,6 @@ finally:
 
 
 logger.info('beginning join operation')
-if checkpointing:
-    logger.info(data_dir+'/checkpoint/')
-    post.merge_analysis(data_dir+'/checkpoint/')
-
 for task in analysis_tasks:
     logger.info(task.base_path)
     post.merge_analysis(task.base_path)
