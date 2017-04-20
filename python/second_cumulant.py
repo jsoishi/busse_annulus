@@ -14,7 +14,7 @@ def domain_from_file(filename,basis_types,dealias=3/2):
         testkey = next(iter(dfile['tasks']))
         testdata = dfile['tasks'][testkey]
         dims = testdata.shape[1:] # trim write dimension
-        dim_names = [i.decode('utf-8') for i in testdata.attrs['DIMENSION_LABELS'][1:]] #decode dimension labels
+        dim_names = [i.decode('utf-8') for i in testdata.attrs['DIMENSION_LABELS'][1:]]
         if not testdata.attrs['grid_space'][-1]:
             dims[-1] *= 2
         bases = []
@@ -28,7 +28,7 @@ def domain_from_file(filename,basis_types,dealias=3/2):
             bases.append(basis)
         d = de.Domain(bases,grid_dtype=np.float64) # hardcoded domain dtype for now
         return d
-        
+
 def fields_from_file(filename,basis_types,field,meta=None,index=-1):
     domain = domain_from_file(filename, basis_types)
     with h5py.File(filename,'r') as dfile:
@@ -51,10 +51,10 @@ def second_cumulant(y, field1,field2=None):
     """
     if field2 is None:
         field2 = field1
-
+    
     yarr = field1.domain.get_basis_object('y').grid()
     idx = (np.abs(yarr - y)).argmin()
-
+    
     x_basis = copy.deepcopy(field1.domain.get_basis_object('x'))
     y_basis = copy.deepcopy(field1.domain.get_basis_object('y'))
     xprime_basis = copy.deepcopy(field1.domain.get_basis_object('x'))
@@ -65,8 +65,8 @@ def second_cumulant(y, field1,field2=None):
     sc_raw.meta['y']['parity'] = field1.meta['y']['parity']*field2.meta['y']['parity']
     sc_raw['g'] = np.einsum('i,jk->jik',field1['g'][idx,:], field2['g'])
     sc = sc_raw.integrate('xprime')
-    sc.set_scales('1') 
-
+    sc.set_scales('1')
+    
     return sc
 
 if __name__ == "__main__":
