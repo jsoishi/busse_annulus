@@ -69,12 +69,19 @@ def fields_from_file(filename,basis_types,field,meta=None,index=-1):
         f[layout] = dset[(index,) + (slice(None),slice(None))]
     return f
 
-def second_cumulant(y, field1,field2=None):
+def second_cumulant(y, field1,field2=None,layout='yx'):
     """function to calcluate the second cumulant of data. y is the y
     component of the r1 vector.
     """
     if field2 is None:
         field2 = field1
+
+    if layout == 'yx':
+        yx = True
+    elif layout == 'xy':
+        yx = False
+    else:
+        raise ValueError("Layout must be one of 'yx' or 'xy'.")
     
     yarr = field1.domain.get_basis_object('y').grid()
     idx = (np.abs(yarr - y)).argmin()
@@ -85,12 +92,18 @@ def second_cumulant(y, field1,field2=None):
     y_basis = type(yb_old)(yb_old.name,yb_old.base_grid_size,yb_old.interval,yb_old.dealias)
     xprime_basis = type(xb_old)('xprime',xb_old.base_grid_size,xb_old.interval,xb_old.dealias)
     grid_dtype = field1['g'].dtype
-    new_domain = de.Domain([y_basis,x_basis,xprime_basis],grid_dtype=grid_dtype)
+    if yx:
+        new_domain = de.Domain([y_basis,x_basis,xprime_basis],grid_dtype=grid_dtype)
+    else:
+        new_domain = de.Domain([xprime_basis,x_basis,y_basis],grid_dtype=grid_dtype)
     sc_raw = new_domain.new_field()
     if 'parity' in field1.meta['y'].keys():
         sc_raw.meta['y']['parity'] = field1.meta['y']['parity']*field2.meta['y']['parity']
-    
-    sc_raw['g'] = np.einsum('i,jk->jik',field1['g'][idx,:], field2['g'])
+
+    if yx:
+        sc_raw['g'] = np.einsum('i,jk->jki',field1['g'][idx,:], field2['g'])
+    else:
+        sc_raw['g'] = np.einsum('i,jk->ijk',field1['g'][:,idx],field2['g'])
     sc = sc_raw.integrate('xprime')
     sc.set_scales('1')
     
