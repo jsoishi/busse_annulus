@@ -21,7 +21,17 @@ def limits_from_grid(basis_type,grid):
         right_edge = grid[-1] + delta/2.
     elif basis_type == 'Chebyshev':
         # Use Gauss points
-        raise NotImplementedError("Chebyshev limits not yet supported")
+        grid_size = len(grid)
+        i = np.arange(grid_size)
+        theta = pi * (i + 1/2) / grid_size
+        native_grid = -np.cos(theta)
+        problem_coord = grid
+
+        xr = native_grid[0]/native_grid[1]
+        c = (problem_coord[0] - problem_coord[0]*xr)/(1. - xr)
+        r = (problem_coord[1] - c)/native_grid[1]
+        left_edge = c - r
+        right_edge = 2*c - a
     else:
         raise ValueError("Unknown basis type:", basis_type)
     
