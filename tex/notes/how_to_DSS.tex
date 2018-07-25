@@ -1,0 +1,100 @@
+\documentclass{paper}
+\usepackage{physics}
+\usepackage{hyperref}
+\newcommand*{\reynolds}[1]{\mean{#1} + #1'}
+\newcommand*{\mean}[1]{\overline{#1}}
+\newcommand{\cz}{c_\zeta}
+\newcommand{\czz}{c_{\zeta\zeta}}
+\newcommand{\czzz}{c_{\zeta\zeta\zeta}}
+
+\newcommand{\czp}{c_{\zeta\psi}}
+
+% position vectors: \rr1 will give r_1, \rr2 gives r_2, etc.
+\newcommand{\rr}[1]{\vb{r_{#1}}}
+
+% expanding Jacobians. Optional first argument gives subscript for derivatives.
+\newcommand{\Jac}[3][]{\pdv{#2}{x_{#1}}\pdv{#3}{y_{#1}} - \pdv{#2}{y_{#1}}\pdv{#3}{x_{#1}}}
+\title{How to DSS}
+
+\begin{document}
+\maketitle
+
+\section{Preliminaries}
+\label{sec:preliminaries}
+
+Let's start with the canonical DSS example, the formation of jets on a stochastically forced, 2D $\beta$ plane.
+
+The equations of motion are
+
+\begin{equation}
+  \label{eq:zeta_eom}
+  \pdv{\zeta}{t} + J(\psi, \zeta) + \beta \pdv{\psi}{x} = -\kappa \zeta + \nu \laplacian{\zeta} + \eta
+\end{equation}
+%
+\begin{equation}
+  \label{eq:zeta_def}
+  \zeta = \laplacian{\psi},
+\end{equation}
+where $\eta$ is some kind of forcing function. The first step is to perform a Reynolds decomposition, $\zeta = \mean{\zeta} + \zeta'$ and $\psi = \mean{\psi} + \psi'$.
+
+\subsection{Averages and Reynolds Rules}
+\label{sec:averages}
+
+There are lots of averages one can use, but we will simply use the \emph{zonal average}. Regardless, the only thing we require is that the averaging proceedure respect the Reynolds Rules. A really good exposition on them is \href{https://kiwi.atmos.colostate.edu/group/dave/pdf/Reynolds_Averaging.pdf}{here}. For now, let's just write down the most important ones:
+\begin{equation}
+  \label{eq:reyn_1}
+  \mean{\mean{f} g} = \mean{f}\mean{g}
+\end{equation}
+\begin{equation}
+  \label{eq:reyn_2}
+  \mean{f'} = 0
+\end{equation}
+\begin{equation}
+  \label{eq:reyn_3}
+  \mean{f + g} = \mean{f} + \mean{g}
+\end{equation}
+
+We substitute our Reynolds decomposition into equation~(\ref{eq:zeta_eom}),
+\begin{equation}
+  \label{eq:zeta_eom_expanded}
+  \pdv{(\reynolds{\zeta})}{t} + J(\reynolds{\psi}, \reynolds{\zeta}) + \beta \pdv{(\reynolds{\psi})}{x} = -\kappa (\reynolds{\zeta}) + \nu \laplacian{(\reynolds{\zeta})} + \eta,
+\end{equation}
+and then take the average of the entirety of equation~(\ref{eq:zeta_eom_expanded}). This gives us an equation for the average, which is also the \emph{first cumulant}. The important thing to note is what happens to the non-linear term, $J(\reynolds{\psi}, \reynolds{\zeta})$, when we average it. You can convince yourself quite quickly that $J(\reynolds{\psi}, \reynolds{\zeta}) = J(\mean{\psi}, \mean{\zeta}) + J(\psi', \zeta') + J(\psi', \mean{\zeta}) + J(\mean{\psi}, \zeta')$. By Reynolds rules, the seond two are both zero under averaging.
+
+Furthermore, $\mean{J(\mean{\psi}, \mean{\zeta})} = 0$, if we are using zonal averaging, because by definition of a zonal average, $\pdv*{\mean{f}}{x} = 0$. This leaves only $\mean{J(\psi', \zeta')}$,
+% 
+\begin{equation}
+  \label{eq:zeta_first_c}
+  \pdv{\mean{\zeta}}{t} + \mean{J(\psi', \zeta')}  = -\kappa (\mean{\zeta}) + \nu \laplacian{(\mean{\zeta})},
+\end{equation}
+because $\mean{\eta} = 0$ by definition of the forcing.
+
+Our goal is to derive a set of equations for the cumulants $\cz$, $\czz$, $\ldots$ solely in terms of one another. The first cumulant $\cz = \mean{\zeta}$, so our first task is to get $\mean{J(\psi', \zeta')}$ in terms of other cumulants.
+
+The second cumulant $\czz = \mean{\zeta' \zeta'} = \mean{\zeta'(x_1, y_1)} \mean{\zeta'(x_2, y_2)}$ defines a two-point correlation function of the \emph{fluctuations}. Be careful about the notation; the subscripts on $c$ are not written with the $'$! Because there are two sets of coordinates, we need to be careful about our derivatives. We can define $J_1$ and $J_2$ to mean Jacobians with derivatives on the first or second set of coordinates, respectively.
+
+Turning back to equation~(\ref{eq:zeta_first_c}), we note that this term involves the two variables $\zeta'(x_1, y_1)$ and $\psi(x_1, y_1)$ \emph{at the same point!} For convenience, let's define position vectors $\rr1 = (x_1, y_1)$ and similarly for $\rr2$. In order to transform this into something involving $\czz$ and $\czp$, we need to first move one variable to the other coordinate. We do this by invoking Dirac $\delta$ functions,
+
+\begin{equation}
+  \label{eq:var_change}
+  \psi'(\rr2) = \int \psi'(\rr1) \delta(\rr1 - \rr2) \dd{\rr1}.
+\end{equation}
+It's important to note that $\delta(x)$ is symmetric about zero, so equation~(\ref{eq:var_change}) is the same when you exchange $\rr1$ and $\rr2$.
+
+So, let's now explicitly include spatial dependencies,
+\begin{equation}
+  \label{eq:expanded_J1}
+  \mean{J_1(\zeta'(\rr1), \psi'(\rr1))} = \Jac[1]{\zeta'(\rr1)}{\psi'(\rr1)}.
+\end{equation}
+Now, we substitute $\psi'(\rr1)$ using equation~(\ref{eq:var_change}),
+\begin{equation}
+  \label{eq:expanded_J1_int}
+    \mean{J_1(\zeta'(\rr1), \psi'(\rr1))} = \Jac[1]{\zeta'(\rr1)}{\int \psi'(\rr2) \delta(\rr1 - \rr2) \dd \rr2}.
+\end{equation}
+
+\section{Cumulants and Centered Moments}
+\label{sec:cumul-cent-moments}
+
+Here, put the results from pages 2-4 of handwritten notes dated 18 Apr 2018.
+\end{document}
+
