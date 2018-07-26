@@ -1,13 +1,16 @@
+
 \documentclass{paper}
 \usepackage{physics}
 \usepackage{hyperref}
 \newcommand*{\reynolds}[1]{\mean{#1} + #1'}
 \newcommand*{\mean}[1]{\overline{#1}}
+\newcommand*{\zonal}[1]{\frac{1}{L_x} \int_0^{L_x} #1 \dd x_1}
 \newcommand{\cz}{c_\zeta}
 \newcommand{\czz}{c_{\zeta\zeta}}
 \newcommand{\czzz}{c_{\zeta\zeta\zeta}}
 
 \newcommand{\czp}{c_{\zeta\psi}}
+\newcommand{\cpz}{c_{\psi\zeta}}
 
 % position vectors: \rr1 will give r_1, \rr2 gives r_2, etc.
 \newcommand{\rr}[1]{\vb{r_{#1}}}
@@ -54,6 +57,23 @@ There are lots of averages one can use, but we will simply use the \emph{zonal a
   \mean{f + g} = \mean{f} + \mean{g}
 \end{equation}
 
+There are two important types of averages we will use. The simplest conceptually, and perhaps the most ``realistic'' is the \emph{ensemble} average,
+\begin{equation}
+  \label{eq:ensemble_average}
+  \mean{f(\rr1)} = \frac{1}{N} \sum_i f_i(\rr1),\  i \in \{1 \ldots N\},
+\end{equation}
+where $f_i(\rr1)$ is the quantity on the $i$-th trial. We assume the experiment has been performed $N$ times, and we average over all trials. This means that $\mean{f}$ has the same dimensions as each $f_i$. In practice, this is time consuming and difficult. For DSS, it has the problem that the dimensionality grows quickly, as we will see.
+
+The second important average is the \emph{zonal} average, in which we assume one dimension (conventionally $x$) is periodic, that is, it's a representation of the azimuthal angle on a sphere at a given latitude,
+\begin{equation}
+  \label{eq:zonal_average}
+  \mean{f}(y_1) = \zonal{f(x_1, y_1)}. 
+\end{equation}
+Note that now $\mean{f}$ has lower dimension than $f(\rr1)$ did. It is only a function of $y_1$, since we integrated over $x_1$.
+
+\section{First Cumulant Equation of Motion}
+\label{sec:first-cumul-equat}
+
 We substitute our Reynolds decomposition into equation~(\ref{eq:zeta_eom}),
 \begin{equation}
   \label{eq:zeta_eom_expanded}
@@ -81,6 +101,8 @@ Turning back to equation~(\ref{eq:zeta_first_c}), we note that this term involve
 \end{equation}
 It's important to note that $\delta(x)$ is symmetric about zero, so equation~(\ref{eq:var_change}) is the same when you exchange $\rr1$ and $\rr2$.
 
+\textbf{CHANGE THIS TO REFLECT SIGNS IN 2013 PRL: make $\zeta'$, not $\phi'$ switch to $\rr2$...}
+
 So, let's now explicitly include spatial dependencies,
 \begin{equation}
   \label{eq:expanded_J1}
@@ -89,9 +111,98 @@ So, let's now explicitly include spatial dependencies,
 Now, we substitute $\psi'(\rr1)$ using equation~(\ref{eq:var_change}),
 \begin{equation}
   \label{eq:expanded_J1_int}
-    \mean{J_1(\zeta'(\rr1), \psi'(\rr1))} = \Jac[1]{\zeta'(\rr1)}{\int \psi'(\rr2) \delta(\rr1 - \rr2) \dd \rr2}.
+  = \mean{\Jac[1]{\zeta'(\rr1)}{\int \psi'(\rr2) \delta(\rr1 - \rr2) \dd \rr2}}.
+\end{equation}
+Next, we swap the order of the integral,
+\begin{equation}
+  \label{eq:expanded_J1_int_swap}
+  = \mean{\int{\Jac[1]{\zeta'(\rr1)}{(\psi'(\rr2) \delta(\rr1 - \rr2)) }\dd \rr2}},
+\end{equation}
+and notice that $\psi'(\rr2)$ does not depend on $\rr1$, so it can be pulled out of second argument of the Jacobian and put in the first one.
+\begin{equation}
+  \label{eq:expanded_J1_int_combined}
+  \begin{split}
+  & = \mean{\int{\Jac[1]{(\zeta'(\rr1)\psi'(\rr2))}{\delta(\rr1 - \rr2) }\dd \rr2}}\\
+  & = \mean{J_1(\zeta'(\rr1)\psi'(\rr2),\delta(\rr1 - \rr2))}.
+\end{split}
+\end{equation}
+We're almost there, but we have the mean of the Jacobian, and we want the Jacobian of the mean of $\zeta'(\rr1)\psi'(\rr2)$ (which is $\czp$).
+
+
+The fact that we can swap means and derivatives is obvious for ensemble averages (since only $\zeta'$ and $\psi'$ depend on the trial number, but $\delta(\rr1 - \rr2)$ does not). For zonal averages it is much trickier, because now we're integrating over $x_1$ and $\delta(\rr1-\rr2) = \delta(x_1 - x_2) \delta(y_1 - y_2)$ clearly depends on $x_1$.
+
+\textbf{The following argument is very ugly, and I'm not 100\% sure it's right.}
+Zonal averaging of two quantities is a bit tricky, because we want to preserve non-locality. This means that we \emph{don't} do
+\begin{equation}
+  \label{eq:zonal-wrong}
+  \mean{fg}(y) = \frac{1}{L_x} \int_0^{L_x} f(x, y) g(x, y) \dd{x},
+\end{equation}
+but instead do
+\begin{equation}
+  \label{eq:zonal-right}
+  \mean{fg}(\xi, y_1, y_2) = \frac{1}{L_x} \int_0^{L_x} f(x_1, y_1) g(x_1 - \xi, y_2) \dd{x_1},
+\end{equation}
+where $\xi = x_1 - x_2$ is the difference coordinate in $x$. Be careful! It's very easy to think of keeping complete non-locality, that is, $f(x_1, y_1)$ and $g(x_2, y_2)$ when doing a zonal average, but that doesn't quite make sense:
+\begin{equation}
+  \label{eq:zonal-not-right}
+  \mean{fg}(x_2, y_1, y_2) = \frac{1}{L_x} \int_0^{L_x} f(x_1, y_1) g(x_2, y_2) \dd{x_1},
+\end{equation}
+becuase now you could just pull $g(x_2, y_2)$ out of the integral since it doesn't depend on $x_1$! This is clearly not what we want.
+
+With that in mind, we can clearly define $\czp$,
+\begin{equation}
+  \label{eq:czp_def}
+  \czp(\xi, y_1, y_2) = \zonal{\zeta'(x_1, y_1) \psi'(x_1 - \xi, y_2)}.
+\end{equation}
+Given this, let's pick up from equation~(\ref{eq:expanded_J1_int_combined}), using $\xi$ strategically,
+\begin{equation}
+  \label{eq:}
+  \mean{\int{\Jac[1]{(\zeta'(x_1, y_1)\psi'(x_1- \xi))}{\delta(\xi, y_1- y_2) }\dd \rr2}},
+\end{equation}
+we can now commit to the zonal average,
+\begin{equation}
+  \label{eq:}
+  \zonal{\int{\Jac[1]{(\zeta'(x_1, y_1)\psi'(x_1- \xi))}{\delta(\xi, y_1- y_2) }\dd \rr2}},
+\end{equation}
+and after swapping the order of integration, we can easily see that the term involving $\delta(\xi, y_1 - y_2)$ can be pulled out of the integral over $x_1$. Focusing on the second term, we must make a sly substitution: $\pdv*{\delta(\xi, y_1 - y_2)}{x_1} = \pdv*{\delta(\xi, y_1 - y_2)}{\xi}$, and this is in turn independent of $x_1$.  Thus we can write
+\begin{equation}
+  \label{eq:zonal_hack}
+  \begin{split}
+     \frac{1}{L_x} \int \dd{\rr2} & \left[\pdv{\delta(\xi, y_1 - y_2)}{y_1} \int_0^{L_x} \pdv{\zeta'(x_1, y_1)\psi'(x_1- \xi)}{x_1} \dd{x_1} \right.\\
+      - &\left. \pdv{\delta(\xi, y_1 - y_2)}{\xi} \int_0^{L_x} \pdv{\zeta'(x_1, y_1)\psi'(x_1- \xi)}{y_1} \dd{x_1} \right].    
+  \end{split}
+\end{equation}
+Changing $\pdv*{\delta(\xi, y_1 - y_2)}{\xi}$ back into a derivative in $x_1$ and invoking the Reynolds rule that says $\mean{\pdv*{f}{x}} = \pdv*{\mean{f}}{x}$, we arrive at our final result,
+\begin{equation}
+  \label{eq:zonal_hack_2}
+  \begin{split}
+    \int \dd{\rr2} & \left[\pdv{\delta(\xi, y_1 - y_2)}{y_1} \pdv{\mean{\zeta'(x_1, y_1)\psi'(x_1- \xi)}}{x_1} \right.\\
+    - & \left.\pdv{\delta(\xi, y_1 - y_2)}{x_1} \pdv{\mean{\zeta'(x_1, y_1)\psi'(x_1- \xi)}}{y_1} \dd{x_1}\right]\\
+     = &\int \dd{\rr2} J_1(\czp, \delta(\rr1 - \rr2)).
+  \end{split}
 \end{equation}
 
+\textbf{From here, I've assumed we have $\zeta'$ at $\rr2$.}
+
+The next step is rather simple. Given the definition of $\xi$, we can construct differentials $\dd{\xi} = -\dd{x_2} = \dd{x_1}$, and we'll deploy them in expanding the integral over $\rr2$. Noting that $\dd{\rr2} = \dd{x_2}\dd{y_2}$,
+\begin{equation}
+  \label{eq:expand_int_rr2}
+  - \int \dd{\xi} \dd{y_2} \left[ \delta(y_1 - y_2)\pdv{\delta(\xi)}{\xi} \pdv{\cpz}{y_1} - \pdv{\cpz}{\xi} \delta(\xi)\pdv{\delta(y_1 - y_2)}{y_1}\right].
+\end{equation}
+We use two property of Dirac delta functions. First, $\pdv*{\delta(y_1 - y_2)}{y_1} = -\pdv*{\delta(y_1 - y_2)}{y_2}$. Second, the defining property of a derivative of a delta function is
+\begin{equation}
+  \label{eq:dirac_derivative}
+  \int f(x) \dv{\delta(x)}{x} \dd{x} = \int \dv{f(x)}{x} \delta(x) \dd{x}.
+\end{equation}
+Combining these with equation~(\ref{eq:expand_int_rr2}),
+\begin{equation}
+  \label{eq:expand_int_rr2_dirac}
+  \begin{split}
+    & - \int \dd{\xi} \dd{y_2} \left[ \delta(\xi)\delta(y_1 - y_2)\pdv{\cpz}{\xi}{y_1} + \delta(\xi)\delta(y_1 - y_2)\pdv{\cpz}{\xi}{y_2}\right]\\
+    = & -\eval{\qty(\pdv{y_1} + \pdv{y_2}) \pdv{\cpz}{\xi}}_{y_1 \to y_2}^{\xi \to 0}.    
+  \end{split}
+\end{equation}
+Finally, we have the mean Jacobian in terms of a higher order moment.
 \section{Cumulants and Centered Moments}
 \label{sec:cumul-cent-moments}
 
