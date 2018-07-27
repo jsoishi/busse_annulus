@@ -199,10 +199,69 @@ Combining these with equation~(\ref{eq:expand_int_rr2}),
   \label{eq:expand_int_rr2_dirac}
   \begin{split}
     & - \int \dd{\xi} \dd{y_2} \left[ \delta(\xi)\delta(y_1 - y_2)\pdv{\cpz}{\xi}{y_1} + \delta(\xi)\delta(y_1 - y_2)\pdv{\cpz}{\xi}{y_2}\right]\\
-    = & -\eval{\qty(\pdv{y_1} + \pdv{y_2}) \pdv{\cpz}{\xi}}_{y_1 \to y_2}^{\xi \to 0}.    
+    = & -\eval{\qty(\pdv{y_1} + \pdv{y_2}) \pdv{\cpz}{\xi}}_{y_1 \to y_2}^{\xi \to 0},
   \end{split}
 \end{equation}
-Finally, we have the mean Jacobian in terms of a higher order moment.
+where the $\cz \to 0$ and $y_1 \to y_2$ are simply the consequences of integration against the delta functions.
+
+Finally, we have the mean Jacobian in terms of a higher order moment,
+\begin{equation}
+  \label{eq:first_cumulant_EOM}
+  \pdv{\cz}{t} = -\eval{\qty(\pdv{y_1} + \pdv{y_2}) \pdv{\cpz}{\xi}}_{y_1 \to y_2}^{\xi \to 0} - \kappa \cz + \nu \laplacian{\cz}.
+\end{equation}
+The most important part of this equation is the fact that non-trivial $\cpz$ can come into equilibrium with the dissipation and friction terms, leading to non-zero mean vorticity.
+
+\section{Second Cumulant Equation of Motion}
+\label{sec:second-cumul-equat}
+At the end of the previous section, we derived an equation for the first cumulant $\cz$ in terms of the second cumulant, $\cpz$. We now need an equation for this second cumulant. We expect that this equation will contain yet a higher order cumulant, and we will eventually need to find some way of ``closing'' the set of equations: finding a way to stop the increase of order.
+
+What we need is $\cpz$ for equation~(\ref{eq:first_cumulant_EOM}), but it is much more straight forward to construct an eqeuation for $\czz$. Luckily, because $\cpz = \laplacian_1{\czz}$, this isn't a problem.
+
+Returing to equation~(\ref{eq:zeta_eom_expanded}), we want to manipulate it into an equation for $\czz$. To do this, we first invoke the chain rule,
+\begin{equation}
+  \label{eq:chain_rule}
+  \pdv*{\mean{\zeta' \zeta'}}{t} = 2\zeta'\pdv*{\zeta'}{t}
+\end{equation}
+
+
+Now, we take equation~(\ref{eq:zeta_eom_expanded}), move the first cumulant time derivative to the right hand side, multiply by $\zeta'$ and average,
+\begin{equation}
+  \label{eq:2c_eom_start}
+  \mean{\zeta' \pdv{\zeta'}{t}} = \mean{-\zeta' \pdv{\mean{\zeta}}{t} - \zeta' J(\reynolds{\psi}, \reynolds{\zeta}) - \zeta' \beta \pdv{\reynolds{\psi}}{x} - \kappa \zeta' \qty(\reynolds{\zeta}) + \kappa \zeta' \laplacian{\qty(\reynolds{\zeta})} + \zeta' \eta}.
+\end{equation}
+All terms proportional to a fluctuation times a mean vanish under another mean, so we drop the first, third, fifth, and seventh terms (counting the Jacobian as a single term for now).
+
+Using equation~(\ref{eq:chain_rule}), we arrive at
+\begin{equation}
+  \label{eq:2c_eom_jacobian}
+  \pdv{\mean{\zeta' \zeta'}}{t} = 2 \qty[\mean{-\zeta' J(\reynolds{\psi}, \reynolds{\zeta})} - \beta \mean{\zeta' \pdv{\psi'}{x}} - \kappa \mean{\zeta' \zeta'} + \nu \mean{\zeta' \laplacian{\zeta'}} + \mean{\zeta' \eta}].
+\end{equation}
+There are two main operations we need to do: delocalization and symmetrization. Delocalization refers to the process of expanding part of each quadratic term into $\rr2$. By delocalizing just the time derivative term, we can see what it will do, and what form it forces the rest of the terms to take. Using equation~(\ref{eq:var_change}),
+
+\begin{equation}
+  \label{eq:deloaclized_dt}
+  \begin{split}
+    \pdv{\mean{\zeta'(\rr1) \zeta'(\rr1)}}{t} &= \pdv{t} \qty(\mean{\zeta'(\rr1) \int \zeta'(\rr2) \delta(\rr1 - \rr2) \dd{\rr2}})\\
+    & = -\pdv{t} \qty(\mean{\int \zeta'(x_1, y_1) \zeta'(x_1 - \xi, y_2) \delta(\xi) \delta(y_1 - y_2) \dd{\xi} \dd{y_2}})\\
+    & = -\int \pdv{\czz}{t} \delta(\xi) \delta(y_1 - y_2) \dd{\xi} \dd{y_2}.
+  \end{split}
+\end{equation}
+The key point to the last step is that under a zonal average, we can swap order of integration and remove the delta functions from the inner averaging integral. Thus, we need all terms on the right hand side to be of the form
+\begin{equation}
+  \label{eq:2c_form}
+  \int Q \delta(\xi) \delta(y_1 - y_2) \dd{\xi} \dd{y_2},
+\end{equation}
+where $Q$ is a given zonally averaged quantity.
+
+Let's turn to the Jacobian, 
+
+
+Here, things are a bit more complicated in all terms, not just the Jacobian, because we must symmetrize all terms that are quadratic in fluctuations. ``Symmetrization'' here refers to making sure that the overall terms are symmetric under swapping of $\rr1$ and $\rr2$, which we do in a simple way, using curly braces to denote the operator
+\begin{equation}
+  \label{eq:symmetrization}
+  \qty{c(\rr1, \rr2)} = \frac{1}{2} \qty(c(\rr1, \rr2) + c(\rr2, \rr1)).
+\end{equation}
+
 \section{Cumulants and Centered Moments}
 \label{sec:cumul-cent-moments}
 
