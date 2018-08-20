@@ -1,4 +1,4 @@
-"""Pointjet simulation script."""
+"""Busse Annulus CE2 script."""
 
 import numpy as np
 np.seterr(all='raise')
@@ -14,32 +14,27 @@ de.operators.parseables['Diag'] = Diag = diagonal.FourierDiagonal
 import logging
 logger = logging.getLogger(__name__)
 
-
 # Bases and domain
 x_basis = de.Fourier('x', param.Nx, [-param.Lx/2, param.Lx/2], dealias=3/2)
-y0_basis = de.Fourier('y0', param.Ny, [-param.Ly/2, param.Ly/2], dealias=3/2)
-y1_basis = de.Fourier('y1', param.Ny, [-param.Ly/2, param.Ly/2], dealias=3/2)
+y0_basis = de.SinCos('y0', param.Ny, [-param.Ly/2, param.Ly/2], dealias=3/2)
+y1_basis = de.SinCos('y1', param.Ny, [-param.Ly/2, param.Ly/2], dealias=3/2)
 domain = de.Domain([x_basis, y0_basis, y1_basis], grid_dtype=np.float64, mesh=param.mesh)
 
-# Reference jet
-cz_ref = domain.new_field()
-cz_ref.meta['x']['constant'] = True
-x, y0, y1 = domain.grids()
-# Build as 1D function of y0
-cz_ref['g'] = -param.ref_amp * np.cos(y0*np.pi/param.Ly)**2 * np.tanh(y0/param.ref_width)
-# Diagonalize
-cz_ref = Diag(cz_ref, 'y0', 'y1').evaluate()
-
 # Problem
-problem = de.IVP(domain, variables=['cs','css'])
+problem = de.IVP(domain, variables=['cs','css', 'ct', 'cts'])
 problem.meta['cs']['x']['constant'] = True
+problem.meta['ct']['x']['constant'] = True
 problem.parameters['Lx'] = param.Lx
 problem.parameters['Ly'] = param.Ly
 problem.parameters['β'] = param.beta
-problem.parameters['κ'] = param.kappa
-problem.parameters['ν'] = param.nu
-problem.parameters['cz_ref'] = cz_ref
+problem.parameters['κ'] = param.C*np.sqrt(np.abs(param.beta))
+problem.parameters['Pr'] = param.Pr
+problem.parameters['Ra'] = param.Ra
 problem.substitutions['D(A)'] = "Diag(interp(A, x=0), 'y0', 'y1')"
+
+# NOT IMPLEMENTED YET
+problem.substitutions['T(A)'] = "Transpose(A)"
+
 problem.substitutions['P0(A)'] = "interp(A, y1='left')"
 problem.substitutions['P1(A)'] = "interp(A, y0='left')"
 problem.substitutions['L0(A)'] = "dx(dx(A)) + dy0(dy0(A))"
@@ -48,21 +43,38 @@ problem.substitutions['cz'] = "dy0(dy0(cs))"
 problem.substitutions['czs'] = "L0(css)"
 problem.substitutions['csz'] = "L1(css)"
 problem.substitutions['czz'] = "L1(czs)"
-# First cumulant restrictions
+problem.substitutions['ctz'] = "L1(cts)"
+problem.substitutions['cst'] = "T(cts)"
+problem.substitutions['czt'] = "L1(cst)"
+
+# First stream function cumulant restrictions
 problem.add_equation("cs = 0", condition="(nx != 0) or (ny0 != ny1)")
-# Stream function gauge
+# Stream function gaugep
 problem.add_equation("cs = 0", condition="(nx == 0) and (ny0 == ny1) and (ny0 == 0)")
-# First cumulant evolution
-problem.add_equation("dt(cz) + κ*cz - ν*dy0(dy0(cz)) = κ*cz_ref - D(dx(dy0(csz) + dy1(csz)))",
+# First stream function cumulant evolution
+problem.add_equation("dt(cz) + κ*cz - dy0(dy0(cz)) = - D(dx(dy0(csz) + dy1(csz)))",
                      condition="(nx == 0) and (ny0 == ny1) and (ny0 != 0)")
-# Second cumulant restrictions
+# Second stream function cumulant restrictions
 problem.add_equation("css = 0", condition="(nx == 0)")
-# Second-cumulant evolution (using derived sign for β, opposite Tobias 2013)
-problem.add_equation("dt(czz) + β*dx(csz - czs) + 2*κ*czz - ν*L0(czz) - ν*L1(czz) = " +
+# Second stream function cumulant evolution 
+problem.add_equation("dt(czz) - β*dx(csz - czs) + Ra/Pr * (ctz - czt) + 2*κ*czz - L0(czz) - L1(czz) = " +
                      "   dy0(P0(cs))*dx(czz) - dy0(P0(cz))*dx(csz)" +
                      " - dy1(P1(cs))*dx(czz) + dy1(P1(cz))*dx(czs)",
                      condition="(nx != 0)")
 
+# First theta cumulant restrictions
+problem.add_equation("ct = 0", condition="(nx != 0) or (ny0 != ny1)")
+# Theta gauge (THIS MAKES NO SENSE)
+problem.add_equation("ct = 0", condition="(nx == 0) and (ny0 == ny1) and (ny0 == 0)")
+# First theta cumulant evolution
+problem.add_equation("dt(ct) - dy0(dy0(ct))/Pr = - D(dx(dy0(cst) + dy1(cst)))",
+                     condition="(nx == 0) and (ny0 == ny1) and (ny0 != 0)")
+# Second theta cumulant restrictions
+problem.add_equation("css = 0", condition="(nx == 0)")
+# Second theta cumulant evolution
+problem.add_equation("dt(ctz) + κ*(ctz + czt) - L0(ctz)/Pr - L1(ctz) - L0(czt)/Pr - L1(czt) + β*dx(ccts - cst) + dx(csz - czs) = " +
+                     " (dy0(P0(cs)) - dy1(P1(cs)))*dx(ctz) - dy0(P0(ct))*dx(csz) + dy1(P1(cz))*dx(cts)" +
+                     "+(dy1(P1(cs)) - dy0(P0(cs)))*dx(czt) + dy1(P1(ct))*dx(czs) - dy0(P0(cz))*dx(cst)")
 # Solver
 solver = problem.build_solver(de.timesteppers.RK222)
 solver.stop_sim_time = param.stop_sim_time
@@ -76,20 +88,14 @@ else:
     cs = solver.state['cs']
     css = solver.state['css']
 
-    # Invert cz_ref for cs initial condition
-    ic_problem = de.LBVP(domain, variables=['cs'])
-    ic_problem.parameters['cz_ref'] = cz_ref
-    ic_problem.add_equation("cs = 0", condition="(nx != 0) or (ny0 != ny1)")
-    ic_problem.add_equation("cs = 0", condition="(nx == 0) and (ny0 == ny1) and (ny0 == 0)")
-    ic_problem.add_equation("dy0(dy0(cs)) = cz_ref", condition="(nx == 0) and (ny0 == ny1) and (ny0 != 0)")
-    ic_solver = ic_problem.build_solver()
-    ic_solver.solve()
     cs['c'] = ic_solver.state['cs']['c']
 
     # Locally correlated perturbations
     r2 = x**2 + (param.Ly/np.pi*np.sin((y1-y0)*np.pi/param.Ly))**2/2
     czz_ic = domain.new_field()
     czz_ic['g'] = param.pert_amp * np.exp(-r2/2/param.pert_width**2)
+
+    # NEED TO CONVERT THIS TO cts from ctz
     # Invert czz_ic for css initial condition
     ic_problem = de.LBVP(domain, variables=['css'])
     ic_problem.parameters['czz_ic'] = czz_ic
