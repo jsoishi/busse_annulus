@@ -23,6 +23,8 @@
 \newcommand{\czz}{c_{\zeta \zeta}}
 \newcommand{\ctz}{c_{\theta \zeta}}
 \newcommand{\czt}{c_{\zeta \theta}}
+\newcommand{\cst}{c_{\psi \theta}}
+\newcommand{\cts}{c_{\theta \psi}}
 \newcommand{\Ray}{\mbox{\textit{Ra}}}  % Rayleigh number
 
 
@@ -41,9 +43,9 @@
 \affiliation{\aff{1}Department of Physics \& Astronomy, Bates College,
 Lewiston, ME 04240, USA
 \aff{2}Department of Applied Mathematics, University of
-Leeds, Leeds ABC 123, UK
-\aff{3}Center for Computational Astrophysics, Flatiron Institute, New York, NY 10023, USA
-\aff{4}Department of Physics, Brown University, Providence, RI XXXXX, USA
+Leeds, Leeds LS2 9JT, UK
+\aff{3}Center for Computational Astrophysics, Flatiron Institute, New York, NY 10010, USA
+\aff{4}Department of Physics, Brown University, Providence, RI 02912, USA
 }
 
 \begin{document}
@@ -55,42 +57,63 @@ Busse Annulus CE2
 \end{abstract}
 
 \begin{keywords}
-Authors should not enter keywords on the manuscript, as these must be chosen by the author during the online submission process and will then be added during the typesetting process (see http://journals.cambridge.org/data/\linebreak[3]relatedlink/jfm-\linebreak[3]keywords.pdf for the full list)
 \end{keywords}
 
-\section{Model Eqations}
+\section{Model Equations}
 \label{sec:model-eqations}
 
-We consider the equations for the Busse annulus,
+We consider the equations for the Busse annulus. We write the equation of motion in terms of the $z$-component of the vorticity, $\zeta$.
 
 \begin{equation}
   \label{eq:zeta_eom}
-  \pdv{\zeta}{t} + J(\psi, \zeta) + \beta \pdv{\psi}{x} = -\kappa \zeta + \nu \laplacian{\zeta} + \eta
+  \pdv{\zeta}{t} + J(\psi, \zeta) + \beta \pdv{\psi}{x} = -\frac{\Ray}{\Pran} \pdv{\theta}{x} -C |\beta|^{1/2} \zeta + \nu \laplacian{\zeta}
 \end{equation}
-%
+The streamfunction $\psi$ is defined by
 \begin{equation}
   \label{eq:zeta_def}
   \zeta = \laplacian{\psi},
 \end{equation}
+which means the $x$ velocity $u = -\pdv*{\psi}{y}$ and the $y$ velocity $v = \pdv*{\psi}{x}$. $J(A, B) = \pdv*{A}{x}\pdv*{B}{y} - \pdv*{A}{y}\pdv*{B}{x}$ is the Jacobian. The perturbed temperature is given by $\theta$, which obeys the dynamical equation
 %
 \begin{equation}
   \label{eq:theta}
-  \pdv{\theta}{t} + J(\psi, \theta) = -\pdv{\psi}{x} + \frac{1}{\Pran} \nabla^2 \theta
+  \pdv{\theta}{t} + J(\psi, \theta) = -\pdv{\psi}{x} + \frac{1}{\Pran} \nabla^2 \theta.
 \end{equation}
+The system is thus governed by four dimensionless parameters, $\beta$, $C$, $\Pran = \nu/
+\kappa$, and $\Ray = \alpha g \Delta T d^3/\nu \kappa$
 
-Expanded to CE2, the equations of motion for the cumulants are given by
+For the CE2 expansion, we need equations for the first cumulants $\cz$ and $\ct$, and the second cumulants $\czs$, $\czz$, $\ctz$, and $\czt$. While second cumulants involving $\psi$ and $\zeta$ are related by the gradient operators, e.g. $\czz = \nabla_2^2 \czs$, those involving $\theta$ require use of the symmetry $\ctz(y_1, y_2, \xi) = \czt(y_2, y_1, -\xi)$.
 
+We solve dynamical equations for $\cz$,
 \begin{equation}
   \label{eq:cz}
-  \pdv{\cz}{t} = - \qty(\pdv{y_1} + \pdv{y_2}) \pdv{\xi}{\csz} - C |\beta|^{1/2} \cz + \pdv[2]{\cz}{y_1}
+  \pdv{\cz}{t} = - \qty(\pdv{y_1} + \pdv{y_2}) \pdv{\csz}{\xi}\eval_{\xi \to 0}^{y_1 \to y_2} - C |\beta|^{1/2} \cz + \pdv[2]{\cz}{y_1},
 \end{equation}
 
 \begin{equation}
   \label{eq:czz}
-  \pdv{\czz}{t} = \pdv{\cs}{y_1} \pdv{\czz}{\xi} - \qty(\pdv{\cz}{y_1} - \beta) \pdv{\csz}{\xi} - \pdv{\cs}{y_2} \pdv{\czz}{\xi}  + \qty(\pdv{\cz}{y_2} - \beta) \pdv{\czs}{\xi} + \frac{\Ray}{\Pran} \qty(\pdv{\czt}{\xi} -  \pdv{\ctz}{\xi}) - 2C |\beta|^{1/2} \czz + (\nabla_1 + \nabla_2) \czz
+  \begin{split}
+    \pdv{\czz}{t} &= \pdv{\cs}{y_1} \pdv{\czz}{\xi} - \qty(\pdv{\cz}{y_1} - \beta) \pdv{\csz}{\xi} - \pdv{\cs}{y_2} \pdv{\czz}{\xi}  + \qty(\pdv{\cz}{y_2} - \beta) \pdv{\czs}{\xi}\\
+    &+ \frac{\Ray}{\Pran} \qty(\pdv{\czt}{\xi} -  \pdv{\ctz}{\xi}) - 2C |\beta|^{1/2} \czz + (\nabla_1^2 + \nabla_2^2) \czz    
+  \end{split}
 \end{equation}
 
-We acknowledge people for things. 
+The first cumulant for $\theta$ evolves according to
+\begin{equation}
+  \label{eq:ct}
+  \pdv{\ct}{t} = - \qty(\pdv{y_1} + \pdv{y_2}) \pdv{\cst}{\xi} \eval_{\xi \to 0}^{y_1 \to y_2} + \frac{1}{\Pran} \pdv[2]{\ct}{y_1}.
+\end{equation}
+For the second cumulant in $\theta$, we evolve $\ctz$,
+\begin{equation}
+  \label{eq:ctz}
+  \begin{split}
+    \pdv{\ctz}{t} &= \qty(\pdv{\cs}{y_1} - \pdv{\cs}{y_2}) \pdv{\ctz}{\xi} - \qty(1 + \pdv{\ct}{y_1}) \pdv{\csz}{\xi} + \qty(\pdv{\cz}{y_2} - \beta) \pdv{\cts}{\xi}\\
+    &  - C |\beta|^{1/2} \ctz + \frac{1}{\Pran}\qty(\nabla_1^2 + \nabla_2^2) \ctz + \cdots,    
+  \end{split}
+\end{equation}
+where $\cdots$ indicates the terms needed to ensure symmetry under exchange of $x_1, y_1$ and $x_2, y_2$.
+
+We acknowledge people for things and grants for money. 
 
 \bibliographystyle{jfm}
 % Note the spaces between the initials
