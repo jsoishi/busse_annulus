@@ -1,0 +1,99 @@
+% This is file JFM2esam.tex
+% first release v1.0, 20th October 1996
+%       release v1.01, 29th October 1996
+%       release v1.1, 25th June 1997
+%       release v2.0, 27th July 2004
+%       release v3.0, 16th July 2014
+%   (based on JFMsampl.tex v1.3 for LaTeX2.09)
+% Copyright (C) 1996, 1997, 2014 Cambridge University Press
+
+\documentclass{jfm}
+\usepackage{graphicx}
+%\usepackage{epstopdf, epsfig}
+\usepackage{physics}
+
+\newtheorem{lemma}{Lemma}
+\newtheorem{corollary}{Corollary}
+
+\newcommand{\cz}{c_{\zeta}}
+\newcommand{\cs}{c_{\psi}}
+\newcommand{\ct}{c_{\theta}}
+\newcommand{\csz}{c_{\psi \zeta}}
+\newcommand{\czs}{c_{\zeta \psi}}
+\newcommand{\czz}{c_{\zeta \zeta}}
+\newcommand{\ctz}{c_{\theta \zeta}}
+\newcommand{\czt}{c_{\zeta \theta}}
+\newcommand{\Ray}{\mbox{\textit{Ra}}}  % Rayleigh number
+
+
+\shorttitle{CE2 Busse Annulus}
+\shortauthor{J. S. Oishi, S. M. Tobias, K. J. Burns, J. B. Marston}
+
+\title{Direct Statistical Simulation of the Busse Annulus}
+
+\author{Jeffrey S. Oishi\aff{1}
+  \corresp{\email{joishi@bates.edu}},
+  Steven M. Tobias\aff{2},
+  Keaton J. Burns\aff{3
+}
+ \and J. Brad Marston\aff{4}}
+
+\affiliation{\aff{1}Department of Physics \& Astronomy, Bates College,
+Lewiston, ME 04240, USA
+\aff{2}Department of Applied Mathematics, University of
+Leeds, Leeds ABC 123, UK
+\aff{3}Center for Computational Astrophysics, Flatiron Institute, New York, NY 10023, USA
+\aff{4}Department of Physics, Brown University, Providence, RI XXXXX, USA
+}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+Busse Annulus CE2
+\end{abstract}
+
+\begin{keywords}
+Authors should not enter keywords on the manuscript, as these must be chosen by the author during the online submission process and will then be added during the typesetting process (see http://journals.cambridge.org/data/\linebreak[3]relatedlink/jfm-\linebreak[3]keywords.pdf for the full list)
+\end{keywords}
+
+\section{Model Eqations}
+\label{sec:model-eqations}
+
+We consider the equations for the Busse annulus,
+
+\begin{equation}
+  \label{eq:zeta_eom}
+  \pdv{\zeta}{t} + J(\psi, \zeta) + \beta \pdv{\psi}{x} = -\kappa \zeta + \nu \laplacian{\zeta} + \eta
+\end{equation}
+%
+\begin{equation}
+  \label{eq:zeta_def}
+  \zeta = \laplacian{\psi},
+\end{equation}
+%
+\begin{equation}
+  \label{eq:theta}
+  \pdv{\theta}{t} + J(\psi, \theta) = -\pdv{\psi}{x} + \frac{1}{\Pran} \nabla^2 \theta
+\end{equation}
+
+Expanded to CE2, the equations of motion for the cumulants are given by
+
+\begin{equation}
+  \label{eq:cz}
+  \pdv{\cz}{t} = - \qty(\pdv{y_1} + \pdv{y_2}) \pdv{\xi}{\csz} - C |\beta|^{1/2} \cz + \pdv[2]{\cz}{y_1}
+\end{equation}
+
+\begin{equation}
+  \label{eq:czz}
+  \pdv{\czz}{t} = \pdv{\cs}{y_1} \pdv{\czz}{\xi} - \qty(\pdv{\cz}{y_1} - \beta) \pdv{\csz}{\xi} - \pdv{\cs}{y_2} \pdv{\czz}{\xi}  + \qty(\pdv{\cz}{y_2} - \beta) \pdv{\czs}{\xi} + \frac{\Ray}{\Pran} \qty(\pdv{\czt}{\xi} -  \pdv{\ctz}{\xi}) - 2C |\beta|^{1/2} \czz + (\nabla_1 + \nabla_2) \czz
+\end{equation}
+
+We acknowledge people for things. 
+
+\bibliographystyle{jfm}
+% Note the spaces between the initials
+\bibliography{jfm-instructions}
+
+\end{document}
