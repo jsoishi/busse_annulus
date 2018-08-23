@@ -5,6 +5,7 @@
 \newcommand*{\reynolds}[1]{\mean{#1} + #1'}
 \newcommand*{\mean}[1]{\overline{#1}}
 \newcommand*{\zonal}[1]{\frac{1}{L_x} \int_0^{L_x} #1 \dd x_1}
+\newcommand*{\qderiv}[3][]{\pdv{#2}{x_{#1}}\pdv{#3}{y_{#1}}}
 \newcommand{\cz}{c_\zeta}
 \newcommand{\czz}{c_{\zeta\zeta}}
 \newcommand{\czzz}{c_{\zeta\zeta\zeta}}
@@ -71,6 +72,23 @@ The second important average is the \emph{zonal} average, in which we assume one
 \end{equation}
 Note that now $\mean{f}$ has lower dimension than $f(\rr1)$ did. It is only a function of $y_1$, since we integrated over $x_1$.
 
+\subsection{Dirac Delta Functions}
+\label{sec:dirac-delta-funct}
+
+[Insert usual caution about Dirac deltas not really being functions.]
+
+We will make extensive use of two property of Dirac delta functions. First, the defining property of the derivative of a delta function is
+\begin{equation}
+  \label{eq:dirac_derivative}
+  \int f(x) \dv{\delta(x)}{x} \dd{x} = -\int \dv{f(x)}{x} \delta(x) \dd{x}.
+\end{equation}
+
+As a consequence of this,
+\begin{equation}
+  \label{eq:dirac_deriv_swap}
+  \pdv{\delta(y_1 - y_2)}{y_1} = -\pdv{\delta(y_1 - y_2)}{y_2}.
+\end{equation}
+
 \section{First Cumulant Equation of Motion}
 \label{sec:first-cumul-equat}
 
@@ -93,15 +111,15 @@ Our goal is to derive a set of equations for the cumulants $\cz$, $\czz$, $\ldot
 
 The second cumulant $\czz = \mean{\zeta' \zeta'} = \mean{\zeta'(x_1, y_1)} \mean{\zeta'(x_2, y_2)}$ defines a two-point correlation function of the \emph{fluctuations}. Be careful about the notation; the subscripts on $c$ are not written with the $'$! Because there are two sets of coordinates, we need to be careful about our derivatives. We can define $J_1$ and $J_2$ to mean Jacobians with derivatives on the first or second set of coordinates, respectively.
 
-Turning back to equation~(\ref{eq:zeta_first_c}), we note that this term involves the two variables $\zeta'(x_1, y_1)$ and $\psi(x_1, y_1)$ \emph{at the same point!} For convenience, let's define position vectors $\rr1 = (x_1, y_1)$ and similarly for $\rr2$. In order to transform this into something involving $\czz$ and $\czp$, we need to first move one variable to the other coordinate. We do this by invoking Dirac $\delta$ functions,
+Turning back to equation~(\ref{eq:zeta_first_c}), we note that this term involves the two variables $\zeta'(x_1, y_1)$ and $\psi'(x_1, y_1)$ \emph{at the same point!} For convenience, let's define position vectors $\rr1 = (x_1, y_1)$ and similarly for $\rr2$. In order to transform this into something involving $\czz$ and $\czp$, we need to first move one variable to the other coordinate. We do this by invoking Dirac $\delta$ functions,
 
 \begin{equation}
   \label{eq:var_change}
-  \psi'(\rr2) = \int \psi'(\rr1) \delta(\rr1 - \rr2) \dd{\rr1}.
+  \psi'(\rr1) = \int \psi'(\rr2) \delta(\rr1 - \rr2) \dd{\rr2}.
 \end{equation}
 It's important to note that $\delta(x)$ is symmetric about zero, so equation~(\ref{eq:var_change}) is the same when you exchange $\rr1$ and $\rr2$.
 
-\textbf{CHANGE THIS TO REFLECT SIGNS IN 2013 PRL: make $\zeta'$, not $\phi'$ switch to $\rr2$...}
+\textbf{CHANGE THIS TO REFLECT SIGNS IN 2013 PRL: make $\zeta'$, not $\psi'$ switch to $\rr2$...}
 
 So, let's now explicitly include spatial dependencies,
 \begin{equation}
@@ -189,12 +207,7 @@ The next step is rather simple. Given the definition of $\xi$, we can construct 
   \label{eq:expand_int_rr2}
   - \int \dd{\xi} \dd{y_2} \left[ \delta(y_1 - y_2)\pdv{\delta(\xi)}{\xi} \pdv{\cpz}{y_1} - \pdv{\cpz}{\xi} \delta(\xi)\pdv{\delta(y_1 - y_2)}{y_1}\right].
 \end{equation}
-We use two property of Dirac delta functions. First, $\pdv*{\delta(y_1 - y_2)}{y_1} = -\pdv*{\delta(y_1 - y_2)}{y_2}$. Second, the defining property of a derivative of a delta function is
-\begin{equation}
-  \label{eq:dirac_derivative}
-  \int f(x) \dv{\delta(x)}{x} \dd{x} = \int \dv{f(x)}{x} \delta(x) \dd{x}.
-\end{equation}
-Combining these with equation~(\ref{eq:expand_int_rr2}),
+We'll use a few properties of Dirac deltas (see section~\ref{sec:dirac-delta-funct}). Combining these with equation~(\ref{eq:expand_int_rr2}),
 \begin{equation}
   \label{eq:expand_int_rr2_dirac}
   \begin{split}
@@ -253,9 +266,57 @@ The key point to the last step is that under a zonal average, we can swap order 
 \end{equation}
 where $Q$ is a given zonally averaged quantity.
 
-Let's turn to the Jacobian, 
+Let's turn to the Jacobian. We assume zonal averaging, so we can directly eliminate $\pdv*{\mean{\zeta}}{x}$ and $\pdv*{\mean{\psi}}{x}$. This leaves
+\begin{equation}
+  \label{eq:2c_jacobian}
+  \begin{split}
+    \mean{\zeta' J(\reynolds{\zeta}, \reynolds{\psi})} &= \mean{\zeta'\qty(\qderiv{\zeta'}{\mean{\psi}} + \qderiv{\zeta'}{\psi'} - \qderiv{\psi'}{\mean{\zeta}} - \qderiv{\psi'}{\zeta'})}\\
+    &= \mean{\zeta'\qty(\qderiv{\zeta'}{\mean{\psi}} - \qderiv{\psi'}{\mean{\zeta}})}\\
+  \end{split}
+\end{equation}
+We note that the second and fourth terms are \emph{cubic} in perturbations, and thus will be dropped in a CE2\footnote{it might be nice to put these in terms of higher cumulants, to fully drive home the underlying expansion}. Now taking the first term, delocalizing one of the $\zeta'$, and noting that the $\mean{\psi}$ term can be pulled out of the mean by Reynolds rules, we get
+\begin{equation}
+  \label{eq:2c_delocalize}
+  \begin{split}
+    \mean{\zeta' \qderiv{\zeta'}{\mean{\psi}}} &= \mean{\zeta'(\rr1) \pdv{x_1} \qty(\int \zeta'(\rr2) \delta(\rr1 - \rr2) \dd{\rr2})} \pdv{\mean{\psi}}{y_1}\\
+    &= -\mean{\int \zeta'(x_1, y_1) \pdv{\xi} \qty(\zeta'(x_1 - \xi, y_2)  \delta(\xi)\delta(y_1 - y_2)) \dd{\xi} \dd{y_2}} \pdv{\mean{\psi}}{y_1}\\
+    &= -\mean{\int \pdv{\xi} \qty(\zeta'(x_1, y_1) \zeta'(x_1 - \xi, y_2)  \delta(\xi)) \delta(y_1 - y_2) \dd{\xi} \dd{y_2}} \pdv{\mean{\psi}}{y_1}
+  \end{split}
+\end{equation}
+liwhere in the second step, we transformed to $\xi, y_1, y_2$ and the third simply rearranges terms. Now, finally, we apply zonal averaging, swap the order of integration, and note that only $\zeta'(x_1, y_1) \zeta'(x_1 - \xi, y_2)$ depend on $x_1$. This allows us to write
+\begin{equation}
+  \label{eq:2c_delocalize_final}
+  \begin{split}
+    \mean{\zeta' \qderiv{\zeta'}{\mean{\psi}}} &= -\int \pdv{\xi}\qty(\czz \delta(\xi)) \delta(y_1 - y_2) \dd{\xi} \dd{y_2} \pdv{\mean{\psi}}{y_1}\\
+   & = - 2\int \pdv{\czz}{\xi} \pdv{\mean{\psi}}{y_1} \delta(\xi) \delta(y_1 - y_2) \dd{\xi} \dd{y_2} 
+  \end{split}
+\end{equation}
+where in the last step we used the chain rule, the derivative property of the delta function, and moved the $\mean{\psi}$ term into the integral. The term is now clearly in the form given by equation~(\ref{eq:2c_form}). The other remaining term in the Jacobian is similar.
 
-
+Next, we turn to the $\beta$ term,
+\begin{equation}
+  \begin{split}
+    -\beta \mean{\zeta' \pdv{\psi'}{x}} &= - \beta \mean{\int \zeta'(x_2, y_2) \dd{\rr2} \pdv{\psi'(x_1, y_1)}{x_1}}\\
+    &= \beta \mean{\int \zeta'(x_1 - \xi, y_2) \pdv{\psi'(x_1, y_1)}{x_1} \dd{\xi} \dd{y_2}}\\
+    &= \beta \int \pdv{\cpz}{\xi} \dd{\xi} \dd{y_2}
+    \end{split}
+  \label{eq:2c_beta_term}
+\end{equation}
+If we swap $\rr1$ and $\rr2$, we have
+\begin{equation}
+  \begin{split}
+    -\beta \mean{\zeta' \pdv{\psi'}{x}} &= - \beta \mean{\zeta'(x_1, y_1) \pdv{x_2} \int  \psi'(x_2, y_2)\dd{\rr2}}\\
+    &= \beta \mean{\zeta'(x_1, y_1) \int \pdv{\psi'(x_2, y_2)}{\xi} \dd{\rr2}}\\
+    &= -\beta \mean{\int \pdv{\zeta'(x_1, y_1) \psi'(x_1- \xi, y_2)}{\xi} \dd{\xi} \dd{y_2}}\\
+    &= -\beta \int \pdv{\czp}{\xi} \dd{\xi} \dd{y_2}
+    \end{split}
+  \label{eq:2c_beta_term_swap}
+\end{equation}
+Combining these terms, the $\beta$ term is
+\begin{equation}
+  \label{eq:2c_final_beta}
+  \boxed{-\beta \mean{\zeta' \pdv{\psi'}{x}} = \frac{\beta}{2} \qty(\int \pdv{\cpz}{\xi} -\pdv{\czp}{\xi}  \dd{\xi}\dd{y_2})}
+\end{equation}
 Here, things are a bit more complicated in all terms, not just the Jacobian, because we must symmetrize all terms that are quadratic in fluctuations. ``Symmetrization'' here refers to making sure that the overall terms are symmetric under swapping of $\rr1$ and $\rr2$, which we do in a simple way, using curly braces to denote the operator
 \begin{equation}
   \label{eq:symmetrization}
