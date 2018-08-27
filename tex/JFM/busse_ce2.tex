@@ -38,7 +38,7 @@
   Steven M. Tobias\aff{2},
   Keaton J. Burns\aff{3
 }
- \and J. Brad Marston\aff{4}}
+ \and J. B. Marston\aff{4}}
 
 \affiliation{\aff{1}Department of Physics \& Astronomy, Bates College,
 Lewiston, ME 04240, USA
@@ -112,6 +112,18 @@ For the second cumulant in $\theta$, we evolve $\ctz$,
   \end{split}
 \end{equation}
 where $\cdots$ indicates the terms needed to ensure symmetry under exchange of $x_1, y_1$ and $x_2, y_2$.
+
+\subsection{Parity}
+\label{sec:parity}
+
+We solve the system subject to impenetrable, stress-free boundary conditions in the $y$ dimension; it is periodic in $x$. This means that $\theta$, $\zeta$, and $\psi$ all have odd parity. The action of the zonal average preserves the parity, and so we discretize the first cumulants $\cz$, $\ct$ using a $\sin$ series. 
+
+
+\subsection{Numerical Solution}
+\label{sec:numerical-solution}
+
+We use \emph{Dedalus} to solve the system.
+
 
 We acknowledge people for things and grants for money. 
 
