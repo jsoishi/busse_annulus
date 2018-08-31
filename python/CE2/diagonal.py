@@ -103,6 +103,7 @@ class SinCosDiagonal(Operator, FutureField):
     i.e. f(x, x), arranged as a one-dimensional function of x2 or x1, respectively.
 
     """
+
     def __init__(self, arg, basis0, basis1, **kw):
         arg = Operand.cast(arg)
         super().__init__(arg, **kw)
@@ -123,10 +124,13 @@ class SinCosDiagonal(Operator, FutureField):
         k0 = reshape_vector(self.basis0.wavenumbers[slices[self.axis0]], dim=self.domain.dim, axis=self.axis0)
         k1 = reshape_vector(self.basis1.wavenumbers[slices[self.axis1]], dim=self.domain.dim, axis=self.axis1)
         self.filter_mask = (k0 == k1)
-
+        
     def meta_constant(self, axis):
         # Preserve constancy
         return self.args[0].meta[axis]['constant']
+
+    def meta_parity(self, axis):
+        return self.args[0].meta[axis]['parity']
 
     def check_conditions(self):
         # Shearing layout
@@ -135,42 +139,37 @@ class SinCosDiagonal(Operator, FutureField):
                 (not layout.grid_space[self.axis0]) and
                 (layout.local[self.axis0]))
 
+    def diag_interp(self, y):
+        arg = self.args[0]
+        # DOmain must be square with same parity
+        k0 = self.basis0.elements
+        phi = np.sin(k0*y)
+        phi = np.outer(phi,phi)
+        return np.einsum('ij, ij', arg.data, phi)
+
     def operate(self, out):
         arg = self.args[0]
         axis0 = self.axis0
         axis1 = self.axis1
-        # Enforce conditions for shearing space
-        arg.require_grid_space(axis=axis1)
-        arg.require_coeff_space(axis=axis0)
-        arg.require_local(axis=axis0)
-        # Apply Fourier shear to flatten the diagonal
-        # s.t out(y0, y1) = arg(y0+y1-a, y1)
+        # arg.require_grid_space(axis=axis1)
+        # arg.require_coeff_space(axis=axis0)
+        # arg.require_local(axis=axis0)
+        arg.require_coeff_space()
         out.layout = arg.layout
-        np.multiply(arg.data, self.shear, out=out.data)
-        # Interpolate on flattened diagonal
-        # s.t. out(y0, y1) = arg(y1, y1)
-        self.basis0.Interpolate(out, 'left', out=out).evaluate()
-        out.meta['y0']['constant'] = False
-        # Broadcast and filter coefficients
-        # s.t. out(y0, y1) = arg(y0+y1-a, y0+y1-a)
-        out.data[axslice(axis0, None, None)] = out.data[axslice(axis0, 0, 1)]
-        out.require_coeff_space(axis=axis1)
-        out.data *= self.filter_mask
-        # Move back to starting layout
-        out.require_layout(arg.layout)
-
         di = []
         for point in self.basis0.grid():
-            di.append(self.diag_interp(y2,point))
+            di.append(self.diag_interp(point))
         di = np.array(di)
-        output.meta[axis0]['parity'] = 1
-        output.meta[axis1]['parity'] = 1
-        output.require_grid_space(axis=axis1)
-        output.require_coeff_space(axis=axis0)
-        output.require_local(axis=axis0)
-        output.data[axslice(axis0,0,1)] = di
-        output.data[axslice(axis0,1,None)] = 0
-        output.data[axslice(axis0,None, None)] = output.data[axslice(axis0,0,1)]
-        output.require_coeff_space(axis=axis1)
-        output.data *= filter_mask
+        out.meta[axis0]['parity'] = 1
+        out.meta[axis1]['parity'] = 1
+        out.require_grid_space(axis=axis1)
+        out.require_coeff_space(axis=axis0)
+        out.require_local(axis=axis0)
+
+        out.data[axslice(axis0,0,1)] = di
+        out.data[axslice(axis0,1,None)] = 0
+        out.data[axslice(axis0,None, None)] = out.data[axslice(axis0,0,1)]
+        out.require_coeff_space(axis=axis1)
+        out.data *= self.filter_mask
     
+        out.require_layout(arg.layout)
