@@ -116,13 +116,10 @@ class SinCosDiagonal(Operator, FutureField):
         if self.basis0.interval != self.basis1.interval:
             raise ValueError("Bases must occupy same interval.")
         self.name = 'Diag[%s=%s]' %(self.basis0.name, self.basis1.name)
-        # Shear array
-        k0 = reshape_vector(self.basis0.wavenumbers, dim=self.domain.dim, axis=self.axis0)
-        x1 = self.domain.grid(self.axis1, scales=self.domain.dealias)
         # Filter mask
-        slices = self.domain.dist.coeff_layout.slices(self.domain.dealias)
-        k0 = reshape_vector(self.basis0.wavenumbers[slices[self.axis0]], dim=self.domain.dim, axis=self.axis0)
-        k1 = reshape_vector(self.basis1.wavenumbers[slices[self.axis1]], dim=self.domain.dim, axis=self.axis1)
+        self.slices = self.domain.dist.coeff_layout.slices(self.domain.dealias)
+        k0 = reshape_vector(self.basis0.wavenumbers[self.slices[self.axis0]], dim=self.domain.dim, axis=self.axis0)
+        k1 = reshape_vector(self.basis1.wavenumbers[self.slices[self.axis1]], dim=self.domain.dim, axis=self.axis1)
         self.filter_mask = (k0 == k1)
         
     def meta_constant(self, axis):
@@ -133,33 +130,28 @@ class SinCosDiagonal(Operator, FutureField):
         return self.args[0].meta[axis]['parity']
 
     def check_conditions(self):
-        # Shearing layout
         layout = self.args[0].layout
         return ((layout.grid_space[self.axis1]) and
-                (not layout.grid_space[self.axis0]) and
-                (layout.local[self.axis0]))
-
-    def diag_interp(self, y):
-        arg = self.args[0]
-        # DOmain must be square with same parity
-        k0 = self.basis0.elements
-        phi = np.sin(k0*y)
-        phi = np.outer(phi,phi)
-        return np.einsum('ij, ij', arg.data, phi)
+                (layout.grid_space[self.axis0]) and
+                (layout.local[self.axis1]))
 
     def operate(self, out):
         arg = self.args[0]
         axis0 = self.axis0
         axis1 = self.axis1
-        # arg.require_grid_space(axis=axis1)
-        # arg.require_coeff_space(axis=axis0)
-        # arg.require_local(axis=axis0)
-        arg.require_coeff_space()
+
+        arg.require_grid_space(axis=0)
+        arg.require_coeff_space(axis=axis0)
+        arg.require_coeff_space(axis=axis1)
+        arg.require_local(axis=axis1)
+
         out.layout = arg.layout
-        di = []
-        for point in self.basis0.grid():
-            di.append(self.diag_interp(point))
-        di = np.array(di)
+        k0 = self.basis0.elements[self.slices[self.axis0]]
+        k1 = self.basis0.elements[self.slices[self.axis1]]
+        y = self.basis0.grid(scale=self.domain.dealias[self.axis0])
+        phi = np.einsum('ik,jk->ijk',np.sin(k0[:,None]*y),np.sin(k1[:,None]*y))
+        di = np.expand_dims(np.einsum('ijk,jkl',arg.data,phi), axis=1)
+
         out.meta[axis0]['parity'] = 1
         out.meta[axis1]['parity'] = 1
         out.require_grid_space(axis=axis1)
