@@ -9,7 +9,10 @@ from dedalus import public as de
 from dedalus.tools.array import reshape_vector
 import parameters as param
 import diagonal
-de.operators.parseables['Diag'] = Diag = diagonal.FourierDiagonal
+import transpose
+
+de.operators.parseables['Diag'] = Diag = diagonal.GridDiagonal
+de.operators.parseables['Trans'] = Trans = transpose.TransposeOperator
 
 import logging
 logger = logging.getLogger(__name__)
@@ -33,10 +36,10 @@ problem.parameters['Ra'] = param.Ra
 problem.substitutions['D(A)'] = "Diag(interp(A, x=0), 'y0', 'y1')"
 
 # NOT IMPLEMENTED YET
-problem.substitutions['T(A)'] = "Transpose(A)"
+problem.substitutions['T(A)'] = "Trans(A)"
 
-problem.substitutions['P0(A)'] = "interp(A, y1='left')"
-problem.substitutions['P1(A)'] = "interp(A, y0='left')"
+problem.substitutions['P0(A)'] = "D(A)"
+problem.substitutions['P1(A)'] = "A" # for symmetry
 problem.substitutions['L0(A)'] = "dx(dx(A)) + dy0(dy0(A))"
 problem.substitutions['L1(A)'] = "dx(dx(A)) + dy1(dy1(A))"
 problem.substitutions['cz'] = "dy0(dy0(cs))"
