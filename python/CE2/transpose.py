@@ -47,7 +47,10 @@ class TransposeOperator(Operator, FutureField):
         comm = arg.domain.dist.comm_cart
         
         # exchange data with transposed cartesian communicator rank
-        trans_pair = comm.Get_cart_rank(layout.ext_coords[1:][::-1])
+        if comm.size == 1:
+            trans_pair = 0
+        else:
+            trans_pair = comm.Get_cart_rank(layout.ext_coords[1:][::-1])
         logger.debug("communicating with {:d}".format(trans_pair))
 
         # transpose local data
