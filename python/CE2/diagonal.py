@@ -140,28 +140,27 @@ class SinCosDiagonal(Operator, FutureField):
         axis0 = self.axis0
         axis1 = self.axis1
 
-        arg.require_grid_space(axis=0)
-        arg.require_coeff_space(axis=axis0)
-        arg.require_coeff_space(axis=axis1)
-        arg.require_local(axis=axis1)
-
+        arg.require_coeff_space()
         out.layout = arg.layout
         k0 = self.basis0.elements[self.slices[self.axis0]]
         k1 = self.basis0.elements[self.slices[self.axis1]]
         y = self.basis0.grid(scale=self.domain.dealias[self.axis0])
         phi = np.einsum('ik,jk->ijk',np.sin(k0[:,None]*y),np.sin(k1[:,None]*y))
-        di = np.expand_dims(np.einsum('ijk,jkl',arg.data,phi), axis=1)
+        di =np.einsum('ijk,jkl',arg.data,phi)
 
-        out.meta[axis0]['parity'] = 1
-        out.meta[axis1]['parity'] = 1
-        out.require_grid_space(axis=axis1)
-        out.require_coeff_space(axis=axis0)
-        out.require_local(axis=axis0)
+        parity = arg.meta[axis0]['parity']*arg.meta[axis1]['parity']
+        out.meta[axis0]['parity'] = parity
+        out.meta[axis1]['parity'] = parity
 
-        out.data[axslice(axis0,0,1)] = di
-        out.data[axslice(axis0,1,None)] = 0
-        out.data[axslice(axis0,None, None)] = out.data[axslice(axis0,0,1)]
-        out.require_coeff_space(axis=axis1)
-        out.data *= self.filter_mask
+        out.require_grid_space(axis=1)
+
+        out.data[:,:,:] = 0.
+        out.data[axslice(axis0,0,1)] = np.expand_dims(di, axis=1)
+        out.data[axslice(axis1,0,1)] = np.expand_dims(di, axis=2)
+
+        # out.data[axslice(axis0,1,None)] = 0
+        # out.data[axslice(axis0,None, None)] = out.data[axslice(axis0,0,1)]
+        # out.require_coeff_space(axis=axis1)
+        # out.data *= self.filter_mask
     
         out.require_layout(arg.layout)
