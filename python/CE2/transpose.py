@@ -31,6 +31,10 @@ class TransposeOperator(Operator, FutureField):
         # Preserve constancy
         return self.args[0].meta[axis]['constant']
 
+    def meta_parity(self, axis):
+        # Preserve parity
+        return self.args[0].meta[axis]['parity']
+
     def check_conditions(self):
         # Field must be in grid layout
         return (self.args[0].layout is self._grid_layout)
