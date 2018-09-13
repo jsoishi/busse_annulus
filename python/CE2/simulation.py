@@ -52,7 +52,7 @@ problem.add_equation("cs = 0", condition="(nx != 0) or (ny0 != ny1)")
 # Stream function gaugep
 problem.add_equation("cs = 0", condition="(nx == 0) and (ny0 == ny1) and (ny0 == 0)")
 # First stream function cumulant evolution
-problem.add_equation("dt(cz) + κ*cz - dy0(dy0(cz)) = - D(dx(dy0(csz) + dy1(csz)))",
+problem.add_equation("dt(cz) + κ*cz - dy0(dy0(cz)) = - D(dx(dy0(csz)) + D(dy1(csz)))",
                      condition="(nx == 0) and (ny0 == ny1) and (ny0 != 0)")
 # Second stream function cumulant restrictions
 problem.add_equation("css = 0", condition="(nx == 0)")
@@ -90,22 +90,9 @@ else:
 
     cs['c'] = ic_solver.state['cs']['c']
 
-    # Locally correlated perturbations
+    # Locally correlated perturbations in theta
     r2 = x**2 + (param.Ly/np.pi*np.sin((y1-y0)*np.pi/param.Ly))**2/2
-    czz_ic = domain.new_field()
-    czz_ic['g'] = param.pert_amp * np.exp(-r2/2/param.pert_width**2)
-
-    # NEED TO CONVERT THIS TO cts from ctz
-    # Invert czz_ic for css initial condition
-    ic_problem = de.LBVP(domain, variables=['css'])
-    ic_problem.parameters['czz_ic'] = czz_ic
-    ic_problem.substitutions['L0(A)'] = "dx(dx(A)) + dy0(dy0(A))"
-    ic_problem.substitutions['L1(A)'] = "dx(dx(A)) + dy1(dy1(A))"
-    ic_problem.add_equation("css = 0", condition="(nx == 0)")
-    ic_problem.add_equation("L1(L0(css)) = czz_ic", condition="(nx != 0)")
-    ic_solver = ic_problem.build_solver()
-    ic_solver.solve()
-    css['c'] = ic_solver.state['css']['c']
+    ctt['g'] = param.pert_amp * np.exp(-r2/2/param.pert_width**2)
 
 # Analysis
 an1 = solver.evaluator.add_file_handler('data_checkpoints', sim_dt=param.checkpoints_sim_dt, max_writes=1)
