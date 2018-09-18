@@ -23,7 +23,7 @@ dt = 2.5e-3
 stop_sim_time = 50.01
 stop_wall_time = np.inf
 stop_iteration = np.inf
-mesh = (2,2)#(8, 16)
+mesh = (8, 16)
 
 # Analysis parameters
 checkpoints_sim_dt = 5
