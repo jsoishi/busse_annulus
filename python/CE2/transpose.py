@@ -23,17 +23,27 @@ class TransposeOperator(Operator, FutureField):
 
     """
 
-    def __init__(self, args, **kw):
-        super().__init__(args,**kw)
+    def __init__(self, arg, **kw):
+        arg = Operand.cast(arg)
+        super().__init__(arg,**kw)
         self.name = 'TransposeLast'
+
+        # FIX THIS
+        self.axis0 = 1
+        self.axis1 = 2
 
     def meta_constant(self, axis):
         # Preserve constancy
         return self.args[0].meta[axis]['constant']
 
     def meta_parity(self, axis):
-        # Preserve parity
-        return self.args[0].meta[axis]['parity']
+        # swap parity
+        if axis == self.axis0:
+            return self.args[0].meta[self.axis1]['parity']
+        elif axis == self.axis1:
+            return self.args[0].meta[self.axis0]['parity']
+        else:
+            return self.args[0].meta[axis]['parity']
 
     def check_conditions(self):
         # Field must be in grid layout
