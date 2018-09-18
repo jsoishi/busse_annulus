@@ -32,6 +32,11 @@ class TransposeOperator(Operator, FutureField):
         self.axis0 = 1
         self.axis1 = 2
 
+        mesh = arg.domain.dist.mesh
+        if len(mesh) != 0:
+            if mesh[0] != mesh[1]:
+                raise ValueError("Must use a square mesh with TransposeOperator.")
+
     def meta_constant(self, axis):
         # Preserve constancy
         return self.args[0].meta[axis]['constant']
@@ -60,7 +65,8 @@ class TransposeOperator(Operator, FutureField):
         if comm.size == 1:
             trans_pair = 0
         else:
-            trans_pair = comm.Get_cart_rank(layout.ext_coords[1:][::-1])
+            coord = layout.ext_coords[1:][::-1]
+            trans_pair = comm.Get_cart_rank(coord)
         logger.debug("communicating with {:d}".format(trans_pair))
 
         # transpose local data
