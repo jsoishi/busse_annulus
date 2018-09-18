@@ -10,9 +10,11 @@ from dedalus.tools.array import reshape_vector
 import parameters as param
 import diagonal
 import transpose
+import reverse
 
 de.operators.parseables['Diag'] = Diag = diagonal.GridDiagonal
 de.operators.parseables['Trans'] = Trans = transpose.TransposeOperator
+de.operators.parseables['Rev'] = Rev = reverse.ReverseFirst
 
 import logging
 logger = logging.getLogger(__name__)
@@ -24,9 +26,24 @@ y1_basis = de.SinCos('y1', param.Ny, [-param.Ly/2, param.Ly/2], dealias=3/2)
 domain = de.Domain([x_basis, y0_basis, y1_basis], grid_dtype=np.float64, mesh=param.mesh)
 
 # Problem
-problem = de.IVP(domain, variables=['cs','css', 'ct', 'cts'])
+problem = de.IVP(domain, variables=['cs','css', 'ct', 'cts', 'cst'])
 problem.meta['cs']['x']['constant'] = True
 problem.meta['ct']['x']['constant'] = True
+
+problem.meta['cs'] ['y0']['parity'] = 1
+problem.meta['ct'] ['y0']['parity'] = 1
+problem.meta['cs'] ['y1']['parity'] = -1
+problem.meta['ct'] ['y1']['parity'] = -1
+
+problem.meta['css']['y0']['parity'] = -1
+problem.meta['cts']['y0']['parity'] = -1
+problem.meta['cst']['y0']['parity'] = -1
+problem.meta['css']['y1']['parity'] = -1
+problem.meta['cts']['y1']['parity'] = -1
+problem.meta['cst']['y1']['parity'] = -1
+
+
+
 problem.parameters['Lx'] = param.Lx
 problem.parameters['Ly'] = param.Ly
 problem.parameters['β'] = param.beta
@@ -35,10 +52,9 @@ problem.parameters['Pr'] = param.Pr
 problem.parameters['Ra'] = param.Ra
 problem.substitutions['D(A)'] = "Diag(interp(A, x=0), 'y0', 'y1')"
 
-# NOT IMPLEMENTED YET
-problem.substitutions['T(A)'] = "Trans(A)"
+problem.substitutions['T(A)'] = "Rev(Trans(A))"
 
-problem.substitutions['P0(A)'] = "D(A)"
+problem.substitutions['P0(A)'] = "Trans(A)"
 problem.substitutions['P1(A)'] = "A" # for symmetry
 problem.substitutions['L0(A)'] = "dx(dx(A)) + dy0(dy0(A))"
 problem.substitutions['L1(A)'] = "dx(dx(A)) + dy1(dy1(A))"
@@ -47,7 +63,6 @@ problem.substitutions['czs'] = "L0(css)"
 problem.substitutions['csz'] = "L1(css)"
 problem.substitutions['czz'] = "L1(czs)"
 problem.substitutions['ctz'] = "L1(cts)"
-problem.substitutions['cst'] = "T(cts)"
 problem.substitutions['czt'] = "L1(cst)"
 
 # First stream function cumulant restrictions
@@ -55,12 +70,12 @@ problem.add_equation("cs = 0", condition="(nx != 0) or (ny0 != ny1)")
 # Stream function gaugep
 problem.add_equation("cs = 0", condition="(nx == 0) and (ny0 == ny1) and (ny0 == 0)")
 # First stream function cumulant evolution
-problem.add_equation("dt(cz) + κ*cz - dy0(dy0(cz)) = - D(dx(dy0(csz)) + D(dy1(csz)))",
+problem.add_equation("dt(cz) + κ*cz - dy0(dy0(cz)) = - D(dx(dy0(csz))) + D(dx(dy1(csz)))",
                      condition="(nx == 0) and (ny0 == ny1) and (ny0 != 0)")
 # Second stream function cumulant restrictions
 problem.add_equation("css = 0", condition="(nx == 0)")
 # Second stream function cumulant evolution 
-problem.add_equation("dt(czz) - β*dx(csz - czs) + Ra/Pr * (ctz - czt) + 2*κ*czz - L0(czz) - L1(czz) = " +
+problem.add_equation("dt(czz) - β*dx(csz - czs) + Ra/Pr * dx(ctz - czt) + 2*κ*czz - L0(czz) - L1(czz) = " +
                      "   dy0(P0(cs))*dx(czz) - dy0(P0(cz))*dx(csz)" +
                      " - dy1(P1(cs))*dx(czz) + dy1(P1(cz))*dx(czs)",
                      condition="(nx != 0)")
@@ -70,14 +85,18 @@ problem.add_equation("ct = 0", condition="(nx != 0) or (ny0 != ny1)")
 # Theta gauge (THIS MAKES NO SENSE)
 problem.add_equation("ct = 0", condition="(nx == 0) and (ny0 == ny1) and (ny0 == 0)")
 # First theta cumulant evolution
-problem.add_equation("dt(ct) - dy0(dy0(ct))/Pr = - D(dx(dy0(cst) + dy1(cst)))",
+problem.add_equation("dt(ct) - dy0(dy0(ct))/Pr = - D(dx(dy0(cst))) + D(dx(dy1(cst)))",
                      condition="(nx == 0) and (ny0 == ny1) and (ny0 != 0)")
 # Second theta cumulant restrictions
-problem.add_equation("css = 0", condition="(nx == 0)")
+problem.add_equation("ctz = 0", condition="(nx == 0)")
 # Second theta cumulant evolution
-problem.add_equation("dt(ctz) + κ*(ctz + czt) - L0(ctz)/Pr - L1(ctz) - L0(czt)/Pr - L1(czt) + β*dx(ccts - cst) + dx(csz - czs) = " +
+problem.add_equation("dt(ctz) + κ*(ctz + czt) - L0(ctz)/Pr - L1(ctz) - L0(czt)/Pr - L1(czt) + β*dx(cts - cst) + dx(csz - czs) = " +
                      " (dy0(P0(cs)) - dy1(P1(cs)))*dx(ctz) - dy0(P0(ct))*dx(csz) + dy1(P1(cz))*dx(cts)" +
-                     "+(dy1(P1(cs)) - dy0(P0(cs)))*dx(czt) + dy1(P1(ct))*dx(czs) - dy0(P0(cz))*dx(cst)")
+                     "+(dy1(P1(cs)) - dy0(P0(cs)))*dx(czt) + dy1(P1(ct))*dx(czs) - dy0(P0(cz))*dx(cst)",
+condition="(nx != 0)")
+
+# symmetry equation for cst
+problem.add_equation("cst = T(cts)")
 # Solver
 solver = problem.build_solver(de.timesteppers.RK222)
 solver.stop_sim_time = param.stop_sim_time
