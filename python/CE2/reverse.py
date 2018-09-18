@@ -16,6 +16,7 @@ class ReverseFirst(Operator, FutureField):
     def __init__(self, arg, **kw):
         arg = Operand.cast(arg)
         super().__init__(arg, **kw)
+        self.name = 'Reverse[%s]' % (arg.domain.bases[0].name)
 
     def meta_constant(self, axis):
         # Preserve constancy
