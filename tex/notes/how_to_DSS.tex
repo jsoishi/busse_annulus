@@ -83,11 +83,19 @@ We will make extensive use of two property of Dirac delta functions. First, the 
   \int f(x) \dv{\delta(x)}{x} \dd{x} = -\int \dv{f(x)}{x} \delta(x) \dd{x}.
 \end{equation}
 
-As a consequence of this,
+A second important result is the following,
 \begin{equation}
   \label{eq:dirac_deriv_swap}
-  \pdv{\delta(y_1 - y_2)}{y_1} = -\pdv{\delta(y_1 - y_2)}{y_2}.
+  \pdv{\delta(y_1 - y_2)}{y_1} = -\pdv{\delta(y_1 - y_2)}{y_2},
 \end{equation}
+where we understand that these deltas must be under an integral.
+
+This can be derived using the definition of a Dirac delta as a sequence of delta functions,
+\begin{equation}
+  \label{eq:dirac_definition}
+  \delta(x)  = \lim_{\sigma \to 0} \frac{1}{\sqrt{2\pi \sigma^2}} e^{-t^2/2\sigma^2},
+\end{equation}
+though I've confirmed it using Mathematica. 
 
 \section{First Cumulant Equation of Motion}
 \label{sec:first-cumul-equat}
