@@ -99,8 +99,8 @@ y_basis = de.SinCos('y', ny, interval=(0, Ly), dealias=3/2)
 domain = de.Domain([y_basis, x_basis], grid_dtype=np.float64)
 
 # 2D Boussinesq hydrodynamics
-problem = de.IVP(domain, variables=['psi','theta','zeta'], time='t')
-problem.meta['psi','zeta','theta']['y']['parity'] = -1 # sin basis
+problem = de.IVP(domain, variables=['psi','theta'], time='t')
+problem.meta['psi','theta']['y']['parity'] = -1 # sin basis
 problem.parameters['Pr'] = Pr
 problem.parameters['Ra'] = Ra
 problem.parameters['beta'] = beta
@@ -111,16 +111,13 @@ problem.parameters['Ly'] = Ly
 
 # construct the 2D Jacobian
 problem.substitutions['J(A,B)'] = "dx(A) * dy(B) - dy(A) * dx(B)"
-
+problem.substitutions['zeta'] = "dx(dx(psi)) + dy(dy(psi))"
 problem.substitutions['Avg_x(A)'] = "integ(A,'x')/Lx"
 problem.substitutions['Avg_y(A)'] = "integ(A,'y')/Ly"
 
-problem.add_equation("dt(zeta) - beta*dx(psi) + Ra/Pr * dx(theta) + C * sbeta * zeta - dx(dx(zeta)) - dy(dy(zeta)) = -J(psi,zeta)", condition="ny != 0")
-problem.add_equation("dt(theta) + dx(psi)/Pr - (dx(dx(theta)) + dy(dy(theta)))/Pr = -J(psi,theta)", condition="ny != 0")
-problem.add_equation("dx(dx(psi)) + dy(dy(psi)) - zeta = 0", condition="ny != 0")
-problem.add_equation("zeta = 0", condition="ny ==0")
-problem.add_equation("theta = 0", condition="ny ==0")
-problem.add_equation("psi = 0", condition="ny ==0")
+problem.add_equation("dt(zeta) - beta*dx(psi) + Ra/Pr * dx(theta) + C * sbeta * zeta - dx(dx(zeta)) - dy(dy(zeta)) = -J(psi,zeta)", condition="(nx != 0) or (ny != 0)")
+problem.add_equation("dt(theta) + dx(psi)/Pr - (dx(dx(theta)) + dy(dy(theta)))/Pr = -J(psi,theta)")
+problem.add_equation("psi = 0", condition="(nx == 0) and (ny == 0)")
 
 # Build solver
 solver = problem.build_solver(de.timesteppers.MCNAB2)
@@ -170,23 +167,25 @@ snap.add_task("dx(psi)", name="u_y")
 snap.add_task("-dy(psi)", name="u_x")
 snap.add_task("zeta")
 snap.add_task("theta")
-snap.add_task("zeta", name="zeta_kspace", layout='c')
+#snap.add_task("zeta", name="zeta_kspace", layout='c')
 snap.add_task("theta", name="theta_kspace", layout='c')
 analysis_tasks.append(snap)
 
 integ = solver.evaluator.add_file_handler(os.path.join(data_dir,'integrals'), sim_dt=1e-3, max_writes=200)
-integ.add_task("Avg_x(dx(psi)**2)", name='<y kin en density>_x', scales=1)
-integ.add_task("Avg_x(dy(psi)**2)", name='<x kin en density>_x', scales=1)
+integ.add_task("Avg_x(dx(psi))", name='<v>_x', scales=1)
+integ.add_task("Avg_x(-dy(psi))", name='<u>_x', scales=1)
 integ.add_task("Avg_x(zeta)", name='<vorticity>_x', scales=1)
 integ.add_task("Avg_x(theta)", name='<theta>_x', scales=1)
 integ.add_task("Avg_x((theta-Avg_x(theta)) * (zeta - Avg_x(zeta)))", name="<theta_prime zeta_prime>_x",scales=1)
 analysis_tasks.append(integ)
 
 timeseries = solver.evaluator.add_file_handler(os.path.join(data_dir,'timeseries'), sim_dt=1e-3)
-timeseries.add_task("Avg_y(Avg_x(dx(psi)**2 + dy(psi)**2))",name='Ekin')
-timeseries.add_task("integ(integ(dy(psi)**2,'x'),'y')/(Lx*Ly)",name='E_zonal')
-timeseries.add_task("Avg_y(Avg_x(dx(psi))**2 + Avg_x(dy(psi))**2)",name='E_zonal2')
-timeseries.add_task("2*Ra/Pr * Avg_y(Avg_x(psi*dx(theta))) - 2*Avg_y(Avg_x((dx(dx(psi)) + dy(dy(psi)))**2))", name="dEdt")
+timeseries.add_task("0.5*integ(dx(psi)**2 + dy(psi)**2)",name='Ekin')
+timeseries.add_task("0.5*integ(Avg_x(dy(psi)**2))",name='E_zonal')
+timeseries.add_task("2*Ra/Pr * integ(psi*dx(theta))", name="Ekdot_T")
+timeseries.add_task("-C*sbeta*integ(dx(psi)**2 + dy(psi)**2)", name="Ekdot_drag")
+timeseries.add_task("-integ((dx(dx(psi)) + dy(dy(psi)))**2)", name="Ekdot_visc")
+timeseries.add_task("integ(zeta**2)", name="Enstrophy")
 analysis_tasks.append(timeseries)
 
 # Flow properties

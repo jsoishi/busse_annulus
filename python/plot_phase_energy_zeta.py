@@ -31,16 +31,19 @@ cb_ax = fig.add_axes([0.88,0.1,0.01,0.4])
 phase_ax = fig.add_axes([0.1,0.6,0.35,0.35])
 ts_ax = fig.add_axes([0.55,0.6,0.35,0.35])
 
-ts_ax.plot(ts['scales/sim_time'][:],2*ts['tasks/E_zonal2'][:,0])
+ts_ax.plot(ts['scales/sim_time'][:],ts['tasks/E_zonal'][:,0], label='Zonal')
+ts_ax.plot(ts['scales/sim_time'][:],ts['tasks/Ekin'][:,0], label='Total Kinetic')
+ts_ax.legend(loc='upper right')
+
 ts_ax.set_xlim(0.,1.)
 #ts_ax.set_ylim(100,1500)
 ts_ax.set_xlabel('$t$')
 ts_ax.set_ylabel('$E_Z$')
 
-dedt = central_diff(ts['scales/sim_time'][:],2*ts['tasks/E_zonal2'][:,0])
+dedt = central_diff(ts['scales/sim_time'][:],2*ts['tasks/E_zonal'][:,0])
 
 t_trim = ts['scales/sim_time'][1:-1]
-ez = ts['tasks/E_zonal2'][1:-1,0]
+ez = ts['tasks/E_zonal'][1:-1,0]
 t_select = (t_trim >0.5) & (t_trim < 0.7)
 phase_ax.scatter(2*ez[t_select],2*dedt[t_select]/1000)
 #phase_ax.set_xlim(750,850)
@@ -48,11 +51,11 @@ phase_ax.set_xlabel('$E_Z$')
 phase_ax.set_ylabel('$10^{-3}\ dE_Z/dt$')
 phase_ax.get_xaxis().get_major_formatter().set_useOffset(True)
 
-im = vort_ax.imshow(snapshots['tasks/zeta'][-1,:,:],extent=[0,2*np.pi,0,1],aspect='auto',cmap='viridis',interpolation='none')
+im = vort_ax.imshow(snapshots['tasks/u_x'][-1,:,:],extent=[0,2*np.pi,0,1],aspect='auto',cmap='PuOr',interpolation='none')
 vort_ax.set_xlabel('x')
 vort_ax.set_ylabel('y')
 vort_ax.grid(b=False)
-fig.colorbar(im,cax=cb_ax,label=r'$\zeta$')
+fig.colorbar(im,cax=cb_ax,label=r'$u_x$')
 savefilename = datadir.rstrip('/')
 savefilename = savefilename.split('/')[1]
 fig.savefig('../figs/{}_phase_energy_zeta.png'.format(savefilename))
