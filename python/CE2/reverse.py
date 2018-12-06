@@ -25,6 +25,13 @@ class ReverseFirst(Operator, FutureField):
     def meta_parity(self, axis):
         return self.args[0].meta[axis]['parity']
 
+    def check_conditions(self):
+        layout = self.args[0].layout
+        
+        return (not layout.grid_space[0]
+                and layout.grid_space[1]
+                and layout.grid_space[2])
+
     def operate(self, out):
         arg = self.args[0]
         arg.require_grid_space()
