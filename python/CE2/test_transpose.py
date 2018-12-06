@@ -7,11 +7,11 @@ logger = logging.getLogger(__name__)
 
 de.operators.parseables['Trans'] = TransposeOperator
 
-x = de.Fourier('x',16, dealias=3/2)
-y0 = de.Fourier('y0',32, dealias=3/2)
-y1 = de.Fourier('y1',32, dealias=3/2)
+x = de.Fourier('x',256, dealias=3/2)
+y0 = de.Fourier('y0',64, dealias=3/2)
+y1 = de.Fourier('y1',64, dealias=3/2)
 
-domain = de.Domain([x,y0,y1], grid_dtype='float', mesh=[2,2])
+domain = de.Domain([x,y0,y1], grid_dtype='float', mesh=(16,16))
 
 # problem = de.IVP(domain, variables=['f','g'])
 
