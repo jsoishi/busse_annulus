@@ -1,4 +1,6 @@
 """Busse Annulus CE2 script."""
+import sys
+sys.path = ['.',] + sys.path
 
 import numpy as np
 np.seterr(all='raise')
