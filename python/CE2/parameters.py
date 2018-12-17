@@ -15,6 +15,10 @@ Pr = 1
 pert_amp = 1e-3
 pert_width = 0.1
 
+# first cumulant symmetry parameters
+cu_ampl = 0
+cu_lambda = 1
+
 # Discretization parameters
 Nx = 32
 Ny = 32
