@@ -27,7 +27,7 @@ logger.info("beta = {:e}".format(param.beta))
 logger.info("Pr = {:e}".format(param.Pr))
 logger.info("C = {:e}".format(param.C))
 logger.info("cu_lambda = {:e}".format(param.cu_lambda))
-logger.info("cu_ampl = {:e}".format(param.cu_ampq1l))
+logger.info("cu_ampl = {:e}".format(param.cu_ampl))
 
 
 # Bases and domain
