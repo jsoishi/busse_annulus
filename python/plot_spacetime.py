@@ -5,7 +5,7 @@ Usage:
     plot_spacetime.py [--var=<var>] <datapath>
 
 Options:
-    --var=<var>             variable to plot [default: <x kin en density>_x]
+    --var=<var>             variable to plot [default: <u>_x]
 
 """
 import os
@@ -29,7 +29,7 @@ var = args['--var']
 
 datadir = args['<datapath>']
 
-integrals = h5py.File(datadir+"/integrals/integrals_s1.h5","r")
+integrals = h5py.File(datadir+"/integrals/integrals.h5","r")
 
 fig = plt.figure(figsize=(14,8))
 st_ax = fig.add_axes([0.1,0.1,0.8,0.8])

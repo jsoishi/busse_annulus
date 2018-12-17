@@ -28,11 +28,10 @@ def main(filename):
         for task in tasks:
             dset = file['tasks'][task]
             time = dset.dims[0]['sim_time'][:]
-            data = dset[:].ravel()
-            data = data / data[0]
-            plt.plot(time, data, label=task)
+            data = dset[:,:,:,0].ravel()
+            data = data
+            plt.semilogy(time, data, label=task)
             print('Final %s: %.8f' %(task, data[-1]))
-        plt.ylim(0.8, 1.2)
         plt.xlabel('time')
         plt.legend(loc="upper right")
         # Save figure
