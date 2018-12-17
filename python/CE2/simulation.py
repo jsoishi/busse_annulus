@@ -21,6 +21,15 @@ de.operators.parseables['Rev'] = Rev = reverse.ReverseFirst
 import logging
 logger = logging.getLogger(__name__)
 
+logger.info("Running with Nx = {:d}, Ny = {:d}".format(param.Nx, param.Ny))
+logger.info("Ra = {:e}".format(param.Ra))
+logger.info("beta = {:e}".format(param.beta))
+logger.info("Pr = {:e}".format(param.Pr))
+logger.info("C = {:e}".format(param.C))
+logger.info("cu_lambda = {:e}".format(param.cu_lambda))
+logger.info("cu_ampl = {:e}".format(param.cu_ampq1l))
+
+
 # Bases and domain
 x_basis = de.Fourier('x', param.Nx, [-param.Lx/2, param.Lx/2], dealias=3/2)
 y0_basis = de.SinCos('y0', param.Ny, [0, param.Ly], dealias=3/2)
