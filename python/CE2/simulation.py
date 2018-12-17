@@ -126,9 +126,38 @@ if pathlib.Path('restart.h5').exists():
     solver.load_state('restart.h5', -1)
 else:
     r2 = x**2 + (param.Ly/np.pi*np.sin((y1-y0)*np.pi/param.Ly))**2/2
+    cs = solver.state['cs']
     ctt = solver.state['ctt']
 
-    ctt['g'] = param.pert_amp * np.exp(-r2/2/param.pert_width**2) * np.cos(np.pi/param.Ly *y1) * np.cos(np.pi/param.Ly *y0)
+    ctt['g'] = param.pert_amp * np.exp(-r2/2/param.pert_width**2) * np.sin(np.pi/param.Ly *y1) * np.sin(np.pi/param.Ly *y0)
+
+    # Invert cu_ref for cs initial condition
+    # Reference jet: this will have a fractional symmetric component lambda
+    if param.cu_ampl != 0:
+        cu_ref = domain.new_field()
+        cu_ref.meta['x']['constant'] = True
+        cu_ref.meta['y0']['parity'] = 1
+        cu_ref.meta['y1']['parity'] = 1
+
+        x, y0, y1 = domain.grids()
+        # Build as 1D function of y0
+        cu_ref['g'] = param.cu_ampl * (param.cu_lambda * np.cos(2*y0*np.pi/param.Ly) + (1 - param.cu_lambda)*np.cos(y0*np.pi/param.Ly))
+        # Diagonalize
+        cu_ref = Diag(cu_ref, 'y0', 'y1').evaluate()
+        
+        ic_problem = de.LBVP(domain, variables=['cs'])
+        ic_problem.meta['cs']['x']['constant'] = True
+        ic_problem.meta['cs']['y0']['parity'] = 1
+        ic_problem.meta['cs']['y1']['parity'] = -1
+
+        ic_problem.parameters['cu_ref'] = cu_ref
+        ic_problem.add_equation("cs = 0", condition="(nx != 0) or (ny0 != 0)")
+        ic_problem.add_equation("cs = 0", condition="(nx == 0) and (ny1 == 0) and (ny0 == 0)")
+        ic_problem.add_equation("-dy1(cs) = cu_ref", condition="(nx == 0) and (ny0 == 0) and (ny1 != 0)")
+        ic_solver = ic_problem.build_solver()
+        ic_solver.solve()
+        cs['c'] = ic_solver.state['cs']['c']
+
 # Analysis
 an1 = solver.evaluator.add_file_handler('data_checkpoints', sim_dt=param.checkpoints_sim_dt, max_writes=1)
 an1.add_system(solver.state)
