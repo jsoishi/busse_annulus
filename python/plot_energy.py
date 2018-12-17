@@ -33,7 +33,7 @@ ts = h5py.File(datadir+"/timeseries/timeseries_s1.h5")
 fig = plt.figure(figsize=(14,8))
 ts_ax = fig.add_axes([0.1,0.1,0.85,0.85])
 
-ts_ax.plot(ts['scales/sim_time'][:],ts['tasks/Ekin'][:,0])
+ts_ax.semilogy(ts['scales/sim_time'][:],ts['tasks/Ekin'][:,0], '-x')
 #ts_ax.set_xlim(0.,1.)
 #ts_ax.set_ylim(100,1500)
 ts_ax.set_xlabel('$t$')
