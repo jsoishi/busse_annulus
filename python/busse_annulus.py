@@ -153,7 +153,7 @@ else:
 
 # Integration parameters
 solver.stop_sim_time = stop_time
-solver.stop_wall_time = 60.*60
+solver.stop_wall_time = 5*24*60.*60
 solver.stop_iteration = np.inf
 
 # Analysis
