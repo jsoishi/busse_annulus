@@ -3,7 +3,7 @@
 ref: Brummell & Hart (1993) fig 5a
 
 Usage:
-    busse_annulus.py [--Ra=<Ra> --beta=<beta> --C=<C> --Pr=<Pr> --restart=<restart_file> --nx=<nx> --ny=<ny> --filter=<filter> --seed=<seed> --ICmode=<ICmode> --stop-time=<stop_time> --use-CFL] 
+    busse_annulus.py [--Ra=<Ra> --beta=<beta> --C=<C> --Pr=<Pr> --restart=<restart_file> --nx=<nx> --ny=<ny> --filter=<filter> --seed=<seed> --ICmode=<ICmode> --stop-time=<stop_time> --use-CFL --note=<note>] 
 
 Options:
     --Ra=<Ra>                  Rayleigh number [default: 39000]
@@ -18,6 +18,7 @@ Options:
     --ICmode=<ICmode>          x mode to initialize [default: None]
     --stop-time=<stop_time>    simulation time to stop [default: 2.]
     --use-CFL                  use CFL condition
+    --note=<note>              a note to add to directory
 
 """
 import glob
@@ -54,6 +55,7 @@ restart = args['--restart']
 seed = args['--seed']
 ICmode = args['--ICmode']
 CFL = args['--use-CFL']
+note = args['--note']
 
 if seed == 'None':
     seed = None
@@ -74,6 +76,9 @@ if ICmode:
 
 if CFL:
     data_dir += "_CFL"
+
+if note:
+    data_dir += "_{}".format(note)
 
 if restart:
     restart_dirs = glob.glob(data_dir+"restart*")
@@ -120,7 +125,8 @@ problem.add_equation("dt(theta) + dx(psi)/Pr - (dx(dx(theta)) + dy(dy(theta)))/P
 problem.add_equation("psi = 0", condition="(nx == 0) and (ny == 0)")
 
 # Build solver
-solver = problem.build_solver(de.timesteppers.MCNAB2)
+solver = problem.build_solver(de.timesteppers.SBDF2)
+#solver = problem.build_solver(de.timesteppers.MCNAB2)
 #solver = problem.build_solver(de.timesteppers.RK222)
 logger.info('Solver built')
 
@@ -145,7 +151,7 @@ else:
 
 if CFL:
     CFL = flow_tools.CFL(solver, initial_dt=1e-4, cadence=5, safety=0.3,
-                         max_change=1.5, min_change=0.5)
+                         max_change=1.1, min_change=0.5)
     CFL.add_velocities(('dy(psi)', '-dx(psi)'))
     dt = CFL.compute_dt()
 else:
