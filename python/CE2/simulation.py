@@ -8,11 +8,13 @@ import time
 import pathlib
 
 from dedalus import public as de
+from dedalus.extras import flow_tools
 from dedalus.tools.array import reshape_vector
 import parameters as param
 import diagonal
 import transpose
 import reverse
+from symmetry import enforce_symmetry
 
 de.operators.parseables['Diag'] = Diag = diagonal.GridDiagonal
 de.operators.parseables['Trans'] = Trans = transpose.TransposeOperator
@@ -21,6 +23,9 @@ de.operators.parseables['Rev'] = Rev = reverse.ReverseFirst
 import logging
 logger = logging.getLogger(__name__)
 
+if not hasattr(param, "force_symmetry"):
+    param.force_symmetry = 0
+
 logger.info("Running with Nx = {:d}, Ny = {:d}".format(param.Nx, param.Ny))
 logger.info("Ra = {:e}".format(param.Ra))
 logger.info("beta = {:e}".format(param.beta))
@@ -28,7 +33,8 @@ logger.info("Pr = {:e}".format(param.Pr))
 logger.info("C = {:e}".format(param.C))
 logger.info("cu_lambda = {:e}".format(param.cu_lambda))
 logger.info("cu_ampl = {:e}".format(param.cu_ampl))
-
+if param.force_symmetry:
+    logger.info("enforcing symmetry every {:d} timesteps".format(param.force_symmetry))
 
 # Bases and domain
 x_basis = de.Fourier('x', param.Nx, [-param.Lx/2, param.Lx/2], dealias=3/2)
@@ -193,8 +199,15 @@ try:
     start_time = time.time()
     while solver.ok:
         dt = solver.step(param.dt)
+        if param.force_symmetry:
+            if (solver.iteration-1) % param.force_symmetry == 0:
+                logger.info("Iteration: %i, Enforcing symmetry." % (solver.iteration))
+                enforce_symmetry(solver.state['css'])
+                enforce_symmetry(solver.state['ctt'])
         if (solver.iteration-1) % 10 == 0:
             logger.info('Iteration: %i, Time: %e, dt: %e' %(solver.iteration, solver.sim_time, dt))
+            logger.info('(min, max) css_sym: (%e, %e), (min, max) ctt_sym: (%e, %e)' %(flow.min('css_sym'), flow.max('css_sym'), flow.min('ctt_sym'), flow.max('ctt_sym')))
+
 except:
     logger.error('Exception raised, triggering end of main loop.')
     raise
