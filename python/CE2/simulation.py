@@ -179,6 +179,13 @@ an3.add_task("P1(ct)", name='ct')
 an4 = solver.evaluator.add_file_handler('data_scalars', iter=param.scalars_iter, max_writes=10)
 an4.add_task("-(Lx/2) * integ(P0(cz)*P0(cs) + P0(D(czs)), 'y0')", name='KE')
 an4.add_task(" (Lx/2) * integ(P0(cz)*P0(cz) + P0(D(czz)), 'y0')", name='EN')
+an4.add_task("integ((Trans(css) - css)**2)", name="css_asymm_L2")
+an4.add_task("integ((Trans(ctt) - ctt)**2)", name="ctt_asymm_L2")
+
+# Flow properties
+flow = flow_tools.GlobalFlowProperty(solver, cadence=1)
+flow.add_property("Trans(css) - css", name='css_sym')
+flow.add_property("Trans(ctt) - ctt", name='ctt_sym')
 
 # Main loop
 try:
