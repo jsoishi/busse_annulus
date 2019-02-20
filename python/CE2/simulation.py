@@ -26,6 +26,9 @@ logger = logging.getLogger(__name__)
 if not hasattr(param, "force_symmetry"):
     param.force_symmetry = 0
 
+if not hasattr(param, "use_czt"):
+    param.use_czt = False
+
 logger.info("Running with Nx = {:d}, Ny = {:d}".format(param.Nx, param.Ny))
 logger.info("Ra = {:e}".format(param.Ra))
 logger.info("beta = {:e}".format(param.beta))
@@ -115,11 +118,21 @@ problem.add_equation("dt(ctz) + κ*ctz - L0(ctz)/Pr - L1(ctz) + β*dx(cts) + dx(
                      condition="(nx != 0)")
 # Second theta-theta cumulant restrictions
 problem.add_equation("ctt = 0", condition="(nx == 0)")
+
+if param.use_czt:
+    logger.info("Using explicit czt equation")
+    problem.add_equation("dt(czt) + κ*czt - L0(czt) - L1(czt)/Pr - β*dx(cst) - dx(czs) + Ra/Pr * dx(ctt) = " +
+                     " (dy0(P0(cs)) - dy1(P1(cs)))*dx(czt) + dy1(P1(ct))*dx(czs) - dy0(P0(cz))*dx(cst)",
+                     condition="(nx != 0)")
+    problem.add_equation("cst = 0", condition="(nx == 0)")
+else:
+    logger.info("Using symmetry relation for czt.")
+    # symmetry equation for cst
+    problem.add_equation("cst = T(cts)")
+
 # Second theta-theta cumulant evolution
 problem.add_equation("dt(ctt) + dx(cst) - dx(cts) - L0(ctt)/Pr - L1(ctt)/Pr = (dy0(P0(cs)) - dy1(P1(cs))) * dx(ctt) + dy1(P1(ct))*dx(cts) - dy0(P0(ct))*dx(cst)", condition="(nx != 0)")
 
-# symmetry equation for cst
-problem.add_equation("cst = T(cts)")
 
 # Solver
 solver = problem.build_solver(de.timesteppers.RK222)
@@ -185,13 +198,15 @@ an3.add_task("P1(ct)", name='ct')
 an4 = solver.evaluator.add_file_handler('data_scalars', iter=param.scalars_iter, max_writes=10)
 an4.add_task("-(Lx/2) * integ(P0(cz)*P0(cs) + P0(D(czs)), 'y0')", name='KE')
 an4.add_task(" (Lx/2) * integ(P0(cz)*P0(cz) + P0(D(czz)), 'y0')", name='EN')
-an4.add_task("integ((Trans(css) - css)**2)", name="css_asymm_L2")
-an4.add_task("integ((Trans(ctt) - ctt)**2)", name="ctt_asymm_L2")
+an4.add_task("integ((T(css) - css)**2)", name="css_asymm_L2")
+an4.add_task("integ((T(ctt) - ctt)**2)", name="ctt_asymm_L2")
+an4.add_task("integ((T(cts) - cst)**2)", name="cst_asymm_L2")
 
 # Flow properties
 flow = flow_tools.GlobalFlowProperty(solver, cadence=1)
-flow.add_property("Trans(css) - css", name='css_sym')
-flow.add_property("Trans(ctt) - ctt", name='ctt_sym')
+flow.add_property("T(css) - css", name='css_sym')
+flow.add_property("T(ctt) - ctt", name='ctt_sym')
+flow.add_property("T(cts) - cst", name='cst_sym')
 
 # Main loop
 try:
@@ -204,9 +219,10 @@ try:
                 logger.info("Iteration: %i, Enforcing symmetry." % (solver.iteration))
                 enforce_symmetry(solver.state['css'])
                 enforce_symmetry(solver.state['ctt'])
+                enforce_symmetry(solver.state['cts'], solver.state['cst'])
         if (solver.iteration-1) % 10 == 0:
             logger.info('Iteration: %i, Time: %e, dt: %e' %(solver.iteration, solver.sim_time, dt))
-            logger.info('(min, max) css_sym: (%e, %e), (min, max) ctt_sym: (%e, %e)' %(flow.min('css_sym'), flow.max('css_sym'), flow.min('ctt_sym'), flow.max('ctt_sym')))
+            logger.info('(min, max) css_sym: (%e, %e), (min, max) ctt_sym: (%e, %e), cst_sym: (%e, %e)' %(flow.min('css_sym'), flow.max('css_sym'), flow.min('ctt_sym'), flow.max('ctt_sym'), flow.min('cst_sym'), flow.max('cst_sym')))
 
 except:
     logger.error('Exception raised, triggering end of main loop.')
