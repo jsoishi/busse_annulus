@@ -12,6 +12,16 @@
 %\usepackage{epstopdf, epsfig}
 \usepackage{physics}
 
+\usepackage{enumitem,amssymb}
+\newlist{todolist}{itemize}{2}
+\setlist[todolist]{label=$\square$}
+\usepackage{pifont}
+\newcommand{\cmark}{\ding{51}}%
+\newcommand{\xmark}{\ding{55}}%
+\newcommand{\done}{\rlap{$\square$}{\raisebox{2pt}{\large\hspace{1pt}\cmark}}%
+\hspace{-2.5pt}}
+\newcommand{\wontfix}{\rlap{$\square$}{\large\hspace{1pt}\xmark}}
+
 \newtheorem{lemma}{Lemma}
 \newtheorem{corollary}{Corollary}
 
@@ -53,16 +63,33 @@ Leeds, Leeds LS2 9JT, UK
 \maketitle
 
 \begin{abstract}
-Busse Annulus CE2
+Turbulent systems generate and interact with mean flows in a wide variety of natural systems.
+Understanding the nature of these interactions, particularly for systems far from equilibrium, remains a paramount priority in understanding large-scale flows on planets and stars.
+The fundamental problem in studying such systems via direct numerical simulation (DNS) is the fact that the smallest scales can have a significant impact on the mean flows, even when they are very widely separated.
+One way to make progress is to study the statistics of the flow rather than detailed flow variables themselves.
+By expanding around the mean flow in terms of equal-time cumulants, we can arrive at a closed set of equations of motion for the cumulants.
+Here, we present results using an expansion terminated at the second cumulant (CE2) for rapidly rotating thermal convection in an annulus.
+CE2 discards eddy-eddy interactions that yield eddies; it is fundamentally quasi-linear.
+We focus on a particular case in which the direct numerical simulation yields an initial three-jet solution that is unstable to a two-jet solution.
+Interestingly, CE2 predicts a stable three-jet solution, though we find that by biasing the initial conditions to favor certain symmetries, CE2 reproduces the DNS results.
 \end{abstract}
 
 \begin{keywords}
 \end{keywords}
 
+\section{Introduction}
+\label{sec:intro}
+
+
+Rationale for statistical methods
+What has been done before in DSS
+Model problems typically stochastically driven; this is not
+
 \section{Model Equations}
 \label{sec:model-eqations}
 
-We consider the equations for the Busse annulus. We write the equation of motion in terms of the $z$-component of the vorticity, $\zeta$.
+We consider the equations for the Busse annulus.
+We write the equation of motion in terms of the $z$-component of the vorticity, $\zeta$.
 
 \begin{equation}
   \label{eq:zeta_eom}
@@ -73,7 +100,8 @@ The streamfunction $\psi$ is defined by
   \label{eq:zeta_def}
   \zeta = \laplacian{\psi},
 \end{equation}
-which means the $x$ velocity $u = -\pdv*{\psi}{y}$ and the $y$ velocity $v = \pdv*{\psi}{x}$. $J(A, B) = \pdv*{A}{x}\pdv*{B}{y} - \pdv*{A}{y}\pdv*{B}{x}$ is the Jacobian. The perturbed temperature is given by $\theta$, which obeys the dynamical equation
+which means the $x$ velocity $u = -\pdv*{\psi}{y}$ and the $y$ velocity $v = \pdv*{\psi}{x}$. $J(A, B) = \pdv*{A}{x}\pdv*{B}{y} - \pdv*{A}{y}\pdv*{B}{x}$ is the Jacobian. 
+The perturbed temperature is given by $\theta$, which obeys the dynamical equation
 %
 \begin{equation}
   \label{eq:theta}
@@ -82,7 +110,8 @@ which means the $x$ velocity $u = -\pdv*{\psi}{y}$ and the $y$ velocity $v = \pd
 The system is thus governed by four dimensionless parameters, $\beta$, $C$, $\Pran = \nu/
 \kappa$, and $\Ray = \alpha g \Delta T d^3/\nu \kappa$
 
-For the CE2 expansion, we need equations for the first cumulants $\cz$ and $\ct$, and the second cumulants $\czs$, $\czz$, $\ctz$, and $\czt$. While second cumulants involving $\psi$ and $\zeta$ are related by the gradient operators, e.g. $\czz = \nabla_2^2 \czs$, those involving $\theta$ require use of the symmetry $\ctz(y_1, y_2, \xi) = \czt(y_2, y_1, -\xi)$.
+For the CE2 expansion, we need equations for the first cumulants $\cz$ and $\ct$, and the second cumulants $\czs$, $\czz$, $\ctz$, and $\czt$. 
+While second cumulants involving $\psi$ and $\zeta$ are related by the gradient operators, e.g. $\czz = \nabla_2^2 \czs$, those involving $\theta$ require use of the symmetry $\ctz(y_1, y_2, \xi) = \czt(y_2, y_1, -\xi)$.
 
 We solve dynamical equations for $\cz$,
 \begin{equation}
@@ -116,19 +145,72 @@ where $\cdots$ indicates the terms needed to ensure symmetry under exchange of $
 \subsection{Parity}
 \label{sec:parity}
 
-We solve the system subject to impenetrable, stress-free boundary conditions in the $y$ dimension; it is periodic in $x$. This means that $\theta$, $\zeta$, and $\psi$ all have odd parity. The action of the zonal average preserves the parity, and so we discretize the first cumulants $\cz$, $\ct$ using a $\sin$ series. 
+We solve the system subject to impenetrable, stress-free boundary conditions in the $y$ dimension; it is periodic in $x$. 
+This means that $\theta$, $\zeta$, and $\psi$ all have odd parity.
+The action of the zonal average preserves the parity, and so we discretize the first cumulants $\cz$, $\ct$ using a $\sin$ series. 
+
+\subsection{Numerical Methods}
+\label{sec:numerical}
+
+We use \emph{Dedalus} to solve both the direct equations (\ref{eq:zeta_eom} - \ref{eq:theta}) and the CE2 model equations, (\ref{eq:cz})-~(\ref{eq:ctz}).
 
 
-\subsection{Numerical Solution}
-\label{sec:numerical-solution}
+\section{Results}
+\label{sec:results}
 
-We use \emph{Dedalus} to solve the system.
+In order to facilitate comparison with previous work, we adapt the same run naming scheme as in \citet{2018RSPSA.47480422T}.
+
+\subsection{Hovoller}
+\label{sec:hov}
+
+time averaged 1st and 2nd cumulants
+
+\subsection{3 Jet to 2 Jet Transitions}
+\label{sec:3->2}
+
+CE2 for bursting?
+What does CE2 get for 6 jet?
+
+\subsection{Biasing higher jet counts}
+\label{sec:higher_jet}
+
+Try to bias CE2 6 jet parameters.
+
+Start from CE2 2 jet state @ 6 jet parameters?
+
+\subsection{PDFs}
+\label{sec:pdf}
+
+QL pdf vs NL pdf.
+Does this do better than RB convection?
+
+\section{To Do}
+\label{sec:todo}
+
+\begin{todolist}
+  \item Fix drag runs
+    \begin{todolist}
+      \item[\done] restart a working run, adding small $C$. Does it crash?
+      \item run with each friction term off, one at a time
+    \end{todolist}
+  \item Look at 2nd cumulants
+  \item DNS with subtracted means: movie. Try to see if ``satellite modes'' are important.
+  \item plot DNS $k_x$ at a given height vs time.
+  \item Understand why QL/CE2 fail to reproduce correct number of jets. Is it that they can find all solutions, but cannot transition between them?
+\end{todolist}
+
+\section{Discussion}
+\label{sec:discussion}
+
+Emerging story: \emph{zonal} QL/CE2 fail to transition among states because they preclude $k_x = 1$ ``satellite'' modes. If we can restore the transition between states by going to \emph{ensemble} CE2, then this would give good evidence that that is the right approach.
 
 
 We acknowledge people for things and grants for money. 
 
 \bibliographystyle{jfm}
 % Note the spaces between the initials
-\bibliography{jfm-instructions}
+\bibliography{busse}
 
 \end{document}
+
+%  LocalWords:  DNS cumulants cumulant annulus
