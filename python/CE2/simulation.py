@@ -223,7 +223,7 @@ try:
         if (solver.iteration-1) % 10 == 0:
             logger.info('Iteration: %i, Time: %e, dt: %e' %(solver.iteration, solver.sim_time, dt))
             logger.info('(min, max) css_sym: (%e, %e), (min, max) ctt_sym: (%e, %e), cst_sym: (%e, %e)' %(flow.min('css_sym'), flow.max('css_sym'), flow.min('ctt_sym'), flow.max('ctt_sym'), flow.min('cst_sym'), flow.max('cst_sym')))
-
+    solver.evaluate_handlers_now(dt)
 except:
     logger.error('Exception raised, triggering end of main loop.')
     raise
