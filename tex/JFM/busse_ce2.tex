@@ -168,6 +168,24 @@ time averaged 1st and 2nd cumulants
 \subsection{3 Jet to 2 Jet Transitions}
 \label{sec:3->2}
 
+In run A, a curious effect occurs: the CE2 results return a 3-jet solution, while the DNS yields a 2-jet solution.
+This is quite similar to the quasilinear run in \citet{2018RSPSA.47480422T}, which also produces a 3-jet solution.
+Given that CE2 is fundamentally a quali-linear theory, this is unsurprising.
+One might hypothesize that the three jet solution and two jet solution coexist in the DNS but that the latter has a faster growth rate and lower saturation amplitude than the former.
+In order to explore this idea, we biased the CE2 simulation by initializing $c_s$ to
+\begin{equation}
+  \label{eq:bias}
+  c_s(t=0, y_0) = A_0 \lambda cos(2\pi/L_y y_0) + (1-\lambda) cos (\pi/L_y y_0).
+\end{equation}
+The first term is odd about the center of the domain, while the second is even\footnote{note that both have even parity with respect to the boundary connditions, as required}.
+If the linear growth rate explanation is correct, then one would expect that for $\lambda \ll 1$ would lead the CE2 results to pick up the 2-jet solutions.
+They do not.
+However, CE2 \emph{is} capable of sustaining a 2-jet solution:
+by biasing our simulation with $\lambda = 1$ and giving a substantial initial amplitude $A_0 = 40$, the CE2 results do reveal the 2-jet solution, and they saturate at an amplitude comparible to the DNS results.
+This strongly suggests that the transition from 3 to 2 jets is the product of a subcritical, non-linear transition mediated by eddy-eddy $\to$ eddy interactions excluded from CE2 (and the previous quasilinear results).
+
+
+
 CE2 for bursting?
 What does CE2 get for 6 jet?
 
