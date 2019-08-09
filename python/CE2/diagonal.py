@@ -6,6 +6,8 @@ from dedalus.core.field import Operand
 from dedalus.core.operators import Operator, FutureField, Interpolate
 from dedalus.tools.array import reshape_vector, axslice
 
+import logging
+logger = logging.getLogger(__name__)
 
 class FourierDiagonal(Operator, FutureField):
     """
@@ -251,3 +253,10 @@ class GridDiagonal(Operator, FutureField):
         exp_slices[axis0] = None
         out.data[:] = arg.data[tuple(arg_slices)][tuple(exp_slices)]
 
+def fix_diagonal(field, epsilon=1e-10):
+    x, y0, y1 = field.domain.grids(scales=field.domain.dealias)
+    diag_index = (y0 == y1) & (x == 0)
+    total_index = diag_index & (field['g'] < 0)
+    if np.any(total_index):
+        logger.warning("Negative diagonals found in {}. Correcting.".format(field.name))
+    field['g'][total_index] = epsilon
