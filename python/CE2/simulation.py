@@ -87,6 +87,23 @@ problem.substitutions['czz'] = "L1(czs)"
 problem.substitutions['ctz'] = "L1(cts)"
 problem.substitutions['czt'] = "L0(cst)"
 
+if param.diagonal_tendancy:
+    logger.info("Adding {:e} to dt(czz) nad dt(ctt)".format(param.diagonal_tendancy))
+    gamma_field = domain.new_field()
+    gamma_field.meta['y0']['parity'] = -1
+    gamma_field.meta['y1']['parity'] = -1
+
+    diag_index = (y0 == y1) & (x == 0)
+    gamma_field['g'][diag_index] = param.diagonal_tendancy
+    problem.parameters['Gamma'] = gamma_field
+else:
+    gamma_field = domain.new_field()
+    gamma_field.meta['y0']['parity'] = -1
+    gamma_field.meta['y1']['parity'] = -1
+    gamma_field['g'] = 0
+    problem.parameters['Gamma'] = gamma_field
+
+
 # First stream function cumulant restrictions
 problem.add_equation("cs = 0", condition="(nx != 0) or (ny0 != 0)")
 # Stream function gauge
@@ -100,7 +117,7 @@ problem.add_equation("css = 0", condition="(nx == 0)")
 # Second stream function cumulant evolution
 problem.add_equation("dt(czz) - β*dx(csz - czs) - Ra/Pr * dx(czt - ctz) + 2*κ*czz - L0(czz) - L1(czz) = " +
                      "   dy0(P0(cs))*dx(czz) - dy0(P0(cz))*dx(csz)" +
-                     " - dy1(P1(cs))*dx(czz) + dy1(P1(cz))*dx(czs)",
+                     " - dy1(P1(cs))*dx(czz) + dy1(P1(cz))*dx(czs) + Gamma",
                      condition="(nx != 0)")
 
 # First theta cumulant restrictions
@@ -131,7 +148,7 @@ else:
     problem.add_equation("cst = T(cts)")
 
 # Second theta-theta cumulant evolution
-problem.add_equation("dt(ctt) + dx(cst) - dx(cts) - L0(ctt)/Pr - L1(ctt)/Pr = (dy0(P0(cs)) - dy1(P1(cs))) * dx(ctt) + dy1(P1(ct))*dx(cts) - dy0(P0(ct))*dx(cst)", condition="(nx != 0)")
+problem.add_equation("dt(ctt) + dx(cst) - dx(cts) - L0(ctt)/Pr - L1(ctt)/Pr = (dy0(P0(cs)) - dy1(P1(cs))) * dx(ctt) + dy1(P1(ct))*dx(cts) - dy0(P0(ct))*dx(cst) + Gamma", condition="(nx != 0)")
 
 
 # Solver
@@ -220,6 +237,11 @@ try:
                 enforce_symmetry(solver.state['css'])
                 enforce_symmetry(solver.state['ctt'])
                 enforce_symmetry(solver.state['cts'], solver.state['cst'])
+        if param.fix_diagonal:
+            if (solver.iteration-1) % param.fix_diagonal == 0:
+                logger.info("Iteration: %i, Fixing 2nd cumulant diagonals." % (solver.iteration))
+                diagonal.fix_diagonal(solver.state['css'])
+                diagonal.fix_diagonal(solver.state['ctt'])
         if (solver.iteration-1) % 10 == 0:
             logger.info('Iteration: %i, Time: %e, dt: %e' %(solver.iteration, solver.sim_time, dt))
             logger.info('(min, max) css_sym: (%e, %e), (min, max) ctt_sym: (%e, %e), cst_sym: (%e, %e)' %(flow.min('css_sym'), flow.max('css_sym'), flow.min('ctt_sym'), flow.max('ctt_sym'), flow.min('cst_sym'), flow.max('cst_sym')))
