@@ -33,7 +33,7 @@ class TransposeOperator(Operator, FutureField):
         self.axis1 = 2
 
         mesh = arg.domain.dist.mesh
-        if len(mesh) != 0:
+        if len(mesh) > 1:
             if mesh[0] != mesh[1]:
                 raise ValueError("Must use a square mesh with TransposeOperator.")
 
