@@ -15,6 +15,7 @@ import diagonal
 import transpose
 import reverse
 from symmetry import enforce_symmetry
+import projection
 
 de.operators.parseables['Diag'] = Diag = diagonal.GridDiagonal
 de.operators.parseables['Trans'] = Trans = transpose.TransposeOperator
@@ -102,7 +103,6 @@ else:
     gamma_field.meta['y1']['parity'] = -1
     gamma_field['g'] = 0
     problem.parameters['Gamma'] = gamma_field
-
 
 # First stream function cumulant restrictions
 problem.add_equation("cs = 0", condition="(nx != 0) or (ny0 != 0)")
@@ -225,10 +225,17 @@ flow.add_property("T(css) - css", name='css_sym')
 flow.add_property("T(ctt) - ctt", name='ctt_sym')
 flow.add_property("T(cts) - cst", name='cst_sym')
 
+# construct projector for eigenvalue projection
+if param.project_eigenvalues:
+    eval_proj = projection.EigenvalueProjection(domain)
+
 # Main loop
 try:
     logger.info('Starting loop')
     start_time = time.time()
+    projection_time = 0.
+    dt = param.dt
+
     while solver.ok:
         dt = solver.step(param.dt)
         if param.force_symmetry:
