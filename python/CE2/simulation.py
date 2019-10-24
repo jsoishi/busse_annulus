@@ -114,11 +114,12 @@ problem.add_equation("dt(cz) + κ*cz - dy1(dy1(cz)) = - D(dx(dy0(csz))) - D(dx(d
 
 # Second stream function cumulant restrictions
 problem.add_equation("css = 0", condition="(nx == 0)")
+problem.add_equation("css = 0", condition="(nx != 0) and ((ny0 == 0) or (ny1 == 0))")
 # Second stream function cumulant evolution
 problem.add_equation("dt(czz) - β*dx(csz - czs) - Ra/Pr * dx(czt - ctz) + 2*κ*czz - L0(czz) - L1(czz) = " +
                      "   dy0(P0(cs))*dx(czz) - dy0(P0(cz))*dx(csz)" +
                      " - dy1(P1(cs))*dx(czz) + dy1(P1(cz))*dx(czs) + Gamma",
-                     condition="(nx != 0)")
+                     condition="(nx != 0 and ny0 !=0 and ny1 != 0)")
 
 # First theta cumulant restrictions
 problem.add_equation("ct = 0", condition="(nx != 0) or (ny0 != 0)")
@@ -129,26 +130,30 @@ problem.add_equation("dt(ct) - dy1(dy1(ct))/Pr = - D(dx(dy0(cst))) - D(dx(dy1(cs
                      condition="(nx == 0) and (ny0 == 0) and (ny1 != 0)")
 # Second theta cumulant restrictions
 problem.add_equation("cts = 0", condition="(nx == 0)")
+problem.add_equation("cts = 0", condition="(nx != 0) and ((ny0 == 0) or (ny1 == 0))")
 # Second theta cumulant evolution
 problem.add_equation("dt(ctz) + κ*ctz - L0(ctz)/Pr - L1(ctz) + β*dx(cts) + dx(csz) - Ra/Pr * dx(ctt) = " +
                      " (dy0(P0(cs)) - dy1(P1(cs)))*dx(ctz) - dy0(P0(ct))*dx(csz) + dy1(P1(cz))*dx(cts)",
-                     condition="(nx != 0)")
+                     condition="(nx != 0 and ny0 !=0 and ny1 != 0)")
 # Second theta-theta cumulant restrictions
 problem.add_equation("ctt = 0", condition="(nx == 0)")
+problem.add_equation("ctt = 0", condition="(nx != 0) and ((ny0 == 0) or (ny1 == 0))")
+# Second theta-theta cumulant evolution
+problem.add_equation("dt(ctt) + dx(cst) - dx(cts) - L0(ctt)/Pr - L1(ctt)/Pr = (dy0(P0(cs)) - dy1(P1(cs))) * dx(ctt) + dy1(P1(ct))*dx(cts) - dy0(P0(ct))*dx(cst) + Gamma",
+                     condition="(nx != 0 and ny0 !=0 and ny1 != 0)")
 
 if param.use_czt:
     logger.info("Using explicit czt equation")
     problem.add_equation("dt(czt) + κ*czt - L0(czt) - L1(czt)/Pr - β*dx(cst) - dx(czs) + Ra/Pr * dx(ctt) = " +
                      " (dy0(P0(cs)) - dy1(P1(cs)))*dx(czt) + dy1(P1(ct))*dx(czs) - dy0(P0(cz))*dx(cst)",
-                     condition="(nx != 0)")
+                     condition="(nx != 0 and ny0 !=0 and ny1 != 0)")
     problem.add_equation("cst = 0", condition="(nx == 0)")
+    problem.add_equation("cst = 0", condition="(nx != 0) and ((ny0 == 0) or (ny1 == 0))")
 else:
     logger.info("Using symmetry relation for czt.")
     # symmetry equation for cst
     problem.add_equation("cst = T(cts)")
 
-# Second theta-theta cumulant evolution
-problem.add_equation("dt(ctt) + dx(cst) - dx(cts) - L0(ctt)/Pr - L1(ctt)/Pr = (dy0(P0(cs)) - dy1(P1(cs))) * dx(ctt) + dy1(P1(ct))*dx(cts) - dy0(P0(ct))*dx(cst) + Gamma", condition="(nx != 0)")
 
 
 # Solver
