@@ -249,18 +249,40 @@ try:
                 logger.info("Iteration: %i, Fixing 2nd cumulant diagonals." % (solver.iteration))
                 diagonal.fix_diagonal(solver.state['css'])
                 diagonal.fix_diagonal(solver.state['ctt'])
+        if param.project_eigenvalues:
+            if (solver.iteration-1) % param.project_eigenvalues == 0:
+                logger.info("Iteration: %i, Projecting off negative eigenvalues." % (solver.iteration))
+                start_projection_time = time.time()
+                eval_proj.project(solver.state['css'])
+                eval_proj.project(solver.state['ctt'])
+                eval_proj.project(solver.state['cts'])
+                eval_proj.project(solver.state['cst'])
+                end_projection_time = time.time()
+                projection_time += end_projection_time - start_projection_time
+        # eliminate means in 1st cumulants
+        if (solver.iteration-1) % 10 == 0:
+            solver.state['cs']['g'] -= solver.state['cs']['g'].mean()
+            solver.state['ct']['g'] -= solver.state['ct']['g'].mean() 
+        # Hermitian projection
+        if (solver.iteration-1) % 100 == 0:
+            logger.info("Enforcing Hermitian symmetry")
+            for field in solver.state.fields:
+                field.require_grid_space()
         if (solver.iteration-1) % 10 == 0:
             logger.info('Iteration: %i, Time: %e, dt: %e' %(solver.iteration, solver.sim_time, dt))
             logger.info('(min, max) css_sym: (%e, %e), (min, max) ctt_sym: (%e, %e), cst_sym: (%e, %e)' %(flow.min('css_sym'), flow.max('css_sym'), flow.min('ctt_sym'), flow.max('ctt_sym'), flow.min('cst_sym'), flow.max('cst_sym')))
-    solver.evaluate_handlers_now(dt)
 except:
     logger.error('Exception raised, triggering end of main loop.')
     raise
 finally:
+    solver.evaluate_handlers_now(dt)
     end_time = time.time()
     run_time = end_time - start_time
     logger.info('Iterations: %i' %solver.iteration)
     logger.info('Sim end time: %f' %solver.sim_time)
+    if param.project_eigenvalues:
+        logger.info('Projection time: %f'%projection_time)
+        logger.info('Projection time/run_time: %f'%(projection_time/run_time))
     logger.info('Run time: %.2f sec' %(run_time))
     logger.info('Run cost: %f cpu-hr' %(domain.dist.comm_cart.size*run_time/60/60))
 
