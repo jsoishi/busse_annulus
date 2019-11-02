@@ -26,6 +26,7 @@ import pathlib
 from docopt import docopt
 from dedalus.tools.parallel import Sync
 
+plt.style.use('prl')
 args = docopt(__doc__)
 tavg = float(args['--tavg'])
 label = args['--label']
