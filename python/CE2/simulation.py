@@ -222,10 +222,13 @@ an3.add_task("P1(ct)", name='ct')
 
 an4 = solver.evaluator.add_file_handler('data_scalars', iter=param.scalars_iter, max_writes=10)
 an4.add_task("-(Lx/2) * integ(P0(cz)*P0(cs) + P0(D(czs)))", name='KE')
+an4.add_task("-(Lx/2) * integ(P0(cz)*P0(cs))", name='KE_mean')
 an4.add_task(" (Lx/2) * integ(P0(cz)*P0(cz) + P0(D(czz)))", name='EN')
 an4.add_task("integ((T(css) - css)**2)", name="css_asymm_L2")
 an4.add_task("integ((T(ctt) - ctt)**2)", name="ctt_asymm_L2")
 an4.add_task("integ((T(cts) - cst)**2)", name="cst_asymm_L2")
+an4.add_task("integ(cs)", name="cs_integ")
+an4.add_task("integ(ct)", name="ct_integ")
 
 # Flow properties
 flow = flow_tools.GlobalFlowProperty(solver, cadence=1)
