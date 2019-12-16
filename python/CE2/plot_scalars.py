@@ -36,6 +36,13 @@ def main(filename):
         plt.legend(loc="upper right")
         # Save figure
         fig.savefig('integrals.png', dpi=dpi)
+
+        ke = file['tasks/KE'][:,0,0,0]
+        thing = (ke == ke.max())
+        t_peak = time[ke == ke.max()]
+        t_window = (time > time[1]) & (time < t_peak)
+        gamma_en, log_w0 = np.polyfit(time[t_window], np.log(ke[t_window]),1)
+        print("growth_rate = {}".format(gamma_en))
     fig.clear()
     plt.close(fig)
 
