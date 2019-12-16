@@ -47,18 +47,20 @@ def main(file_path, output_path):
         sim_time = file['scales']['sim_time'][:]
         fig = plt.figure(figsize=(16,8))
         data_slices = (slice(None), 0, 0, slice(None))
-        axes = fig.add_axes([0.1, 0.1, 0.85, 0.85])
-
+        log_axes = fig.add_axes([0.1, 0.1, 0.85, 0.85*0.5])
+        lin_axes = fig.add_axes([0.1, 0.1+0.85*0.5, 0.85, 0.85*0.5])
         for task_name in file['tasks']:
             dset = file['tasks'][task_name]
             # Plot average vs time
             x = sim_time[data_slices[0]]
             y = np.mean(dset[data_slices], axis=1)
-            plt.semilogy(x, np.abs(y), label=task_name)
-            plt.xlabel(image_scales[0])
-            plt.ylabel('x-y mean')
+            log_axes.semilogy(x, np.abs(y), label=task_name)
+            log_axes.set_xlabel(image_scales[0])
+            log_axes.set_ylabel('x-y mean')
+            lin_axes.plot(x, y, label=task_name)
+            lin_axes.set_ylabel('x-y mean')
             #plt.xlim(min(x), max(x))
-        plt.legend()
+        lin_axes.legend()
         fig.savefig(output_path.joinpath("xy_means_vs_t.png"), dpi=dpi)
         plt.close(fig)
 
