@@ -173,7 +173,11 @@ else:
     cs = solver.state['cs']
     ctt = solver.state['ctt']
 
-    ctt['g'] = param.pert_amp * np.exp(-r2/2/param.pert_width**2) * np.sin(np.pi/param.Ly *y1) * np.sin(np.pi/param.Ly *y0)
+    #ctt['g'] = param.pert_amp * np.exp(-r2/2/param.pert_width**2) * np.sin(np.pi/param.Ly *y1) * np.sin(np.pi/param.Ly *y0)
+    k = 2
+    a = 2
+    b = 0
+    ctt['g'] = param.pert_amp * np.sin(np.pi*y0/param.Ly)*np.sin(np.pi*y1/param.Ly)/(4*k*param.Lx) * (-2*a*b*np.cos(k*(2*param.Lx - x)) + 2*(a*b+(a**2 + b**2)*k*param.Lx)*np.cos(k*x) + (a**2 - b**2)*(np.sin(k*(2*param.Lx - x)) + np.sin(k*x)))
 
     # Invert cu_ref for cs initial condition
     # Reference jet: this will have a fractional symmetric component lambda
@@ -235,6 +239,7 @@ flow = flow_tools.GlobalFlowProperty(solver, cadence=1)
 flow.add_property("T(css) - css", name='css_sym')
 flow.add_property("T(ctt) - ctt", name='ctt_sym')
 flow.add_property("T(cts) - cst", name='cst_sym')
+flow.add_property("ct", name="ct")
 
 # construct projector for eigenvalue projection
 if param.project_eigenvalues:
@@ -264,16 +269,17 @@ try:
             if (solver.iteration-1) % param.project_eigenvalues == 0:
                 logger.info("Iteration: %i, Projecting off negative eigenvalues." % (solver.iteration))
                 start_projection_time = time.time()
-                eval_proj.project(solver.state['css'])
-                eval_proj.project(solver.state['ctt'])
-                eval_proj.project(solver.state['cts'])
-                eval_proj.project(solver.state['cst'])
+                eval_proj.project_all(solver.state)
                 end_projection_time = time.time()
                 projection_time += end_projection_time - start_projection_time
         # eliminate means in 1st cumulants
-        if (solver.iteration-1) % 10 == 0:
-            solver.state['cs']['g'] -= solver.state['cs']['g'].mean()
-            solver.state['ct']['g'] -= solver.state['ct']['g'].mean() 
+        ct_mean = flow.grid_average('ct')
+
+        if (solver.iteration-1) % 1 == 0:
+            #logger.info("cs_mean = {:e}".format(cs_mean))
+            #logger.info("ct_mean = {:e}".format(ct_mean))
+            solver.state['ct']['g'] -= ct_mean
+
         # Hermitian projection
         if (solver.iteration-1) % 100 == 0:
             logger.info("Enforcing Hermitian symmetry")

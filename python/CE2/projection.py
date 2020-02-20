@@ -5,7 +5,8 @@ import logging
 logger = logging.getLogger(__name__)
 
 class EigenvalueProjection:
-    def __init__(self, domain):
+    def __init__(self, domain, variables=['css','cst','cts','ctt']):
+        self._variables = variables
         self.domain = domain
         self._build_subcommunicator()
 
@@ -17,12 +18,15 @@ class EigenvalueProjection:
             self.global_shape = self.domain.global_coeff_shape
             self.rec_shape = [self.size,] + list(self.local_shape)
             self.work_shape = [self.local_shape[0],] + list(self.global_shape[1:3])
+            self.total_work_shape = [self.local_shape[0],] + [2*i for i in self.global_shape[1:3]]
             self.recbuf = np.empty(self.rec_shape, dtype=dtype)
             self.workbuf = np.empty(self.work_shape, dtype=dtype)
+            self.total_workbuf = np.empty(self.total_work_shape, dtype=dtype)
             logger.debug("dtype = {}".format(self.recbuf.dtype))
             logger.debug("local_shape = {}".format(self.local_shape))
             logger.debug("rec_shape = {}".format(self.rec_shape))
             logger.debug("work_shape = {}".format(self.work_shape))
+            logger.debug("total_work_shape = {}".format(self.total_work_shape))
 
     def _build_subcommunicator(self):
         if self.domain.dist.comm_cart.size == 1:
@@ -31,6 +35,70 @@ class EigenvalueProjection:
             self.comm = self.domain.dist.comm_cart.Sub([False,True])
         self.rank = self.comm.rank
         self.size = self.comm.size
+
+    def project_all(self, state, thresh=1e-12):
+        """
+        """
+        # pack total second cumulant work buffer
+        if self.rank == 0:
+            nvar = len(self._variables)/2
+            Ny = self.work_shape[1]
+
+        for i,field in enumerate(self._variables):
+            logger.debug("gathering field {}".format(field))
+            self.gather(state[field])
+            logger.debug("field {} gathered".format(field))
+            if self.rank == 0:
+                logger.debug("combining field {}".format(field))
+                rstart = int(i/nvar)*Ny
+                rend = rstart + Ny
+                cstart = int(i%nvar)*Ny
+                cend = cstart + Ny
+                logger.debug("rstart:rend, cstart:cend = {}:{}, {}:{}".format(rstart,rend,cstart,cend))
+                shape = self.total_workbuf[:, rstart:rend, cstart:cend].shape
+                logger.debug("total_workbuf shape = {}, {}, {}".format(shape[0],shape[1],shape[2]))
+                self.total_workbuf[:, rstart:rend, cstart:cend] = self.workbuf
+                logger.debug("field {} combined".format(field))
+
+        # project total second cumulant buffer
+        if self.rank == 0:
+            logger.debug("projecting all.")
+            nx = self.local_shape[0]
+            for m in range(nx):
+                A = self.total_workbuf[m,:,:]
+                self.total_workbuf[m,:,:] = self.projection(A, thresh=thresh)
+            logger.debug("projection complete.")
+        # unpack total second cumulant work buffer and scatter
+        for i,field in enumerate(self._variables):
+            if self.rank == 0:
+                rstart = int(i/nvar)*Ny
+                rend = rstart + Ny
+                cstart = int(i%nvar)*Ny
+                cend = cstart + Ny
+                self.workbuf = self.total_workbuf[:, rstart:rend, cstart:cend]
+            logger.debug("scattering field {}".format(field))            
+            self.scatter(state[field])
+            logger.debug("field {} scattered".format(field))
+
+    def projection(self, data, thresh=1e-12):
+        H = 0.5*(data + data.conj().T) # hermitian part
+        AH = data - H # antihermitian part
+        AH_norm = np.linalg.norm(AH)
+        H_norm = np.linalg.norm(H)
+        if H_norm != 0:
+            if H_norm < 1e-12:
+                H_norm += 1e-5
+            logger.info("||AH||/||H|| : {}".format(AH_norm/H_norm))
+        # A is a positive definite matrix iff H, the hermitian part, is positive definite
+        evals, Q = linalg.eigh(H)
+        index = (evals < -thresh) # find negative eigenvalues
+        if np.any(index):
+            logger.warning("{} negative eigenvalues found".format(np.sum(index)))
+        evals[index] = 0
+        Qinv = Q.conj().T # if input is Normal, Q is unitary, and all H matricies are Normal!
+        Lambda = np.diag(evals)
+
+        return Q @ (Lambda @ Qinv) 
 
     def project(self, data, thresh=1e-12):
         self.gather(data)
@@ -42,17 +110,7 @@ class EigenvalueProjection:
             nx = self.local_shape[0]
             for m in range(nx):
                 A = self.workbuf[m,:,:]
-                H = 0.5*(A + A.conj().T) # hermitian part
-                AH = A - H # antihermitian part
-                # A is a positive definite matrix iff H, the hermitian part, is positive definite
-                evals, Q = linalg.eigh(H)
-                index = (evals < -thresh) # find negative eigenvalues
-                if np.any(index):
-                    logger.warning("{} negative eigenvalues found for {} at x-mode {}".format(np.sum(index),data.name,m))
-                evals[index] = 0
-                Qinv = Q.conj().T # if input is Normal, Q is unitary, and all H matricies are Normal!
-                Lambda = np.diag(evals)
-                self.workbuf[m,:,:] = Q @ (Lambda @ Qinv) + AH
+                self.workbuf[m,:,:] = self.projection(A, thresh=thresh)
         self.scatter(data)
 
     def gather(self, data):
