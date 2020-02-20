@@ -81,6 +81,11 @@ class EigenvalueProjection:
             logger.debug("field {} scattered".format(field))
 
     def projection(self, data, thresh=1e-12):
+        # do the projection
+        # A = Q Λ Qinv
+        # where Λ is the matrix of eigenvalues and Q is the matrix of eigenvectors,
+        # and we delete all negative eigenvalues from Λ
+
         H = 0.5*(data + data.conj().T) # hermitian part
         AH = data - H # antihermitian part
         AH_norm = np.linalg.norm(AH)
@@ -102,10 +107,6 @@ class EigenvalueProjection:
 
     def project(self, data, thresh=1e-12):
         self.gather(data)
-        # do the projection
-        # A = Q Λ Qinv
-        # where Λ is the matrix of eigenvalues and Q is the matrix of eigenvectors,
-        # and we delete all negative eigenvalues from Λ
         if self.rank == 0:
             nx = self.local_shape[0]
             for m in range(nx):
