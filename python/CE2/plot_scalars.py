@@ -45,6 +45,7 @@ def main(filename):
             data = dset[:,:,:,0].ravel()
             data = data
             plt.semilogy(time, data**2, label=name)
+            #plt.ylim(1e-42,1e5)
             print('Final %s: %.8f' %(task, data[-1]))
         plt.xlabel('time')
         plt.ylabel('Integral')
@@ -52,6 +53,31 @@ def main(filename):
         # Save figure
         fig.savefig('integrals.png', dpi=dpi)
         fig.savefig('integrals.pdf')
+        ke = file['tasks/KE'][:,0,0,0]
+        #gamma, A0 = calc_growth(time, file['tasks'][tasks[0]][:,0,0,0]**2,t_start=1,t_stop=2)
+        #print("growth_rate = {}".format(gamma))
+    fig.clear()
+    plt.close(fig)
+    
+    # plot energies
+    tasks = ['KE',]
+    names = ['Kinetic Energy',]
+
+    fig = plt.figure(figsize=figsize)
+    with h5py.File(filename, mode='r') as file:
+        for name,task in zip(names,tasks):
+            dset = file['tasks'][task]
+            time = dset.dims[0]['sim_time'][:]
+            data = dset[:,:,:,0].ravel()
+            data = data
+            plt.semilogy(time, data**2, label=name)
+            print('Final %s: %.8f' %(task, data[-1]))
+        plt.xlabel('time')
+        plt.ylabel('Integral')
+        plt.legend(loc="lower right")
+        # Save figure
+        fig.savefig('kinetic_energy.png', dpi=dpi)
+        fig.savefig('kinetic_energy.pdf')
         ke = file['tasks/KE'][:,0,0,0]
         #gamma, A0 = calc_growth(time, file['tasks'][tasks[0]][:,0,0,0]**2,t_start=1,t_stop=2)
         #print("growth_rate = {}".format(gamma))
