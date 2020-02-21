@@ -19,9 +19,9 @@ class EigenvalueProjection:
             self.rec_shape = [self.size,] + list(self.local_shape)
             self.work_shape = [self.local_shape[0],] + list(self.global_shape[1:3])
             self.total_work_shape = [self.local_shape[0],] + [2*i for i in self.global_shape[1:3]]
-            self.recbuf = np.empty(self.rec_shape, dtype=dtype)
-            self.workbuf = np.empty(self.work_shape, dtype=dtype)
-            self.total_workbuf = np.empty(self.total_work_shape, dtype=dtype)
+            self.recbuf = np.zeros(self.rec_shape, dtype=dtype)
+            self.workbuf = np.zeros(self.work_shape, dtype=dtype)
+            self.total_workbuf = np.zeros(self.total_work_shape, dtype=dtype)
             logger.debug("dtype = {}".format(self.recbuf.dtype))
             logger.debug("local_shape = {}".format(self.local_shape))
             logger.debug("rec_shape = {}".format(self.rec_shape))
@@ -142,14 +142,14 @@ def project_eigenvalues(data, comm, thresh=1e-16):
         global_shape = data.domain.global_coeff_shape
         rec_shape = [size,] + list(local_shape)
         work_shape = [local_shape[0],] + list(global_shape[1:3])
-        recbuf = np.empty(rec_shape, dtype=data['c'].dtype)
+        recbuf = np.zeros(rec_shape, dtype=data['c'].dtype)
 
     comm.Gather(sendbuf, recbuf, root=0)
     
     # roots of subcommunicators do projection
     if rank == 0:
         # unpack gathered buffer 
-        workbuf = np.empty(work_shape, dtype=data['c'].dtype)
+        workbuf = np.zeros(work_shape, dtype=data['c'].dtype)
         
         # project eigenvalues
         nx = local_shape[0]
