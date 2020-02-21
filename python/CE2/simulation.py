@@ -3,7 +3,7 @@ import sys
 sys.path = ['.',] + sys.path
 
 import numpy as np
-np.seterr(all='raise')
+#np.seterr(all='raise')
 import time
 import pathlib
 
@@ -173,11 +173,11 @@ else:
     cs = solver.state['cs']
     ctt = solver.state['ctt']
 
-    #ctt['g'] = param.pert_amp * np.exp(-r2/2/param.pert_width**2) * np.sin(np.pi/param.Ly *y1) * np.sin(np.pi/param.Ly *y0)
+    ctt['g'] = param.pert_amp * np.exp(-r2/2/param.pert_width**2) * np.sin(np.pi/param.Ly *y1) * np.sin(np.pi/param.Ly *y0)
     k = 2
     a = 2
     b = 0
-    ctt['g'] = param.pert_amp * np.sin(np.pi*y0/param.Ly)*np.sin(np.pi*y1/param.Ly)/(4*k*param.Lx) * (-2*a*b*np.cos(k*(2*param.Lx - x)) + 2*(a*b+(a**2 + b**2)*k*param.Lx)*np.cos(k*x) + (a**2 - b**2)*(np.sin(k*(2*param.Lx - x)) + np.sin(k*x)))
+    #ctt['g'] = param.pert_amp * np.sin(np.pi*y0/param.Ly)*np.sin(np.pi*y1/param.Ly)/(4*k*param.Lx) * (-2*a*b*np.cos(k*(2*param.Lx - x)) + 2*(a*b+(a**2 + b**2)*k*param.Lx)*np.cos(k*x) + (a**2 - b**2)*(np.sin(k*(2*param.Lx - x)) + np.sin(k*x)))
 
     # Invert cu_ref for cs initial condition
     # Reference jet: this will have a fractional symmetric component lambda
@@ -240,6 +240,11 @@ flow.add_property("T(css) - css", name='css_sym')
 flow.add_property("T(ctt) - ctt", name='ctt_sym')
 flow.add_property("T(cts) - cst", name='cst_sym')
 flow.add_property("ct", name="ct")
+flow.add_property("cs", name="cs")
+flow.add_property("css", name="css")
+flow.add_property("cst", name="cst")
+flow.add_property("cts", name="cts")
+flow.add_property("ctt", name="ctt")
 
 # construct projector for eigenvalue projection
 if param.project_eigenvalues:
@@ -274,11 +279,21 @@ try:
                 projection_time += end_projection_time - start_projection_time
         # eliminate means in 1st cumulants
         ct_mean = flow.grid_average('ct')
+        cs_mean = flow.grid_average('cs')
+        css_mean = flow.grid_average('css')
+        cst_mean = flow.grid_average('cst')
+        cts_mean = flow.grid_average('cts')
+        ctt_mean = flow.grid_average('ctt')
 
         if (solver.iteration-1) % 1 == 0:
             #logger.info("cs_mean = {:e}".format(cs_mean))
             #logger.info("ct_mean = {:e}".format(ct_mean))
             solver.state['ct']['g'] -= ct_mean
+            solver.state['cs']['g'] -= cs_mean
+            solver.state['css']['g'] -= css_mean
+            solver.state['cst']['g'] -= cst_mean
+            solver.state['cts']['g'] -= cts_mean
+            solver.state['ctt']['g'] -= ctt_mean
 
         # Hermitian projection
         if (solver.iteration-1) % 100 == 0:
