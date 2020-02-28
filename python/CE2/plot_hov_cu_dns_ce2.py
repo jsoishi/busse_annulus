@@ -2,12 +2,13 @@
 Plot
 
 Usage:
-    plot_u_mean_dns_ce2.py <dns_file_path> <ce2_file_path> [--output=<dir> --tavg=<tavg> --label=<label>]
+    plot_u_mean_dns_ce2.py <dns_file_path> <ce2_file_path> [--output=<dir> --tavg=<tavg> --label=<label> --limits=<limits>]
 
 Options:
-    --output=<dir>  Output directory [default: ../../figs]
-    --tavg=<tavg>   Time to average over (counted backwards from end of simulation) [default: 1]
-    --label=<label> label for plot 
+    --output=<dir>      Output directory [default: ../../figs]
+    --tavg=<tavg>       Time to average over (counted backwards from end of simulation) [default: 1]
+    --label=<label>     label for plot 
+    --limits=<limits>   plot limits
 
 """
 
@@ -30,6 +31,10 @@ plt.style.use('prl')
 args = docopt(__doc__)
 tavg = float(args['--tavg'])
 label = args['--label']
+limits = args['--limits']
+
+if limits:
+    limits = limits.split(',')
 
 # Create output directory if needed
 output_path = pathlib.Path(args['--output']).absolute()
@@ -51,8 +56,8 @@ image_scales = ['sim_time', 0]
 
 nrows, ncols = 2, 1
 image = plot_tools.Box(2, 1)
-pad = plot_tools.Frame(0.2, 0.2, 0.1, 0.1)
-margin = plot_tools.Frame(0.3, 0.2, 0.1, 0.1)
+pad = plot_tools.Frame(0.2, 0.1, 0.1, 0.1)
+margin = plot_tools.Frame(0.1, 0.1, 0.1, 0.1)
 
 scale = 4
 mfig = plot_tools.MultiFigure(nrows, ncols, image, pad, margin, scale)
@@ -63,11 +68,11 @@ axes = mfig.add_axes(0, 0, [0, 0, 1, 1])
 # DNS
 print("dns_data shape", dns_data['tasks/<u>_x'].shape)
 print('ce2 data shape', ce2_data['tasks/cu'].shape)
-plot_tools.plot_bot(dns_data['tasks/<u>_x'], dns_image_axes, dns_data_slices, image_scales, axes=axes, title='<u> DNS', even_scale=True)
+plot_tools.plot_bot(dns_data['tasks/<u>_x'], dns_image_axes, dns_data_slices, image_scales, axes=axes, title='<u> DNS', even_scale=True, clim=limits)
 
 axes = mfig.add_axes(1, 0, [0, 0, 1, 1])
 # CE2
-plot_tools.plot_bot(ce2_data['tasks/cu'], ce2_image_axes, ce2_data_slices, image_scales, axes=axes, title='<u> CE2', even_scale=True)
+plot_tools.plot_bot(ce2_data['tasks/cu'], ce2_image_axes, ce2_data_slices, image_scales, axes=axes, title='<u> CE2', even_scale=True, clim=limits)
 axes.set_xlim(0,2)
 
 outputdir = pathlib.Path(args['--output'])
