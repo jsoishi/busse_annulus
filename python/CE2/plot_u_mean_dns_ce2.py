@@ -65,12 +65,13 @@ y_ce2, ce2_umean = time_avg(ce2_data, 'cu', scales_name='y1/1.0',tavg_scale=tavg
 plt.plot(dns_umean, y_dns, label='DNS')
 plt.plot(ce2_umean[0,:], y_ce2, '--',label='CE2')
 plt.legend(loc='upper left')
-plt.ylabel(r"$y$")
+plt.ylabel(r"$y$",rotation='horizontal')
 plt.xlabel(r"$\left< u \right>_{x}$")
 plt.ylim(0,1)
 plt.xlim(xlim[0],xlim[1])
 plt.tight_layout()
 
 outputdir = pathlib.Path(args['--output'])
-outfilen = "umean_dns_ce2_{}.png".format(label)
-plt.savefig(str(outputdir/outfilen), dpi=400)
+for ext in ['png','pdf']:
+    outfilen = "umean_dns_ce2_{}.{}".format(label,ext)
+    plt.savefig(str(outputdir/outfilen), dpi=400)
