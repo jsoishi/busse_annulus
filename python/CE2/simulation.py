@@ -30,6 +30,9 @@ if not hasattr(param, "force_symmetry"):
 if not hasattr(param, "use_czt"):
     param.use_czt = False
 
+if not hasattr(param, "new_IC"):
+    param.new_IC = False
+
 logger.info("Running with Nx = {:d}, Ny = {:d}".format(param.Nx, param.Ny))
 logger.info("Ra = {:e}".format(param.Ra))
 logger.info("beta = {:e}".format(param.beta))
@@ -169,15 +172,17 @@ solver.stop_iteration = param.stop_iteration
 if pathlib.Path('restart.h5').exists():
     solver.load_state('restart.h5', -1)
 else:
-    r2 = x**2 + (param.Ly/np.pi*np.sin((y1-y0)*np.pi/param.Ly))**2/2
     cs = solver.state['cs']
     ctt = solver.state['ctt']
 
-    ctt['g'] = param.pert_amp * np.exp(-r2/2/param.pert_width**2) * np.sin(np.pi/param.Ly *y1) * np.sin(np.pi/param.Ly *y0)
-    k = 2
-    a = 2
-    b = 0
-    #ctt['g'] = param.pert_amp * np.sin(np.pi*y0/param.Ly)*np.sin(np.pi*y1/param.Ly)/(4*k*param.Lx) * (-2*a*b*np.cos(k*(2*param.Lx - x)) + 2*(a*b+(a**2 + b**2)*k*param.Lx)*np.cos(k*x) + (a**2 - b**2)*(np.sin(k*(2*param.Lx - x)) + np.sin(k*x)))
+    if param.new_IC:
+        k = 2
+        a = 2
+        b = 0
+        ctt['g'] = param.pert_amp * np.sin(np.pi*y0/param.Ly)*np.sin(np.pi*y1/param.Ly)/(4*k*param.Lx) * (-2*a*b*np.cos(k*(2*param.Lx - x)) + 2*(a*b+(a**2 + b**2)*k*param.Lx)*np.cos(k*x) + (a**2 - b**2)*(np.sin(k*(2*param.Lx - x)) + np.sin(k*x)))
+    else:
+        r2 = x**2 + (param.Ly/np.pi*np.sin((y1-y0)*np.pi/param.Ly))**2/2
+        ctt['g'] = param.pert_amp * np.exp(-r2/2/param.pert_width**2) * np.sin(np.pi/param.Ly *y1) * np.sin(np.pi/param.Ly *y0)
 
     # Invert cu_ref for cs initial condition
     # Reference jet: this will have a fractional symmetric component lambda
@@ -218,13 +223,13 @@ an2.add_task("interp(ctt, y1=%.3f)" %(0.25*param.Ly), scales=2)
 an2.add_task("interp(ctt, y1=%.3f)" %(0.5*param.Ly), scales=2)
 an2.add_task("interp(ctt, y1=%.3f)" %(0.75*param.Ly), scales=2)
 
-an3 = solver.evaluator.add_file_handler('data_profiles', iter=param.profiles_iter, max_writes=10)
+an3 = solver.evaluator.add_file_handler('data_profiles', iter=param.profiles_iter, max_writes=1000)
 an3.add_task("P1(cz)", name='cz')
 an3.add_task("P1(cs)", name='cs')
 an3.add_task("-dy1(P1(cs))", name='cu')
 an3.add_task("P1(ct)", name='ct')
 
-an4 = solver.evaluator.add_file_handler('data_scalars', iter=param.scalars_iter, max_writes=10)
+an4 = solver.evaluator.add_file_handler('data_scalars', iter=param.scalars_iter, max_writes=10000)
 an4.add_task("-(Lx/2) * integ(P0(cz)*P0(cs) + P0(D(czs)))", name='KE')
 an4.add_task("-(Lx/2) * integ(P0(cz)*P0(cs))", name='KE_mean')
 an4.add_task(" (Lx/2) * integ(P0(cz)*P0(cz) + P0(D(czz)))", name='EN')
