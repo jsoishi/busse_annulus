@@ -33,6 +33,8 @@ if not hasattr(param, "use_czt"):
 if not hasattr(param, "new_IC"):
     param.new_IC = False
 
+if not hasattr(param, "cu_k"):
+    param.cu_k = 1
 logger.info("Running with Nx = {:d}, Ny = {:d}".format(param.Nx, param.Ny))
 logger.info("Ra = {:e}".format(param.Ra))
 logger.info("beta = {:e}".format(param.beta))
@@ -194,7 +196,10 @@ else:
 
         x, y0, y1 = domain.grids()
         # Build as 1D function of y0
-        cu_ref['g'] = param.cu_ampl * (param.cu_lambda * np.cos(2*y0*np.pi/param.Ly) + (1 - param.cu_lambda)*np.cos(y0*np.pi/param.Ly))
+        k_cu = param.cu_k
+        k_cu_parity = (param.cu_k+1) # opposite parity wrt centerline
+
+        cu_ref['g'] = param.cu_ampl * (param.cu_lambda * np.cos(k_cu_parity*y0*np.pi/param.Ly) + (1 - param.cu_lambda)*np.cos(k_cu*y0*np.pi/param.Ly))
         # Diagonalize
         cu_ref = Diag(cu_ref, 'y0', 'y1').evaluate()
         
