@@ -16,6 +16,8 @@ import h5py
 import numpy as np
 import matplotlib
 matplotlib.use('Agg')
+matplotlib.rcParams['xtick.major.pad'] = 8
+matplotlib.rcParams['ytick.major.pad'] = 8
 import matplotlib.pyplot as plt
 plt.ioff()
 from mpi4py import MPI
@@ -68,13 +70,26 @@ axes = mfig.add_axes(0, 0, [0, 0, 1, 1])
 # DNS
 print("dns_data shape", dns_data['tasks/<u>_x'].shape)
 print('ce2 data shape', ce2_data['tasks/cu'].shape)
-plot_tools.plot_bot(dns_data['tasks/<u>_x'], dns_image_axes, dns_data_slices, image_scales, axes=axes, title='<u> DNS', even_scale=True, clim=limits)
+pax, cax = plot_tools.plot_bot(dns_data['tasks/<u>_x'], dns_image_axes, dns_data_slices, image_scales, axes=axes, title=r'$\left<u\right>$ DNS', even_scale=True, clim=limits)
+pax.xaxis.set_label_text("time")
+pax.yaxis.set_label_text("$y$")
+pax.yaxis.label.set_rotation('horizontal')
+pax.text(0.95,0.85, 'a',
+         bbox={'facecolor': 'grey', 'alpha': 0.5, 'boxstyle':'round'},transform=pax.transAxes, fontsize=18)
+pax.set_rasterized(True)
 
 axes = mfig.add_axes(1, 0, [0, 0, 1, 1])
 # CE2
-plot_tools.plot_bot(ce2_data['tasks/cu'], ce2_image_axes, ce2_data_slices, image_scales, axes=axes, title='<u> CE2', even_scale=True, clim=limits)
-axes.set_xlim(0,2)
+pax, cax = plot_tools.plot_bot(ce2_data['tasks/cu'], ce2_image_axes, ce2_data_slices, image_scales, axes=axes, title=r'$\left<u\right>$ CE2', even_scale=True, clim=limits)
+pax.xaxis.set_label_text("time")
 
+pax.yaxis.set_label_text("$y_1$")
+pax.yaxis.label.set_rotation('horizontal')
+
+pax.text(0.95,0.85, 'b',
+         bbox={'facecolor': 'grey', 'alpha': 0.5, 'boxstyle':'round'},transform=pax.transAxes, fontsize=18)
+pax.set_rasterized(True)
 outputdir = pathlib.Path(args['--output'])
-outfilen = "hov_cu_dns_ce2_{}.png".format(label)
-fig.savefig(str(outputdir/outfilen), dpi=400)
+for ext in ['png','pdf']:
+    outfilen = "hov_cu_dns_ce2_{}.{}".format(label,ext)
+    fig.savefig(str(outputdir/outfilen), dpi=400)
