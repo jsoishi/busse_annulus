@@ -306,7 +306,7 @@ class CoefficientDiagonal(Operator, FutureField):
         
         # Must be in coeff layout
         is_coeff = True
-        for axis in arg0.layout.grid_space:
+        for axis in arg.layout.grid_space:
             is_coeff *= not axis
         return bool(is_coeff)
 
