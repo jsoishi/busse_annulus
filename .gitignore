@@ -1,3 +1,6 @@
+# python
+__pycache__/
+# Jupyter
 .ipynb_checkpoints/
 
 # data
@@ -5,6 +8,8 @@ python/CE2/run_*
 python/CE2/data_*
 python/CE2/img_*
 python/scratch/
+python/img_*
+python/*.sh
 
 # JFM template
 tex/JFM/JFM latex files - IFC - 20_04_2018
