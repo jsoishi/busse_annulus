@@ -173,7 +173,9 @@ solver.stop_iteration = param.stop_iteration
 # Initial conditions
 if pathlib.Path('restart.h5').exists():
     solver.load_state('restart.h5', -1)
+    fh_mode = 'append'
 else:
+    fh_mode = 'overwrite'
     cs = solver.state['cs']
     ctt = solver.state['ctt']
 
@@ -217,10 +219,10 @@ else:
         cs['c'] = ic_solver.state['cs']['c']
 
 # Analysis
-an1 = solver.evaluator.add_file_handler('data_checkpoints', sim_dt=param.checkpoints_sim_dt, max_writes=1)
+an1 = solver.evaluator.add_file_handler('data_checkpoints', sim_dt=param.checkpoints_sim_dt, max_writes=1, mode = fh_mode)
 an1.add_system(solver.state)
 
-an2 = solver.evaluator.add_file_handler('data_snapshots', iter=param.snapshots_iter, max_writes=10)
+an2 = solver.evaluator.add_file_handler('data_snapshots', iter=param.snapshots_iter, max_writes=10, mode = fh_mode)
 an2.add_task("interp(czz, y1=%.3f)" %(0.25*param.Ly), scales=2)
 an2.add_task("interp(czz, y1=%.3f)" %(0.5*param.Ly), scales=2)
 an2.add_task("interp(czz, y1=%.3f)" %(0.75*param.Ly), scales=2)
@@ -228,13 +230,13 @@ an2.add_task("interp(ctt, y1=%.3f)" %(0.25*param.Ly), scales=2)
 an2.add_task("interp(ctt, y1=%.3f)" %(0.5*param.Ly), scales=2)
 an2.add_task("interp(ctt, y1=%.3f)" %(0.75*param.Ly), scales=2)
 
-an3 = solver.evaluator.add_file_handler('data_profiles', iter=param.profiles_iter, max_writes=1000)
+an3 = solver.evaluator.add_file_handler('data_profiles', iter=param.profiles_iter, max_writes=1000, mode = fh_mode)
 an3.add_task("P1(cz)", name='cz')
 an3.add_task("P1(cs)", name='cs')
 an3.add_task("-dy1(P1(cs))", name='cu')
 an3.add_task("P1(ct)", name='ct')
 
-an4 = solver.evaluator.add_file_handler('data_scalars', iter=param.scalars_iter, max_writes=10000)
+an4 = solver.evaluator.add_file_handler('data_scalars', iter=param.scalars_iter, max_writes=10000, mode = fh_mode)
 an4.add_task("-(Lx/2) * integ(P0(cz)*P0(cs) + P0(D(czs)))", name='KE')
 an4.add_task("-(Lx/2) * integ(P0(cz)*P0(cs))", name='KE_mean')
 an4.add_task(" (Lx/2) * integ(P0(cz)*P0(cz) + P0(D(czz)))", name='EN')
