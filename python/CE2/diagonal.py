@@ -284,19 +284,19 @@ class CoefficientDiagonal(Operator, FutureField):
         self.name = 'CoeffDiag[%s=%s]' %(self.basis0.name, self.basis1.name)
 
         # Filter mask
-        slices = self.domain.dist.coeff_layout.slices(self.domain.dealias)
+        slices = self.domain.dist.layouts[2].slices(scales=1)
         k0 = reshape_vector(self.basis0.wavenumbers[slices[self.axis0]], dim=self.domain.dim, axis=self.axis0)
         k1 = reshape_vector(self.basis1.wavenumbers[slices[self.axis1]], dim=self.domain.dim, axis=self.axis1)
         self.filter_mask = (k0 == k1)
 
     def meta_constant(self, axis):
-        if axis == self.axis1:
+        if axis == self.axis0:
             return True
         else:
             return self.args[0].meta[axis]['constant']
 
     def meta_parity(self, axis):
-        if axis == self.axis1:
+        if axis == self.axis0:
             return 1
         else:
             return self.args[0].meta[axis]['parity']
@@ -312,19 +312,31 @@ class CoefficientDiagonal(Operator, FutureField):
 
     def operate(self, out):
         arg = self.args[0]
+        arg.set_scales(1)
+        out.set_scales(1)
         arg.require_coeff_space()
         out.require_coeff_space()
 
+        layouts = out.domain.dist.layouts
+
+        buffer = arg['c'].copy() 
+        out.require_layout(layouts[1]) 
+        out.data[:] = buffer 
+        out.require_local(axis=1)
+
         # permutation matrix
         self.perm = np.zeros_like(out.data[0,:,:]).T
-        self.perm[:,0] = 1.
+        self.perm[0,:] = 1.
 
-        N_l = self.perm.shape[1]
-        out.data = (arg.data*self.filter_mask)
+        N_l = self.perm.shape[0]
+        out.data = (out.data*self.filter_mask)
 
-        permuted_data = np.einsum('ijk,kl',out.data,self.perm)
-        blah = out.data[:,:,0:N_l]
-        out.data[:,:,0:N_l] = permuted_data
+        permuted_data = np.einsum('...jk,...ikl->ijl',self.perm,out.data)
+        out.data[:,0:N_l,:] = permuted_data
+        out.towards_coeff_space()
+        buffer = out.data.copy()
+        out.require_coeff_space()
+        out.data[:] = buffer
 
 
 def fix_diagonal(field, epsilon=1e-10):
