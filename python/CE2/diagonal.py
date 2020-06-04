@@ -253,6 +253,92 @@ class GridDiagonal(Operator, FutureField):
         exp_slices[axis0] = None
         out.data[:] = arg.data[tuple(arg_slices)][tuple(exp_slices)]
 
+class CoefficientDiagonal(Operator, FutureField):
+    """
+    Extract diagonal coefficients. Used for constructing power spectra from second cumulants.
+
+    Parameters
+    ----------
+    arg : field object
+        Field argument
+    basis0, basis1 : basis identifiers
+        Bases for diagonal extraction
+
+    Notes
+    -----
+    This assumes a 3D domain to be diagonalized over the last two bases, rendering the third basis constant. The first two bases then hold the diagonal (kx, ky) data.
+
+    """
+
+    def __init__(self, arg, basis0, basis1, **kw):
+        arg = Operand.cast(arg)
+        super().__init__(arg, **kw)
+        self.basis0 = self.domain.get_basis_object(basis0)
+        self.basis1 = self.domain.get_basis_object(basis1)
+        self.axis0 = self.domain.bases.index(self.basis0)
+        self.axis1 = self.domain.bases.index(self.basis1)
+        if self.axis0 > self.axis1:
+            raise ValueError("Cannot evaluate specified axis order.")
+        if self.basis0.interval != self.basis1.interval:
+            raise ValueError("Bases must occupy same interval.")
+        self.name = 'CoeffDiag[%s=%s]' %(self.basis0.name, self.basis1.name)
+
+        # Filter mask
+        slices = self.domain.dist.layouts[2].slices(scales=1)
+        k0 = reshape_vector(self.basis0.wavenumbers[slices[self.axis0]], dim=self.domain.dim, axis=self.axis0)
+        k1 = reshape_vector(self.basis1.wavenumbers[slices[self.axis1]], dim=self.domain.dim, axis=self.axis1)
+        self.filter_mask = (k0 == k1)
+
+    def meta_constant(self, axis):
+        if axis == self.axis0:
+            return True
+        else:
+            return self.args[0].meta[axis]['constant']
+
+    def meta_parity(self, axis):
+        if axis == self.axis0:
+            return 1
+        else:
+            return self.args[0].meta[axis]['parity']
+
+    def check_conditions(self):
+        arg = self.args[0]
+        
+        # Must be in coeff layout
+        is_coeff = True
+        for axis in arg.layout.grid_space:
+            is_coeff *= not axis
+        return bool(is_coeff)
+
+    def operate(self, out):
+        arg = self.args[0]
+        arg.set_scales(1)
+        out.set_scales(1)
+        arg.require_coeff_space()
+        out.require_coeff_space()
+
+        layouts = out.domain.dist.layouts
+
+        buffer = arg['c'].copy() 
+        out.require_layout(layouts[1]) 
+        out.data[:] = buffer 
+        out.require_local(axis=1)
+
+        # permutation matrix
+        self.perm = np.zeros_like(out.data[0,:,:]).T
+        self.perm[0,:] = 1.
+
+        N_l = self.perm.shape[0]
+        out.data = (out.data*self.filter_mask)
+
+        permuted_data = np.einsum('...jk,...ikl->ijl',self.perm,out.data)
+        out.data[:,0:N_l,:] = permuted_data
+        out.towards_coeff_space()
+        buffer = out.data.copy()
+        out.require_coeff_space()
+        out.data[:] = buffer
+
+
 def fix_diagonal(field, epsilon=1e-10):
     x, y0, y1 = field.domain.grids(scales=field.domain.dealias)
     diag_index = (y0 == y1) & (x == 0)

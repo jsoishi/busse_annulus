@@ -20,6 +20,7 @@ import projection
 de.operators.parseables['Diag'] = Diag = diagonal.GridDiagonal
 de.operators.parseables['Trans'] = Trans = transpose.TransposeOperator
 de.operators.parseables['Rev'] = Rev = reverse.ReverseFirst
+de.operators.parseables['CoeffDiag'] = CoeffDiag = diagonal.CoefficientDiagonal
 
 import logging
 logger = logging.getLogger(__name__)
@@ -229,6 +230,12 @@ an2.add_task("interp(czz, y1=%.3f)" %(0.75*param.Ly), scales=2)
 an2.add_task("interp(ctt, y1=%.3f)" %(0.25*param.Ly), scales=2)
 an2.add_task("interp(ctt, y1=%.3f)" %(0.5*param.Ly), scales=2)
 an2.add_task("interp(ctt, y1=%.3f)" %(0.75*param.Ly), scales=2)
+an2.add_task("CoeffDiag(czz, 'y0', 'y1') + cz", layout='c', name='zeta_power')
+an2.add_task("CoeffDiag(ctt, 'y0', 'y1') + ct", layout='c', name='theta_power')
+an2.add_task("CoeffDiag(czz, 'y0', 'y1')", layout='c', name='zeta_power_2ndc')
+an2.add_task("CoeffDiag(ctt, 'y0', 'y1')", layout='c', name='theta_power_2ndc')
+an2.add_task("cz", layout='c', name='cz_power')
+an2.add_task("ct", layout='c', name='ct_power')
 
 an3 = solver.evaluator.add_file_handler('data_profiles', iter=param.profiles_iter, max_writes=1000, mode = fh_mode)
 an3.add_task("P1(cz)", name='cz')

@@ -3,7 +3,7 @@
 ref: Brummell & Hart (1993) fig 5a
 
 Usage:
-    busse_annulus.py [--Ra=<Ra> --beta=<beta> --C=<C> --Pr=<Pr> --restart=<restart_file> --nx=<nx> --ny=<ny> --filter=<filter> --seed=<seed> --ICmode=<ICmode> --stop-time=<stop_time> --use-CFL --note=<note>] 
+    busse_annulus.py [--Ra=<Ra> --beta=<beta> --C=<C> --Pr=<Pr> --restart=<restart_file> --nx=<nx> --ny=<ny> --filter=<filter> --seed=<seed> --ICmode=<ICmode> --stop-time=<stop_time> --use-CFL --note=<note> --Jetbias_m=<Jetbias_m> --Jetbias_a=<Jetbias_a>] 
 
 Options:
     --Ra=<Ra>                  Rayleigh number [default: 39000]
@@ -16,6 +16,8 @@ Options:
     --filter=<filter>          fraction of modes to keep in ICs [default: 0.5]
     --seed=<seed>              random seed for ICs [default: None]
     --ICmode=<ICmode>          x mode to initialize [default: None]
+    --Jetbias_m=<Jetbias_m>    y mode to initialize jet mode [default: None]
+    --Jetbias_a=<Jetbias_a>    amplitude for initialize jet mode [default: 1e-3]
     --stop-time=<stop_time>    simulation time to stop [default: 2.]
     --use-CFL                  use CFL condition
     --note=<note>              a note to add to directory
@@ -56,6 +58,8 @@ seed = args['--seed']
 ICmode = args['--ICmode']
 CFL = args['--use-CFL']
 note = args['--note']
+Jetbias_m = args['--Jetbias_m']
+Jetbias_ampl = float(args['--Jetbias_a'])
 
 if seed == 'None':
     seed = None
@@ -67,6 +71,11 @@ if ICmode == 'None':
 else:
     ICmode = int(ICmode)
 
+if Jetbias_m == 'None':
+    Jetbias_m = None
+else:
+    Jetbias_m = int(Jetbias_m)
+
 # save data in directory named after script
 data_dir = "scratch/" + sys.argv[0].split('.py')[0]
 data_dir += "_ra{0:5.02e}_beta{1:5.02e}_C{2:5.02e}_Pr{3:5.02e}_filter{4:5.02e}_nx{5:d}_ny{6:d}".format(Ra, beta, C, Pr, filter_frac,nx,ny)
@@ -76,6 +85,9 @@ if ICmode:
 
 if CFL:
     data_dir += "_CFL"
+
+if Jetbias_m:
+    data_dir += "_Jetbias_m{}_a{}".format(Jetbias_m, Jetbias_ampl)
 
 if note:
     data_dir += "_{}".format(note)
@@ -148,9 +160,12 @@ else:
         rand = np.random.RandomState(seed)
         pert =  1e-3 * rand.standard_normal(shape) * np.sin(np.pi*y) #* (yt - y) * (y - yb)
         theta['g'] = pert
+    if Jetbias_m:
+        psi = solver.state['psi']
+        psi['g'] = Jetbias_ampl * np.sin(Jetbias_m*np.pi*y)
 
 if CFL:
-    CFL = flow_tools.CFL(solver, initial_dt=1e-4, cadence=5, safety=0.3,
+    CFL = flow_tools.CFL(solver, initial_dt=1e-7, cadence=5, safety=0.3,
                          max_change=1.1, min_change=0.5)
     CFL.add_velocities(('dy(psi)', '-dx(psi)'))
     dt = CFL.compute_dt()
@@ -168,14 +183,15 @@ check = solver.evaluator.add_file_handler(os.path.join(data_dir,'checkpoints'), 
 check.add_system(solver.state)
 analysis_tasks.append(check)
 
-snap = solver.evaluator.add_file_handler(os.path.join(data_dir,'snapshots'), sim_dt=1e-2, max_writes=200)
+snap = solver.evaluator.add_file_handler(os.path.join(data_dir,'snapshots'), sim_dt=1e-3, max_writes=2000)
 snap.add_task("dx(psi)", name="u_y")
 snap.add_task("-dy(psi)", name="u_x")
 snap.add_task("zeta")
+snap.add_task("psi")
 snap.add_task("theta")
 snap.add_task("zeta - Avg_x(zeta)",name="zeta_fluct")
 snap.add_task("theta - Avg_x(theta)",name="theta_fluct")
-#snap.add_task("zeta", name="zeta_kspace", layout='c')
+snap.add_task("zeta", name="zeta_kspace", layout='c')
 snap.add_task("theta", name="theta_kspace", layout='c')
 analysis_tasks.append(snap)
 
