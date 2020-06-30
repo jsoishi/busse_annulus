@@ -88,6 +88,8 @@ pax.set_ylim(ylimits)
 cax.set_xlabel(r"$\log_{10} |\hat{\zeta}|^2$")
 pax.set_xlabel(r"$k_x$")
 pax.set_ylabel(r"$k_{y}$")
+pax.text(0.9,0.85, 'a',
+         bbox={'facecolor': 'grey', 'alpha': 0.5, 'boxstyle':'round'},transform=pax.transAxes, fontsize=18, color='white')
 
 # CE2
 ce2_axes = mfig.add_axes(0, 1, [0, 0, 1, 1])
@@ -101,9 +103,9 @@ pax.set_xlim(xlimits)
 pax.set_ylim(ylimits)
 pax.set_xlabel(r"$k_x$")
 pax.set_ylabel(r"$k_{y}$")
+pax.text(0.9,0.85, 'b',
+         bbox={'facecolor': 'grey', 'alpha': 0.5, 'boxstyle':'round'},transform=pax.transAxes, fontsize=18, color='white')
 
-#pax.text(0.95,0.85, 'b',
-#         bbox={'facecolor': 'grey', 'alpha': 0.5, 'boxstyle':'round'},transform=pax.transAxes, fontsize=18)
 pax.set_rasterized(True)
 outputdir = pathlib.Path(args['--output'])
 for ext in ['png','pdf']:
