@@ -296,23 +296,6 @@ try:
                 eval_proj.project_all(solver.state)
                 end_projection_time = time.time()
                 projection_time += end_projection_time - start_projection_time
-        # eliminate means in 1st cumulants
-        ct_mean = flow.grid_average('ct')
-        cs_mean = flow.grid_average('cs')
-        css_mean = flow.grid_average('css')
-        cst_mean = flow.grid_average('cst')
-        cts_mean = flow.grid_average('cts')
-        ctt_mean = flow.grid_average('ctt')
-
-        if (solver.iteration-1) % 1 == 0:
-            #logger.info("cs_mean = {:e}".format(cs_mean))
-            #logger.info("ct_mean = {:e}".format(ct_mean))
-            solver.state['ct']['g'] -= ct_mean
-            solver.state['cs']['g'] -= cs_mean
-            solver.state['css']['g'] -= css_mean
-            solver.state['cst']['g'] -= cst_mean
-            solver.state['cts']['g'] -= cts_mean
-            solver.state['ctt']['g'] -= ctt_mean
 
         # Hermitian projection
         if (solver.iteration-1) % 100 == 0:
