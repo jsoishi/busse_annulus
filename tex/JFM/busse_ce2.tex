@@ -49,9 +49,9 @@
 \author{Jeffrey S. Oishi\aff{1}
   \corresp{\email{joishi@bates.edu}},
   Steven M. Tobias\aff{2},
-  Keaton J. Burns\aff{3
+  Keaton J. Burns\aff{3,4
 }
- \and J. B. Marston\aff{4}}
+ \and J. B. Marston\aff{5}}
 
 \affiliation{\aff{1}Department of Physics \& Astronomy, Bates College,
 Lewiston, ME 04240, USA
@@ -84,10 +84,20 @@ Interestingly, CE2 predicts a stable three-jet solution, though we find that by 
 \section{Introduction}
 \label{sec:intro}
 
+Rapid rotation is a hallmark feature of geophysical and astrophysical fluid dynamics.
+Such systems are known to generate strong zonal jets, from the bands on Jupiter to the jet stream on Earth.
+In Jovian systems, the production of these jets may be driven by rapidly rotating convection.
+These systems are both highly turbulent and strongly anisotropic.
+Understanding the interaction between turbulence and mean flows remains a major challenge as such systems are often at extreme parameters inaccessible to direct numerical simulation (DNS).
 
-Rationale for statistical methods
-What has been done before in DSS
-Model problems typically stochastically driven; this is not
+Here, we explore one particular system, the Busse Annulus, using the CE2 formulation of direct statistical simulation.
+CE2 is a cumulant expansion truncated at second order and is fundamentally quasilinear.
+Our recent work \citep{2018RSPSA.47480422T} has shown that in direct simulation, the generalized quasilinear approximation (GQL) outperforms QL models at all parameter values explored.
+
+The Busse annulus model considers convection in a duct with slanted ends leading to a topographic $\beta$ effect.
+This system present an important challenge for CE2, as it is possesses a linear instability which is known to host multiple solutions at modest Rayleigh numbers \citep{1993GApFD..68...85B}.
+How does a quasilinear statistical theory fare when faced with multiple potential solution basis?
+In particular, we investigate the sensitivity of CE2 to initial conditions for a case with multiple solution branches.
 
 \section{Model Equations}
 \label{sec:model-eqations}
@@ -155,9 +165,9 @@ We also require second cumulants for the cross terms,
   \end{split}
 \end{equation}
 and its image under the exchange of $x_1,y_1$ and $x_2, y_2$, $\czt$.
-This could be calculated using symmetry, $\czt(y_1, y_2, \xi) = \ctz(y_2, y_1, -\xi)$.
-However, because we use IMEX timestepping and such symmetry operations can only be applied at the end of a timestep, this would mean that $\czt$ would not be updated during the implicit step.
-Instead, we solve an equation for $\czt$ which is identical to equation~(\ref{eq:ctz}) with $x_1,y_1$ and $x_2, y_2$ swapped.
+% This could be calculated using symmetry, $\czt(y_1, y_2, \xi) = \ctz(y_2, y_1, -\xi)$.
+% However, because we use IMEX timestepping and such symmetry operations can only be applied at the end of a timestep, this would mean that $\czt$ would not be updated during the implicit step.
+% Instead, we solve an equation for $\czt$ which is identical to equation~(\ref{eq:ctz}) with $x_1,y_1$ and $x_2, y_2$ swapped.
 
 
 \subsection{Parity}
@@ -170,7 +180,10 @@ The action of the zonal average preserves the parity, and so we discretize the f
 \subsection{Numerical Methods}
 \label{sec:numerical}
 
-We use \emph{Dedalus} to solve both the direct equations (\ref{eq:zeta_eom} - \ref{eq:theta}) and the CE2 model equations, (\ref{eq:cz})-~(\ref{eq:ctz}).
+We use \emph{Dedalus} \citep{2020PhRvR...2b3068B} to solve both the direct equations (\ref{eq:zeta_eom} - \ref{eq:theta}) and the CE2 model equations, (\ref{eq:cz})-~(\ref{eq:ctz}).
+For the CE2 equations, we use explicit timestepping for all variables.
+We have found this to be more stable than the typical approach of using implicit-explicit (IMEX) timesteppers in which the linear terms are implicitly advanced while the explicit terms explicit.
+The DNS results do, however, use IMEX schemes in the manner typical for Dedalus.
 
 
 \section{Results}
@@ -194,29 +207,25 @@ In order to facilitate comparison with previous work, we adapt the same run nami
 
 \subsection{Hovmoller}
 \label{sec:hov}
-
-\begin{figure}[h]
+\begin{figure}
   \centering
   \includegraphics[width=\textwidth]{../../figs/hov_cu_dns_ce2_run_A.pdf}
   \caption{Hovmoller diagram of run A in both DNS (a) and CE2 (b)}
   \label{fig:hov_run_A}
 \end{figure}
-
-\begin{figure}[h]
+\begin{figure}
   \centering
   \includegraphics[width=\textwidth]{../../figs/hov_cu_dns_ce2_run_R.pdf}
   \caption{Hovmoller diagram of run R in both DNS (a) and CE2 (b). The first cumulant $c_u$ is zero at $t = 0$. CE2 picks up a stable 7-jet solution.}
   \label{fig:hov_run_R}
 \end{figure}
-
-\begin{figure}[h]
+\begin{figure}
   \centering
   \includegraphics[width=\textwidth]{../../figs/hov_cu_dns_ce2_run_S.pdf}
   \caption{Hovmoller diagram of run R in both DNS (a) and CE2 (b) with the CE2 solution biased with a 3-jet solution at $t=0$. In this case, CE2 latches on to the correct 5-jet solution.}
   \label{fig:hov_run_R}
 \end{figure}
-
-\begin{figure}[h]
+\begin{figure}
   \centering
   \includegraphics[width=\textwidth]{../../figs/hov_cu_dns_ce2_run_T.pdf}
   \caption{Hovmoller diagram of run R in both DNS (a) and CE2 (b) with the CE2 solution biased with a 5-jet solution at $t=0$. Note that this picks up the incorrect 7-jet solution.}
@@ -239,14 +248,14 @@ In order to explore this idea, we biased the CE2 simulation by initializing the 
 \end{equation}
 The first term is odd about the center of the domain, while the second is even\footnote{note that both have even parity with respect to the boundary connditions, as required by the boundary conditions}.
 We use the linear boundary value solver in \emph{Dedalus} to solve for $c_\psi$ given $c_u$, and use this as an additional initial condition for $c_\psi$; in our unbiased simulations, $c_\psi(t=0) = 0$.
-\begin{figure}[h]
+\begin{figure}
   \centering
   \includegraphics[width=\textwidth]{../../figs/umean_dns_ce2_runA_I.pdf}
   \caption{Time averaged $c_u$ as a function of $y$ for DNS (solid) and CE2 (dashed) for the run A parameters. On the left, the CE2 model was initialized with $c_u(t=0) = 0$; on the right $c_u(t=0)$ was set to a large-amplitude 2-jet solution.}
   \label{fig:cu_vs_y_runA}
 \end{figure}
 
-\begin{figure}[h]
+\begin{figure}
   \centering
   \includegraphics[width=\textwidth]{../../figs/umean_dns_ce2_runRST.pdf}
   \caption{Time averaged $c_u$ as a function of $y$ for DNS (solid) and CE2 (dashed) for the run R parameters. On the left, the CE2 model was initialized with $c_u(t=0) = 0$; in the middle $c_u(t=0)$ was set to a large-amplitude 3-jet solution; on the right $c_u(t=0)$ was set to a large-amplitude 5-jet solution. Oddly the 3-jet solution is the only one that finds the correct solution.}
@@ -267,6 +276,16 @@ Regardless, this solution remains a fixed point of the CE2 system, suggesting th
 \subsection{Biasing higher jet counts}
 \label{sec:higher_jet}
 
+
+\subsection{Power Spectra}
+\label{sec:powerspec}
+
+\begin{figure}
+  \centering
+  \includegraphics[width=\textwidth]{../../figs/power_spectra_dns_ce2_run_S_write_501.pdf}
+  \caption{From left to right: a) DNS power spectrum b) CE2 power spectrum c) zonal ($k_x = 0$) spectra for run S.}
+  \label{fig:power_spec_S}
+\end{figure}
 
 
 \subsection{PDFs}
@@ -291,6 +310,9 @@ Does this do better than RB convection?
   \item Project negative eigenvalues after run A without inline projection. Do we get the same solution? That is, are there multiple ICs that lead to similar results?
   \item Power spectrum for $\psi$
   \item[\done] Bias run R with 4-jet solution
+  \item Look at early time $t < 0.125$ in DNS run R. Is there a 7 jet solution present? 
+  \item Look at y-spectra for $k_x = 0$; try to see jet coalescence (maybe for paper 2) power timeseries like Bouchet et al PRL 2019?
+  \item Construct 2nd cumulants for DNS
 \end{todolist}
 
 \section{Discussion}
@@ -300,8 +322,7 @@ Emerging story: \emph{zonal} QL/CE2 fail to transition among states because they
 
 
 Computations presented here were performed on the Bates High Performance Computing Center's \emph{Leavitt} system.
-Computations were also conducted with support from the NASA High End Computing (HEC) Program through the NASA Advanced Supercomputing (NAS) Division at Ames Research
-Center on Pleiades with allocation GID s1647.
+Computing Resources supporting this work were also provided by the NASA High-End Computing (HEC) Program through the NASA Advanced Supercomputing (NAS) Division at Ames Research Center with allocation GID s1647.
 Oishi was supported by NASA LWS grant No. NNX16AC92G, Research Corporation Scialog Collaborative Award (TDA) ID\#24231.
 
 
