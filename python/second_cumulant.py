@@ -8,76 +8,36 @@ import sys
 import h5py
 import numpy as np
 import dedalus.public as de
+from file_to_field import field_from_file
 
-def limits_from_grid(basis_type,grid):
-    if basis_type == 'Fourier':
-        # even grid spacing
-        delta = grid[1] - grid[0]
-        left_edge = grid[0]
-        right_edge = grid[-1] + delta
-    elif basis_type == 'SinCos':
-        delta = grid[1] - grid[0]
-        left_edge = grid[0] - delta/2.
-        right_edge = grid[-1] + delta/2.
-    elif basis_type == 'Chebyshev':
-        # Use Gauss points
-        grid_size = len(grid)
-        i = np.arange(grid_size)
-        theta = pi * (i + 1/2) / grid_size
-        native_grid = -np.cos(theta)
-        problem_coord = grid
-
-        xr = native_grid[0]/native_grid[1]
-        c = (problem_coord[0] - problem_coord[0]*xr)/(1. - xr)
-        r = (problem_coord[1] - c)/native_grid[1]
-        left_edge = c - r
-        right_edge = 2*c - a
-    else:
-        raise ValueError("Unknown basis type:", basis_type)
+def all_second_cumulants(f, g=None, layout='xy'):
+    """Computes a full second cumulants
     
-    return left_edge, right_edge
+    c_fg(xi, y1, y2) = <f'(x1, y1) g'(x2,y2)>
 
-def domain_from_file(filename,basis_types,dealias=3/2):
-    with h5py.File(filename,'r') as dfile:
-        testkey = next(iter(dfile['tasks']))
-        testdata = dfile['tasks'][testkey]
-        dims = testdata.shape[1:] # trim write dimension
-        dim_names = [i.decode('utf-8') for i in testdata.attrs['DIMENSION_LABELS'][1:]]
-        if not testdata.attrs['grid_space'][-1]:
-            dims[-1] *= 2
-        bases = []
-        for n,b,d in zip(dim_names,basis_types,dims):
-            if b == 'Fourier':
-                limits = limits_from_grid('Fourier',dfile['/scales/'+n+'/1.0'])
-                basis = de.Fourier(n, d, interval=limits, dealias=dealias)
-            elif b == 'SinCos':
-                limits = limits_from_grid('SinCos',dfile['/scales/'+n+'/1.0'])
-                basis = de.SinCos(n, d, interval=limits, dealias=dealias)
-            elif b == 'Chebyshev':
-                limits = (-1, 1) # limits not implemented for Chebyshev
-                basis = de.Chebyshev(n,d, limits=limits, dealias=dealias)
-            else:
-                raise ValueError("Unknown basis type:", basis_type)
-            
-            bases.append(basis)
-        d = de.Domain(bases,grid_dtype=np.float64) # hardcoded domain dtype for now
-        return d
+    assuming periodicity in x, so xi = x2 - x1.
 
-def fields_from_file(filename,basis_types,field,meta=None,index=-1):
-    domain = domain_from_file(filename, basis_types)
-    with h5py.File(filename,'r') as dfile:
-        f = domain.new_field()
-        dset = dfile['tasks'][field]
-        if meta:
-            for k,v in meta.items():
-                f.meta[k] = v
-        for layout in domain.dist.layouts:
-            if np.allclose(layout.grid_space, dset.attrs['grid_space']):
-                break
+    """
+    if layout == 'xy':
+        nx,ny = f['g'].shape
+        output = np.zeros((nx, ny, ny))
+        yx = False
+    elif layout == 'yx':
+        ny,nx = f['g'].shape
+        output = np.zeros((ny, ny, nx))
+        yx = True
+    else:
+        raise ValueError("Layout must be one of 'yx' or 'xy'.")
+
+    for yidx in range(ny):
+        if yx:
+            dslice = slice(yidx, None, None)
         else:
-            raise ValueError("No matching layout")
-        f[layout] = dset[(index,) + (slice(None),slice(None))]
-    return f
+            dslice = slice(None, None, yidx)
+        output[dslice] = second_cumulant(yidx, f, g=g, layout=layout)
+
+    return output
+
 
 def second_cumulant(y,f,g=None,layout='xy'):
     """Computes the second cumulant of two fields, f and g
@@ -91,14 +51,16 @@ def second_cumulant(y,f,g=None,layout='xy'):
 
     Parameters
     ----------
-    y : float
+    y : float or int
         y2 in the above equation; this is held constant
+        if a float, will calculate corresponding index for g'
+        if an int, will use this as the index into the g' array
     f : dedalus field object
         the first field
     g : dedalus field object, optional
         the second field. if not given, the second cumulant of the f with itself is calculated
     layout : 'xy' or 'yx'
-        gives the order of the x and y bases in teh domain
+        gives the order of the x and y bases in the domain
 
     """
     if g is None:
@@ -117,8 +79,14 @@ def second_cumulant(y,f,g=None,layout='xy'):
         mean.set_scales(1.0)
         f.set_scales(1.0)
         f['g'] = f['g'] - mean['g']
-    yarr = f.domain.get_basis_object('y').grid()
-    idx = (np.abs(yarr - y)).argmin()
+    if type(y) is int:
+        idx = y
+    elif type(y) is float:
+        yarr = f.domain.get_basis_object('y').grid()
+        idx = (np.abs(yarr - y)).argmin()
+    else:
+        raise ValueError("y must be int or float, not {}".format(type(y)))
+    
 
     outdata = np.empty_like(f['g'])
     if yx:
@@ -132,7 +100,7 @@ def second_cumulant(y,f,g=None,layout='xy'):
 
 def second_cumulant_tavg(datafile, field1, field2, y, start, stop, layout='xy'):
     """compute time averaged second cumulant
-
+    
     inputs
     ------
     datafile : hdf5 file containing dedalus outputs
@@ -145,9 +113,9 @@ def second_cumulant_tavg(datafile, field1, field2, y, start, stop, layout='xy'):
     """
     cumulants = []
     for snap in range(start, stop+1):
-        f1 = fields_from_file(datafile,['Fourier','SinCos'],field1,meta={'y':{'scale':1.0,'parity':-1,'constant':False}},index=snap)
+        f1 = field_from_file(datafile,['Fourier','SinCos'],field1,meta={'y':{'scale':1.0,'parity':-1,'constant':False}},index=snap)
         if field2 != field1:
-            f2 = fields_from_file(datafile,['Fourier','SinCos'],field2,meta={'y':{'scale':1.0,'parity':-1,'constant':False}},index=snap)
+            f2 = field_from_file(datafile,['Fourier','SinCos'],field2,meta={'y':{'scale':1.0,'parity':-1,'constant':False}},index=snap)
         else:
             f2 = None
         c = second_cumulant(y,f1,g=f2,layout='xy')
