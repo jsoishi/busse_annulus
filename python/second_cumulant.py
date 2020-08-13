@@ -31,9 +31,9 @@ def all_second_cumulants(f, g=None, layout='xy'):
 
     for yidx in range(ny):
         if yx:
-            dslice = slice(yidx, None, None)
+            dslice = (yidx, slice(None, None, None), slice(None, None, None))
         else:
-            dslice = slice(None, None, yidx)
+            dslice = (slice(None, None, None), slice(None, None, None), yidx)
         output[dslice] = second_cumulant(yidx, f, g=g, layout=layout)
 
     return output
