@@ -3,7 +3,7 @@
 ref: Brummell & Hart (1993) fig 5a
 
 Usage:
-    busse_annulus.py [--Ra=<Ra> --beta=<beta> --C=<C> --Pr=<Pr> --restart=<restart_file> --nx=<nx> --ny=<ny> --filter=<filter> --seed=<seed> --ICmode=<ICmode> --stop-time=<stop_time> --use-CFL --note=<note> --Jetbias_m=<Jetbias_m> --Jetbias_a=<Jetbias_a>] 
+    busse_annulus.py [--Ra=<Ra> --beta=<beta> --C=<C> --Pr=<Pr> --restart=<restart_file> --nx=<nx> --ny=<ny> --filter=<filter> --seed=<seed> --ICmode=<ICmode> --stop-time=<stop_time> --use-CFL --note=<note> --Jetbias_m=<Jetbias_m> --Jetbias_a=<Jetbias_a> --symmetry --xy] 
 
 Options:
     --Ra=<Ra>                  Rayleigh number [default: 39000]
@@ -20,6 +20,8 @@ Options:
     --Jetbias_a=<Jetbias_a>    amplitude for initialize jet mode [default: 1e-3]
     --stop-time=<stop_time>    simulation time to stop [default: 2.]
     --use-CFL                  use CFL condition
+    --symmetry                 enforce reflect-shift symmetry in ICs
+    --xy                       order bases [x,y] instead of [y,x]
     --note=<note>              a note to add to directory
 
 """
@@ -60,7 +62,8 @@ CFL = args['--use-CFL']
 note = args['--note']
 Jetbias_m = args['--Jetbias_m']
 Jetbias_ampl = float(args['--Jetbias_a'])
-
+symmetry = args['--symmetry']
+xy = args['--xy']
 if seed == 'None':
     seed = None
 else:
@@ -89,6 +92,12 @@ if CFL:
 if Jetbias_m:
     data_dir += "_Jetbias_m{}_a{}".format(Jetbias_m, Jetbias_ampl)
 
+if symmetry:
+    data_dir += "_symmetricIC"
+
+if xy:
+    data_dir += "_xy"
+
 if note:
     data_dir += "_{}".format(note)
 
@@ -113,7 +122,12 @@ start_init_time = time.time()
 
 x_basis = de.Fourier('x', nx, interval=(0, Lx), dealias=3/2)
 y_basis = de.SinCos('y', ny, interval=(0, Ly), dealias=3/2)
-domain = de.Domain([y_basis, x_basis], grid_dtype=np.float64)
+
+if xy:
+    bases = [x_basis, y_basis]
+else:
+    bases = [y_basis, x_basis]
+domain = de.Domain(bases, grid_dtype=np.float64)
 
 # 2D Boussinesq hydrodynamics
 problem = de.IVP(domain, variables=['psi','theta'], time='t')
@@ -148,21 +162,42 @@ if restart:
     solver.load_state(restart,-1)
 else:
     theta = solver.state['theta']
-    x = domain.grid(axis=1)
-    y = domain.grid(axis=0)
+    theta.set_scales(domain.dealias)
+    x = domain.grid(axis=1, scales=domain.dealias)
+    y = domain.grid(axis=0, scales=domain.dealias)
 
     if ICmode:
         theta['g'] = 1e-3 * np.sin(np.pi*y)*np.sin(ICmode*2*np.pi/Lx*x)
     else:
         # Linear background + perturbations damped at walls
         yb, yt = y_basis.interval
-        shape = domain.local_grid_shape(scales=1)
-        rand = np.random.RandomState(seed)
-        pert =  1e-3 * rand.standard_normal(shape) * np.sin(np.pi*y) #* (yt - y) * (y - yb)
+        # Random perturbations, initialized globally for same results in parallel
+        gshape = domain.dist.grid_layout.global_shape(scales=domain.dealias)
+        slices = domain.dist.grid_layout.slices(scales=domain.dealias)
+        rand = np.random.RandomState(seed=seed)
+        noise = rand.standard_normal(gshape)[slices]
+
+        pert =  1e-3 * noise * np.sin(np.pi*y) #* (yt - y) * (y - yb)
         theta['g'] = pert
+        theta.set_scales(filter_frac, keep_data=True)
+        theta['c']
+        theta['g']
+        theta.set_scales(domain.dealias, keep_data=True)
     if Jetbias_m:
         psi = solver.state['psi']
         psi['g'] = Jetbias_ampl * np.sin(Jetbias_m*np.pi*y)
+    if symmetry:
+        # zero out modes with n+m != even 
+        cgshape = domain.dist.coeff_layout.global_shape(scales=1)
+        cslices = domain.dist.coeff_layout.slices(scales=1)
+
+        # construct mask globally
+        pre_mask = np.indices(cgshape)
+        mask = (pre_mask[0,...] + pre_mask[1,...]) %2 == 0
+        mask[0,:] = 0
+        logger.info('mask[cslices] shape = {}'.format(mask[cslices].shape))
+
+        theta['c'] *= mask[cslices]
 
 if CFL:
     CFL = flow_tools.CFL(solver, initial_dt=1e-7, cadence=5, safety=0.3,
