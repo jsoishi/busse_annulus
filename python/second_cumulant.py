@@ -72,13 +72,14 @@ def second_cumulant(y,f,g=None,layout='xy'):
     else:
         raise ValueError("Layout must be one of 'yx' or 'xy'.")
     fields = [f,g]
-    for f in fields:
-        xb = f.domain.get_basis_object('x')
+    for field in fields:
+        xb = field.domain.get_basis_object('x')
         Lx = xb.interval[1] - xb.interval[0]
-        mean = (f.integrate('x')/Lx).evaluate()
+        mean = (field.integrate('x')/Lx).evaluate()
         mean.set_scales(1.0)
-        f.set_scales(1.0)
-        f['g'] = f['g'] - mean['g']
+        field.set_scales(1.0)
+        field['g'] = field['g'] - mean['g']
+        
     if type(y) is int:
         idx = y
     elif type(y) is float:
