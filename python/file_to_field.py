@@ -5,7 +5,7 @@ import h5py
 import dedalus.public as de
 import numpy as np
 
-def limits_from_grid(basis_type,grid):
+def limits_from_grid(basis_type, grid):
     if basis_type == 'Fourier':
         # even grid spacing
         delta = grid[1] - grid[0]
@@ -33,7 +33,7 @@ def limits_from_grid(basis_type,grid):
     
     return left_edge, right_edge
 
-def domain_from_file(filename,basis_types,dealias=3/2):
+def domain_from_file(filename, basis_types, dealias=3/2):
     with h5py.File(filename,'r') as dfile:
         testkey = next(iter(dfile['tasks']))
         testdata = dfile['tasks'][testkey]
@@ -59,40 +59,34 @@ def domain_from_file(filename,basis_types,dealias=3/2):
         d = de.Domain(bases,grid_dtype=np.float64) # hardcoded domain dtype for now
         return d
 
-def field_from_file(filename,basis_types,meta=None,index=-1):
-    domain = domain_from_file(filename, basis_types)
+def field_from_file(field, filename, basis_types, meta=None, index=-1, domain=None):
+    if not domain:
+        domain = domain_from_file(filename, basis_types)
     with h5py.File(filename,'r') as dfile:
-        for field in fields:
-            f = domain.new_field()
-            dset = dfile['tasks'][field]
-            if meta:
-                for k,v in meta.items():
-                    f.meta[k] = v
-            for layout in domain.dist.layouts:
-                if np.allclose(layout.grid_space, dset.attrs['grid_space']):
-                    break
-            else:
-                raise ValueError("No matching layout")
-        f[layout] = dset[(index,) + (slice(None),slice(None))]
+        f = domain.new_field()
+        dset = dfile['tasks'][field]
+        if meta:
+            for k,v in meta.items():
+                f.meta[k] = v
+        for layout in domain.dist.layouts:
+            if np.allclose(layout.grid_space, dset.attrs['grid_space']):
+                break
+        else:
+            raise ValueError("No matching layout")
+        f[layout] = dset[(index,) + (Ellipsis,)]
+        f.name = field
     return f
 
-def all_fields_from_file(filename,basis_types,meta=None,index=-1):
+def all_fields_from_file(filename, basis_types, meta=None, index=-1):
     domain = domain_from_file(filename, basis_types)
-    field_list = []
+    field_names = []
+    fields = []
     with h5py.File(filename,'r') as dfile:
         for field in dfile['tasks']:
-            f = domain.new_field()
-            dset = dfile['tasks'][field]
-            if meta:
-                for k,v in meta.items():
-                    f.meta[k] = v
-            for layout in domain.dist.layouts:
-                if np.allclose(layout.grid_space, dset.attrs['grid_space']):
-                    break
-            else:
-                raise ValueError("No matching layout")
-            f[layout] = dset[(index,) + (slice(None),slice(None))]
-            f.name = field
-            field_list.append(f)
-    return field_list
+            field_names.append(field)
+    
+    for fname in field_names:
+        fields.append(field_from_file(fname, filename, basis_types,meta=meta, index=index, domain=domain))
+
+    return fields
     
