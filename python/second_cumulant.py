@@ -91,11 +91,27 @@ def second_cumulant(y,f,g=None,layout='xy'):
 
     outdata = np.empty_like(f['g'])
     if yx:
+        nx = f['g'].shape[1]
+    else:
+
+        nx = f['g'].shape[0]
+
+    n_full = 2*nx - 1
+    interp_basis = de.Fourier('x',n_full)
+    interp_domain = de.Domain([interp_basis,], grid_dtype=np.float64)
+    cf = interp_domain.new_field()
+    if yx:
         for i in range(f['g'].shape[0]):
-            outdata[i,:] = np.correlate(f['g'][i,:],g['g'][idx,:],mode='same')
+            cf.set_scales(1)
+            cf['g'] = np.correlate(f['g'][i,:],g['g'][idx,:],mode='full')
+            cf.set_scales(nx/n_full, keep_data=True)
+            outdata[i,:] = cf['g']
     else:
         for i in range(f['g'].shape[1]):
-            outdata[:,i] = np.correlate(f['g'][:,i],g['g'][:,idx],mode='same')
+            cf.set_scales(1)
+            cf['g'] = np.correlate(f['g'][:,i],g['g'][:,idx],mode='full')
+            cf.set_scales(nx/n_full, keep_data=True)
+            outdata[:,i] = cf['g']
 
     return outdata
 
