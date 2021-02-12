@@ -38,7 +38,7 @@ def domain_from_file(filename, basis_types, dealias=3/2):
         testkey = next(iter(dfile['tasks']))
         testdata = dfile['tasks'][testkey]
         dims = testdata.shape[1:] # trim write dimension
-        dim_names = [i.decode('utf-8') for i in testdata.attrs['DIMENSION_LABELS'][1:]]
+        dim_names = [i for i in testdata.attrs['DIMENSION_LABELS'][1:]]
         if not testdata.attrs['grid_space'][-1]:
             dims[-1] *= 2
         bases = []

@@ -163,8 +163,12 @@ if restart:
 else:
     theta = solver.state['theta']
     theta.set_scales(domain.dealias)
-    x = domain.grid(axis=1, scales=domain.dealias)
-    y = domain.grid(axis=0, scales=domain.dealias)
+    if xy:
+        x = domain.grid(axis=0, scales=domain.dealias)
+        y = domain.grid(axis=1, scales=domain.dealias)
+    else:
+        x = domain.grid(axis=1, scales=domain.dealias)
+        y = domain.grid(axis=0, scales=domain.dealias)
 
     if ICmode:
         theta['g'] = 1e-3 * np.sin(np.pi*y)*np.sin(ICmode*2*np.pi/Lx*x)
@@ -194,7 +198,10 @@ else:
         # construct mask globally
         pre_mask = np.indices(cgshape)
         mask = (pre_mask[0,...] + pre_mask[1,...]) %2 == 0
-        mask[0,:] = 0
+        if xy:
+            mask[:,0] = 0
+        else:
+            mask[0,:] = 0
         logger.info('mask[cslices] shape = {}'.format(mask[cslices].shape))
 
         theta['c'] *= mask[cslices]
@@ -266,6 +273,7 @@ except:
     logger.error('Exception raised, triggering end of main loop.')
     raise
 finally:
+    solver.evaluate_handlers_now(dt)
     end_run_time = time.time()
     logger.info('Iterations: %i' %solver.iteration)
     logger.info('Sim end time: %f' %solver.sim_time)

@@ -10,7 +10,7 @@ import numpy as np
 import dedalus.public as de
 from file_to_field import field_from_file
 
-def all_second_cumulants(f, g=None, layout='xy'):
+def all_second_cumulants(f, g=None, layout='xy', same=False):
     """Computes a full second cumulants
     
     c_fg(xi, y1, y2) = <f'(x1, y1) g'(x2,y2)>
@@ -34,12 +34,12 @@ def all_second_cumulants(f, g=None, layout='xy'):
             dslice = (yidx, slice(None, None, None), slice(None, None, None))
         else:
             dslice = (slice(None, None, None), slice(None, None, None), yidx)
-        output[dslice] = second_cumulant(yidx, f, g=g, layout=layout)
+        output[dslice] = second_cumulant(yidx, f, g=g, layout=layout, same=same)
 
     return output
 
 
-def second_cumulant(y,f,g=None,layout='xy'):
+def second_cumulant(y,f,g=None,layout='xy', same=False):
     """Computes the second cumulant of two fields, f and g
 
     c_fg = <f'(x1, y1) g'(x2, y2)>
@@ -61,7 +61,8 @@ def second_cumulant(y,f,g=None,layout='xy'):
         the second field. if not given, the second cumulant of the f with itself is calculated
     layout : 'xy' or 'yx'
         gives the order of the x and y bases in the domain
-
+    same : True/False
+        if True, use 'same' mode for cumulant calculation and don't interpolate
     """
     if g is None:
         g = f
@@ -96,20 +97,25 @@ def second_cumulant(y,f,g=None,layout='xy'):
 
         nx = f['g'].shape[0]
 
-    n_full = 2*nx - 1
+    if same:
+        n_full = nx
+        mode='same'
+    else:
+        mode='full'
+        n_full = 2*nx - 1
     interp_basis = de.Fourier('x',n_full)
     interp_domain = de.Domain([interp_basis,], grid_dtype=np.float64)
     cf = interp_domain.new_field()
     if yx:
         for i in range(f['g'].shape[0]):
             cf.set_scales(1)
-            cf['g'] = np.correlate(f['g'][i,:],g['g'][idx,:],mode='full')
+            cf['g'] = np.correlate(f['g'][i,:],g['g'][idx,:],mode=mode)
             cf.set_scales(nx/n_full, keep_data=True)
             outdata[i,:] = cf['g']
     else:
         for i in range(f['g'].shape[1]):
             cf.set_scales(1)
-            cf['g'] = np.correlate(f['g'][:,i],g['g'][:,idx],mode='full')
+            cf['g'] = np.correlate(f['g'][:,i],g['g'][:,idx],mode=mode)
             cf.set_scales(nx/n_full, keep_data=True)
             outdata[:,i] = cf['g']
 
