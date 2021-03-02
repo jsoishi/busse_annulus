@@ -2,14 +2,14 @@
 Plot
 
 Usage:
-    plot_u_mean_dns_ce2.py <dns_file_path> <ce2_file_path> [--output=<dir> --tavg=<tavg> --label=<label> --limits=<limits>]
+    plot_u_mean_dns_ce2.py <dns_file_path> <ce2_file_path> [--output=<dir> --tavg=<tavg> --label=<label> --limits=<limits> --xy]
 
 Options:
     --output=<dir>      Output directory [default: ../../figs]
     --tavg=<tavg>       Time to average over (counted backwards from end of simulation) [default: 1]
     --label=<label>     label for plot 
     --limits=<limits>   plot limits
-
+    --xy                DNS axis ordering
 """
 
 import h5py
@@ -34,7 +34,7 @@ args = docopt(__doc__)
 tavg = float(args['--tavg'])
 label = args['--label']
 limits = args['--limits']
-
+xy = args['--xy']
 if limits:
     limits = limits.split(',')
 
@@ -50,8 +50,13 @@ dns_data = h5py.File(args['<dns_file_path>'],'r')
 ce2_data = h5py.File(args['<ce2_file_path>'],'r')
 
 ce2_image_axes = [0, 3]
-dns_image_axes = [0, 1]
-dns_data_slices = (slice(None), slice(None), 0)
+if xy:
+    dns_image_axes = [0, 2]
+    dns_data_slices = (slice(None), 0, slice(None))
+else:
+    dns_image_axes = [0, 1]
+    dns_data_slices = (slice(None), slice(None), 0)
+
 ce2_data_slices = (slice(None), 0, 0, slice(None))
 
 image_scales = ['sim_time', 0]
@@ -71,6 +76,7 @@ axes = mfig.add_axes(0, 0, [0, 0, 1, 1])
 print("dns_data shape", dns_data['tasks/<u>_x'].shape)
 print('ce2 data shape', ce2_data['tasks/cu'].shape)
 pax, cax = plot_tools.plot_bot(dns_data['tasks/<u>_x'], dns_image_axes, dns_data_slices, image_scales, axes=axes, title=r'$\left<u\right>$ DNS', even_scale=True, clim=limits)
+#pax.set_xlim(0,0.125)
 pax.xaxis.set_label_text("time")
 pax.yaxis.set_label_text("$y$")
 pax.yaxis.label.set_rotation('horizontal')

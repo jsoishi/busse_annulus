@@ -111,12 +111,17 @@ def plot_power_spectra(ce2_filename, start, count, output='write_', field='zeta'
         kx, ky, data = plot_tools.get_plane(dns_kspace_data, dns_image_axes[0], dns_image_axes[1], dns_image_slices)
         dns_kx, dns_ky, dns_power = calc_dns_power(kx, ky, data)
 
-        kx0_axes.plot(dns_power[:,0], label='DNS t = {:5.2e}'.format(dns_time))
+        # matplotlib doesn't plot -np.inf, but can scatter plot
+        if np.any(~np.isfinite(dns_power[:,0])):
+           ky = np.arange(len(dns_power[:,0]))
+           kx0_axes.scatter(ky, dns_power[:,0], label='DNS t = {:5.2e}'.format(dns_time))
+        else:
+            kx0_axes.plot(dns_power[:,0], label='DNS t = {:5.2e}'.format(dns_time))
         kx0_axes.plot(ce2_power[:,0], label='CE2 t = {:5.2e}'.format(ce2_time))
 
         kx0_axes.set_xlabel(r"$k_{y}$")
         kx0_axes.set_ylabel(power_axis_label)
-        #kx0_axes.set_xlim(1,15)
+        kx0_axes.set_xlim(1,15)
         kx0_axes.text(0.9,0.85, 'c',
                  bbox={'facecolor': 'grey', 'alpha': 0.5, 'boxstyle':'round'},transform=kx0_axes.transAxes, fontsize=18, color='black')
         kx0_axes.xaxis.set_major_locator(MaxNLocator(integer=True))
