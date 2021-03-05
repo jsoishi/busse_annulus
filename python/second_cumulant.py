@@ -9,8 +9,11 @@ import h5py
 import numpy as np
 import dedalus.public as de
 from file_to_field import field_from_file
+import logging
+logger = logging.getLogger(__name__)
 
-def all_second_cumulants(f, g=None, layout='xy', same=False):
+
+def all_second_cumulants(f, g=None, layout='xy'):
     """Computes a full second cumulants
     
     c_fg(xi, y1, y2) = <f'(x1, y1) g'(x2,y2)>
@@ -34,20 +37,22 @@ def all_second_cumulants(f, g=None, layout='xy', same=False):
             dslice = (yidx, slice(None, None, None), slice(None, None, None))
         else:
             dslice = (slice(None, None, None), slice(None, None, None), yidx)
-        output[dslice] = second_cumulant(yidx, f, g=g, layout=layout, same=same)
+        output[dslice] = second_cumulant(yidx, f, g=g, layout=layout)
 
     return output
 
 
-def second_cumulant(y,f,g=None,layout='xy', same=False):
+def second_cumulant(y,f,g=None,layout='xy'):
     """Computes the second cumulant of two fields, f and g
 
     c_fg = <f'(x1, y1) g'(x2, y2)>
 
     where <> is an average in the x1 direction. Because of the
     periodicity in x, x2 = x1 + dx. The y parameter is y2, and is held
-    constant. The cumulant is implemented by computing the
-    x-correlation of f and g at each y1.
+    constant. 
+
+    WARNING: This is an N**2 operation that uses Dedalus integrate() operators.
+    It's slow but accurate.
 
     Parameters
     ----------
@@ -61,8 +66,6 @@ def second_cumulant(y,f,g=None,layout='xy', same=False):
         the second field. if not given, the second cumulant of the f with itself is calculated
     layout : 'xy' or 'yx'
         gives the order of the x and y bases in the domain
-    same : True/False
-        if True, use 'same' mode for cumulant calculation and don't interpolate
     """
     if g is None:
         g = f
@@ -80,7 +83,7 @@ def second_cumulant(y,f,g=None,layout='xy', same=False):
         mean.set_scales(1.0)
         field.set_scales(1.0)
         field['g'] = field['g'] - mean['g']
-        
+
     if type(y) is int:
         idx = y
     elif type(y) is float:
@@ -97,28 +100,22 @@ def second_cumulant(y,f,g=None,layout='xy', same=False):
 
         nx = f['g'].shape[0]
 
-    if same:
-        n_full = nx
-        mode='same'
-    else:
-        mode='full'
-        n_full = 2*nx - 1
-    interp_basis = de.Fourier('x',n_full)
-    interp_domain = de.Domain([interp_basis,], grid_dtype=np.float64)
-    cf = interp_domain.new_field()
+    tmp_x = de.Fourier('x',nx, interval=xb.interval)
+    tmp_d = de.Domain([tmp_x,],grid_dtype=np.float64)
+    integrand = tmp_d.new_field()
     if yx:
-        for i in range(f['g'].shape[0]):
-            cf.set_scales(1)
-            cf['g'] = np.correlate(f['g'][i,:],g['g'][idx,:],mode=mode)
-            cf.set_scales(nx/n_full, keep_data=True)
-            outdata[i,:] = cf['g']
+        for iy in range(f['g'].shape[0]):
+            for xi in range(nx):
+                x_roll = xi - nx//2
+                integrand['g'] = f['g'][iy,:] * np.roll(g['g'][idx,:],x_roll)
+                outdata[iy,xi] = integrand.integrate()['g'][0]
     else:
-        for i in range(f['g'].shape[1]):
-            cf.set_scales(1)
-            cf['g'] = np.correlate(f['g'][:,i],g['g'][:,idx],mode=mode)
-            cf.set_scales(nx/n_full, keep_data=True)
-            outdata[:,i] = cf['g']
-
+        for iy in range(f['g'].shape[1]):
+            for xi in range(nx):
+                x_roll = xi - nx//2
+                integrand['g'] = f['g'][:,iy] * np.roll(g['g'][:,idx],x_roll)
+                outdata[xi,iy] = integrand.integrate()['g'][0]
+                                         
     return outdata
 
 def second_cumulant_tavg(datafile, field1, field2, y, start, stop, layout='xy'):
