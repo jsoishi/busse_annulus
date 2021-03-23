@@ -36,6 +36,10 @@ if not hasattr(param, "new_IC"):
 
 if not hasattr(param, "cu_k"):
     param.cu_k = 1
+
+if not hassattr(param, "fix_DNS_2c"):
+    param.fix_DNS_2c = False
+    
 logger.info("Running with Nx = {:d}, Ny = {:d}".format(param.Nx, param.Ny))
 logger.info("Ra = {:e}".format(param.Ra))
 logger.info("beta = {:e}".format(param.beta))
@@ -175,6 +179,12 @@ solver.stop_iteration = param.stop_iteration
 if pathlib.Path('restart.h5').exists():
     solver.load_state('restart.h5', -1)
     fh_mode = 'append'
+
+    # adjust for messed up 2nd cumulant from DNS
+    if param.fix_DNS_2c:
+        logger.info("Correcting DNS second cumulants...")
+        for field in ['css', 'cts', 'cst', 'ctt']:
+            solver.state[field]['g'] /= param.Lx
 else:
     fh_mode = 'overwrite'
     cs = solver.state['cs']
