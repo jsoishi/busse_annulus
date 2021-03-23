@@ -37,7 +37,7 @@ if not hasattr(param, "new_IC"):
 if not hasattr(param, "cu_k"):
     param.cu_k = 1
 
-if not hassattr(param, "fix_DNS_2c"):
+if not hasattr(param, "fix_DNS_2c"):
     param.fix_DNS_2c = False
     
 logger.info("Running with Nx = {:d}, Ny = {:d}".format(param.Nx, param.Ny))
