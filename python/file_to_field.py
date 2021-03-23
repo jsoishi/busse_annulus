@@ -74,6 +74,7 @@ def field_from_file(field, filename, basis_types, meta=None, index=-1, domain=No
         else:
             raise ValueError("No matching layout")
         f[layout] = dset[(index,) + (Ellipsis,)]
+        print("DNS sim_time = {:f}".format(dfile['scales/sim_time'][index]))
         f.name = field
     return f
 

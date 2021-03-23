@@ -32,13 +32,16 @@ def all_second_cumulants(f, g=None, layout='xy'):
     else:
         raise ValueError("Layout must be one of 'yx' or 'xy'.")
 
+    n_integ = nx*ny*ny
+    n = 0
     for yidx in range(ny):
+        logger.info("Integral {}/{}".format(n,n_integ))
         if yx:
             dslice = (yidx, slice(None, None, None), slice(None, None, None))
         else:
             dslice = (slice(None, None, None), slice(None, None, None), yidx)
         output[dslice] = second_cumulant(yidx, f, g=g, layout=layout)
-
+        n += nx*ny
     return output
 
 
@@ -103,18 +106,28 @@ def second_cumulant(y,f,g=None,layout='xy'):
     tmp_x = de.Fourier('x',nx, interval=xb.interval)
     tmp_d = de.Domain([tmp_x,],grid_dtype=np.float64)
     integrand = tmp_d.new_field()
+
     if yx:
-        for iy in range(f['g'].shape[0]):
-            for xi in range(nx):
-                x_roll = xi - nx//2
-                integrand['g'] = f['g'][iy,:] * np.roll(g['g'][idx,:],x_roll)
-                outdata[iy,xi] = integrand.integrate()['g'][0]
+        ny = f['g'].shape[0]
     else:
-        for iy in range(f['g'].shape[1]):
-            for xi in range(nx):
-                x_roll = xi - nx//2
-                integrand['g'] = f['g'][:,iy] * np.roll(g['g'][:,idx],x_roll)
-                outdata[xi,iy] = integrand.integrate()['g'][0]
+        ny = f['g'].shape[1]
+    n_int = nx*ny
+    n = 0
+    for iy in range(ny):
+        for xi in range(nx):
+            x_roll = xi - nx//2
+
+            if yx:
+                f_slice = (iy, slice(None))
+                g_slice = (idx, slice(None))
+                out_slice = (iy, xi)
+            else: 
+                f_slice = (slice(None), iy)
+                g_slice = (slice(None), idx)
+                out_slice = (xi, iy)
+            integrand['g'] = f['g'][f_slice] * np.roll(g['g'][g_slice],x_roll)
+            outdata[out_slice] = integrand.integrate()['g'][0]
+            n += 1
                                          
     return outdata
 
