@@ -10,8 +10,37 @@ import numpy as np
 import dedalus.public as de
 from file_to_field import field_from_file
 import logging
+from numba import jit
 logger = logging.getLogger(__name__)
 
+def all_second_cumulants_spectral(output_field, f, g=None, layout='xy'):
+    if g is None:
+        g = f
+
+    if layout != 'xy':
+        raise NotImplementedError("Use xy ordering from DNS.")
+
+    f_3d = output_field.domain.new_field()
+    f_3d.meta['y0']['parity'] = f.meta['y']['parity']
+    f_3d.meta['y1']['parity'] = 1
+    g_3d = output_field.domain.new_field()
+    g_3d.meta['y0']['parity'] = 1
+    g_3d.meta['y1']['parity'] = g.meta['y']['parity']
+
+    # works in serial, at least
+    f_slice = (slice(None), slice(None), 0)
+    g_slice = (slice(None), 0, slice(None))
+    f_3d['c'][f_slice] = f['c']
+    f_3d['c'][0,:,:] = 0
+    g_3d['c'][g_slice] = g['c']
+    g_3d['c'][0,:,:] = 0
+    layout = output_field.domain.dist.layouts[-2]
+    for field in [f_3d, g_3d]:
+        field.require_layout(layout)
+
+    kx = f_3d.domain.elements(0)
+    Lx = f_3d.domain.bases[0].interval[0]
+    output_field[layout] = f_3d.data * np.conj(g_3d.data)* np.exp(1j*Lx*kx)
 
 def all_second_cumulants(f, g=None, layout='xy'):
     """Computes a full second cumulants
@@ -43,7 +72,6 @@ def all_second_cumulants(f, g=None, layout='xy'):
         output[dslice] = second_cumulant(yidx, f, g=g, layout=layout)
         n += nx*ny
     return output
-
 
 def second_cumulant(y,f,g=None,layout='xy'):
     """Computes the second cumulant of two fields, f and g
@@ -77,7 +105,8 @@ def second_cumulant(y,f,g=None,layout='xy'):
     elif layout == 'xy':
         yx = False
     else:
-        raise ValueError("Layout must be one of 'yx' or 'xy'.")
+        print("layout must be xy or yx.")
+        raise
     fields = [f,g]
     for field in fields:
         xb = field.domain.get_basis_object('x')
@@ -93,7 +122,8 @@ def second_cumulant(y,f,g=None,layout='xy'):
         yarr = f.domain.get_basis_object('y').grid()
         idx = (np.abs(yarr - y)).argmin()
     else:
-        raise ValueError("y must be int or float, not {}".format(type(y)))
+        print("y must be int or float, not {}".format(type(y)))
+        raise 
     
 
     outdata = np.empty_like(f['g'])
@@ -126,7 +156,7 @@ def second_cumulant(y,f,g=None,layout='xy'):
                 g_slice = (slice(None), idx)
                 out_slice = (xi, iy)
             integrand['g'] = f['g'][f_slice] * np.roll(g['g'][g_slice],x_roll)
-            outdata[out_slice] = integrand.integrate()['g'][0]
+            outdata[out_slice] = integrand.integrate()['g'][0]/Lx
             n += 1
                                          
     return outdata

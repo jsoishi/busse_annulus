@@ -21,7 +21,7 @@ from dedalus.core.evaluator import Evaluator
 from dedalus.core.system import FieldSystem
 from dedalus.tools.post import merge_process_files
 
-from second_cumulant import all_second_cumulants
+from second_cumulant import all_second_cumulants, all_second_cumulants_spectral
 from file_to_field import field_from_file
 import logging
 logger = logging.getLogger(__name__)
@@ -99,8 +99,8 @@ for k,v in inputs.items():
     v[0].set_scales(1, keep_data=True)
     v[1].set_scales(1, keep_data=True)
     logger.info("calculating {}".format(k))
-    sc = all_second_cumulants(v[0], g=v[1],layout='xy')
-    output_vars[k]['g'] = sc
+    all_second_cumulants_spectral(output_vars[k], v[0], g=v[1],layout='xy')
+
 end_time = time.time()
 # create FileHandler to output data
 field_system = FieldSystem(output_vars.values())
