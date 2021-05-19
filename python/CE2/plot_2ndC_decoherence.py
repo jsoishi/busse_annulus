@@ -19,7 +19,7 @@ scale = 4
 
 limits = (-0.0008,0.0008)
 # Layout
-nrows, ncols = 2,3 
+nrows, ncols = 1,4
 image = plot_tools.Box(2, 1)
 pad = plot_tools.Frame(0.2, 0.2, 0.1, 0.1)
 margin = plot_tools.Frame(0.3, 0.2, 0.1, 0.1)
@@ -29,9 +29,9 @@ mfig = plot_tools.MultiFigure(nrows, ncols, image, pad, margin, scale)
 fig = mfig.figure
 datadir = pathlib.Path('run_B_DNS_restart/data_snapshots')
 
-filenames = [datadir.joinpath(x) for x in ['data_snapshots_s1.h5', 'data_snapshots_s2.h5', 'data_snapshots_s3.h5','data_snapshots_s4.h5','data_snapshots_s5.h5','data_snapshots_s117.h5']]
+filenames = [datadir.joinpath(x) for x in ['data_snapshots_s1.h5', 'data_snapshots_s3.h5','data_snapshots_s5.h5','data_snapshots_s117.h5']]
 
-title = r'$c_{\theta\theta}(\xi, y_1, 0.5)$'
+title = r'$c_{\theta\theta}(\xi, y_1, y_2=0.5)$'
 for n,fn in enumerate(filenames):
     i, j = divmod(n, ncols)
     axes = mfig.add_axes(i, j, [0, 0, 1, 1])
@@ -43,9 +43,12 @@ for n,fn in enumerate(filenames):
         pax.set_rasterized(True)
         time = df['scales/sim_time'][0]
         pax.text(0.1,0.8,'t = {:3.2e}'.format(time),bbox={'facecolor': 'grey', 'alpha': 0.5, 'boxstyle':'round'},transform=axes.transAxes,fontsize=18)
+        pax.set_xlabel(r"$\xi$")
+        pax.set_ylabel(r"$y_1$")
 
 dpi=300
 for ext in ['png','pdf']:
     savename = "run_B_decoherence.{}".format(ext)
     savepath = output.joinpath(savename)
     fig.savefig(str(savepath), dpi=dpi)
+
