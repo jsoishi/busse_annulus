@@ -42,23 +42,22 @@
 
 
 \shorttitle{CE2 Busse Annulus}
-\shortauthor{J. S. Oishi, S. M. Tobias, K. J. Burns, J. B. Marston}
+\shortauthor{J. S. Oishi, K. J. Burns, J. B. Marston, S. M. Tobias}
 
 \title{Direct Statistical Simulation of the Busse Annulus}
 
 \author{Jeffrey S. Oishi\aff{1}
   \corresp{\email{joishi@bates.edu}},
-  Steven M. Tobias\aff{2},
-  Keaton J. Burns\aff{3,4}
- \and J. B. Marston\aff{5}}
+  Keaton J. Burns\aff{2,3},
+  J. B. Marston\aff{4},
+ \and Steven M. Tobias\aff{5}}
 
 \affiliation{\aff{1}Department of Physics \& Astronomy, Bates College,
 Lewiston, ME 04240, USA
-\aff{2}Department of Applied Mathematics, University of
-Leeds, Leeds LS2 9JT, UK
-\aff{3} Department of Mathematics, Massachusetts Institute of Technology, Cambridge, MA 02138 USA
-\aff{4}Center for Computational Astrophysics, Flatiron Institute, New York, NY 10010, USA
-\aff{5}Department of Physics, Brown University, Providence, RI 02912, USA
+\aff{2} Department of Mathematics, Massachusetts Institute of Technology, Cambridge, MA 02138 USA
+\aff{3} Center for Computational Astrophysics, Flatiron Institute, New York, NY 10010, USA
+\aff{4} Department of Physics, Brown University, Providence, RI 02912, USA
+\aff{5} Department of Applied Mathematics, University of Leeds, Leeds LS2 9JT, UK
 }
 
 \begin{document}
@@ -188,6 +187,8 @@ The DNS results do, however, use IMEX schemes in the manner typical for Dedalus.
 \section{Results}
 \label{sec:results}
 
+We begin each CE2 simulation using one of two extreme initial conditions: \emph{maximum ignorance}, in which we assume a completely uncorrelated $\ctt$ and all other fields zero, and \emph{maximum knowledge}, in which we initialize all fields using cumulants calculated from a DNS solution. This allows us to evaluate CE2's ability to both \emph{find} solutions and \emph{continue} solutions already known.
+
 In order to facilitate comparison with previous work, we adapt the same run naming scheme as in \citet{2018RSPSA.47480422T}.
 
 \begin{table}
@@ -205,13 +206,14 @@ In order to facilitate comparison with previous work, we adapt the same run nami
   \end{center}
 \end{table}
 
-\subsection{Hovmoller}
+\subsection{Run A: 2 Jet/3 Jet solutions}
 \label{sec:hov}
 
 We begin by comparing the time evolution of the zonal average jets, $\left< u \right>(y, t)$ in DNS and CE2 simulations.
 
 Figure~\ref{fig:run_A} shows the time evolution of run A: for random initial conditions, the DNS solution selects a seemingly stable 2-jet solution.
 CE2, on the other hand finds a 3-jet solution.
+At these parameters, however, there are both 2-jet and 3-jet solutions known: the 3-jet solutions are unstable to perturbations that break shift-reflect symmetry \citep{1993GApFD..68...85B}. Using Dedalus, we ran a DNS with initial conditions that respect this symmetry. Owing to our highly accurate spectral methods, the 
 \begin{figure}
   \centering
   \includegraphics[width=\textwidth]{../../figs/run_A_fig.pdf}
@@ -352,7 +354,7 @@ Emerging story: \emph{zonal} QL/CE2 fail to transition among states because they
 
 Computations presented here were performed on the Bates High Performance Computing Center's \emph{Leavitt} system.
 Computing Resources supporting this work were also provided by the NASA High-End Computing (HEC) Program through the NASA Advanced Supercomputing (NAS) Division at Ames Research Center with allocation GID s1647.
-Oishi was supported by NASA LWS grant No. NNX16AC92G, Research Corporation Scialog Collaborative Award (TDA) ID\#24231.
+JSO was supported by NASA LWS grant No. NNX16AC92G, Research Corporation Scialog Collaborative Award (TDA) ID\#24231.
 
 
 \appendix
