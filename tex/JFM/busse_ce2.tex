@@ -65,15 +65,10 @@ Lewiston, ME 04240, USA
 \maketitle
 
 \begin{abstract}
-Turbulent systems generate and interact with mean flows in a wide variety of natural systems.
-Understanding the nature of these interactions, particularly for systems far from equilibrium, remains a paramount priority in understanding large-scale flows on planets and stars.
-The fundamental problem in studying such systems via direct numerical simulation (DNS) is the fact that the smallest scales can have a significant impact on the mean flows, even when they are very widely separated.
-One way to make progress is to study the statistics of the flow rather than detailed flow variables themselves.
-By expanding around the mean flow in terms of equal-time cumulants, we can arrive at a closed set of equations of motion for the cumulants.
-Here, we present results using an expansion terminated at the second cumulant (CE2) for rapidly rotating thermal convection in an annulus.
-CE2 discards eddy-eddy interactions that yield eddies; it is fundamentally quasi-linear.
-We focus on a particular case in which the direct numerical simulation yields an initial three-jet solution that is unstable to a two-jet solution.
-Interestingly, CE2 predicts a stable three-jet solution, though we find that by biasing the initial conditions to favor certain symmetries, CE2 reproduces the DNS results.
+We consider direct statistical simulation (DSS) of a paradigm system of convection interacting with mean flows. In the Busse Annulus model zonal jets are generated through the interaction of convectively driven turbulence and rotation; non-trivial dynamics including the emergence of multiple jets and bursting 'predator-prey' type dynamics can be found. We formulate the DSS by expanding around the mean flow in terms of equal-time cumulants and arrive at a closed set of equations of motion for the cumulants. Here, we present results using an expansion terminated at the second cumulant (CE2); it is fundamentally a quasi-linear theory.
+We focus on a particular cases including bursting and bistable multiple jets and demonstrate that CE2 can reproduce the results of direct numerical simulation if particular attention is given to symmetry considerations. 
+%in which the direct numerical simulation yields an initial three-jet solution that is unstable to a two-jet solution.
+%Interestingly, CE2 predicts a stable three-jet solution, though we find that by biasing the initial conditions to favor certain symmetries, CE2 reproduces the DNS results.
 \end{abstract}
 
 \begin{keywords}
@@ -82,51 +77,58 @@ Interestingly, CE2 predicts a stable three-jet solution, though we find that by 
 \section{Introduction}
 \label{sec:intro}
 
-Rapid rotation is a hallmark feature of geophysical and astrophysical fluid dynamics.
-Such systems are known to generate strong zonal jets, from the bands on Jupiter to the jet stream on Earth.
-In Jovian systems, the production of these jets may be driven by rapidly rotating convection.
-These systems are both highly turbulent and strongly anisotropic.
-Understanding the interaction between turbulence and mean flows remains a major challenge as such systems are often at extreme parameters inaccessible to direct numerical simulation (DNS).
+Moved from abstract: Turbulent systems generate and interact with mean flows in a wide variety of natural systems.
+Understanding the nature of these interactions, particularly for systems far from equilibrium, remains a key problem for the description of large-scale flows on planets and stars.
+The fundamental problem in studying such systems via direct numerical simulation (DNS) is the expense of the calculations owing to the vast range of spatial and temporal scales that need to be described. 
+One way to make progress is to study the statistics of the flow rather than detailed flow variables themselves. However, these systems are often inhomogeneous and strongly anisotropic, and such a statistical description should respect this.
+
+Rotation is a hallmark of geophysical and astrophysical fluid dynamics.
+Through the breaking of reflectional symmetry, rotating systems are known to generate mean flows such as zonal jets; examples of which include the bands on Jupiter, the jet stream on Earth and the differential rotation in stars.
+It is common that the production of these jets is driven by rotating convection.
+
+%Understanding the interaction between turbulence and mean flows remains a major challenge as such systems are often at extreme parameters inaccessible to direct numerical simulation (DNS).
 
 Here, we explore one particular system, the Busse Annulus, using the CE2 formulation of direct statistical simulation.
 CE2 is a cumulant expansion truncated at second order and is fundamentally quasilinear.
 Our recent work \citep{2018RSPSA.47480422T} has shown that in direct simulation, the generalized quasilinear approximation (GQL) outperforms QL models at all parameter values explored.
 
 The Busse annulus model considers convection in a duct with slanted ends leading to a topographic $\beta$ effect.
-This system present an important challenge for CE2, as it is possesses a linear instability which is known to host multiple solutions at modest Rayleigh numbers \citep{1993GApFD..68...85B}.
+This system present an important challenge for CE2, as it is possesses a linear instability which is known to host multiple solutions at modest Rayleigh numbers \citep{bh1993}.
 How does a quasilinear statistical theory fare when faced with multiple potential solution basins?
 In particular, we investigate the sensitivity of CE2 to initial conditions for a case with multiple solution branches.
 
-\section{Model Equations}
+\section{Model Equations, Formulation, Parity and Numerical Methods}
 \label{sec:model-eqations}
 
-We consider the equations for the Busse annulus.
-We write the equation of motion in terms of the $z$-component of the vorticity, $\zeta$.
-
+We consider the equations for the Busse annulus \citep[see e.g.][]{bh1993} in a Cartesian system $(x,y,z)$ and write the two-dimensional equation of motion in terms of the $z$-component of the vorticity, $\zeta = \laplacian{\psi}$ as
 \begin{equation}
   \label{eq:zeta_eom}
   \pdv{\zeta}{t} + J(\psi, \zeta) - \beta \pdv{\psi}{x} = -\frac{\Rayleigh}{\Pran} \pdv{\theta}{x} -C |\beta|^{1/2} \zeta + \laplacian{\zeta}
 \end{equation}
-The streamfunction $\psi$ is defined by
+where $\psi$ is the streamfunction and $(u,v) = (-\pdv*{\psi}{y}, \pdv*{\psi}{x})$ is defined by
 \begin{equation}
   \label{eq:zeta_def}
   \zeta = \laplacian{\psi},
 \end{equation}
-which means the $x$ velocity $u = -\pdv*{\psi}{y}$ and the $y$ velocity $v = \pdv*{\psi}{x}$. $J(A, B) = \pdv*{A}{x}\pdv*{B}{y} - \pdv*{A}{y}\pdv*{B}{x}$ is the Jacobian. 
-The perturbed temperature is given by $\theta$, which obeys the dynamical equation
+Here the jacobian $J(A, B) = \pdv*{A}{x}\pdv*{B}{y} - \pdv*{A}{y}\pdv*{B}{x}$ is the Jacobian. 
+The temperature pertubation from a linear basic state is given by $\theta$, where
 %
 \begin{equation}
   \label{eq:theta}
   \pdv{\theta}{t} + J(\psi, \theta) = -\pdv{\psi}{x} + \frac{1}{\Pran} \nabla^2 \theta.
 \end{equation}
 The system is thus governed by four dimensionless parameters, $\beta$, $C$, $\Pran = \nu/
-\kappa$, and $\Rayleigh = \alpha g \Delta T d^3/\nu \kappa$
+\kappa$, and $\Rayleigh = \alpha g \Delta T d^3/\nu \kappa$ \citep[see e.g.][]{rj2006}
 
-For the CE2 expansion, we need equations for the first cumulants $\cz$ and $\ct$, and the second cumulants $\ctt$, $\czz$, $\ctz$, and $\czt$. 
-Cumulants involving $\psi$ and $\zeta$ are related by the gradient operators, for example $\cz = \nabla \cs$ and $\czz = \nabla_2^2 \czs$.
+DSS at CE2 is implemented by first defining the averaging procedure to be a zonal average, e.g. $\langle f(x,y) \rangle = 1/L_x \, \int_0^{L_x} f(x,y) \, dx$ and deriving evolution equations we need equations for the first cumulants $\cz(y) = \langle \zeta \rangle $ and $\ct(y) = \langle \theta \rangle$, and the second cumulants 
+\begin{equation}
+    \ctt(\xi,y_1,y_2) = \langle \zeta^\prime(x_1,y_1) \zeta^\prime(x_2,y_2) \rangle
+\end{equation}
+and $\xi = x_1 - x_2$; similar definitions are used for the second cumulants $\czz$, $\ctz$, and $\czt$. 
+Cumulants involving $\psi$ and $\zeta$ are related by differential operators \citep[see e.g.][]{2013PhRvL.110j4502T}.
 Because the equations require both $\psi$ and $\zeta$ cumulants, we solve for $\cs$, $\ct$, $\css$, $\cts$, $\cst$, and $\ctt$, though we write equations in terms of $\zeta$ cumulants.
 
-We solve dynamical equations for $\cz$,
+We solve dynamical equations for the cumulants,
 \begin{equation}
   \label{eq:cz}
   \pdv{\cz}{t} = - \qty(\pdv{y_1} + \pdv{y_2}) \pdv{\csz}{\xi}\eval_{\xi \to 0}^{y_1 \to y_2} - C |\beta|^{1/2} \cz + \pdv[2]{\cz}{y_1},
@@ -136,16 +138,15 @@ We solve dynamical equations for $\cz$,
   \label{eq:czz}
   \begin{split}
     \pdv{\czz}{t} &= \pdv{\cs}{y_1} \pdv{\czz}{\xi} - \qty(\pdv{\cz}{y_1} - \beta) \pdv{\csz}{\xi} - \pdv{\cs}{y_2} \pdv{\czz}{\xi}  + \qty(\pdv{\cz}{y_2} - \beta) \pdv{\czs}{\xi}\\
-    &+ \frac{\Rayleigh}{\Pran} \qty(\pdv{\czt}{\xi} -  \pdv{\ctz}{\xi}) - 2C |\beta|^{1/2} \czz + (\nabla_1^2 + \nabla_2^2) \czz    
+    &+ \frac{\Rayleigh}{\Pran} \qty(\pdv{\czt}{\xi} -  \pdv{\ctz}{\xi}) - 2C |\beta|^{1/2} \czz + (\nabla_1^2 + \nabla_2^2) \czz,    
   \end{split}
 \end{equation}
 
-The first cumulant for $\theta$ evolves according to
 \begin{equation}
   \label{eq:ct}
-  \pdv{\ct}{t} = - \qty(\pdv{y_1} + \pdv{y_2}) \pdv{\cst}{\xi} \eval_{\xi \to 0}^{y_1 \to y_2} + \frac{1}{\Pran} \pdv[2]{\ct}{y_1}l
+  \pdv{\ct}{t} = - \qty(\pdv{y_1} + \pdv{y_2}) \pdv{\cst}{\xi} \eval_{\xi \to 0}^{y_1 \to y_2} + \frac{1}{\Pran} \pdv[2]{\ct}{y_1}l,
 \end{equation}
-and its second cumulant is given by
+
 \begin{equation}
   \label{eq:ctt}
 \begin{split}
@@ -154,29 +155,28 @@ and its second cumulant is given by
 \end{split}
 \end{equation}
 
-We also require second cumulants for the cross terms,
 \begin{equation}
   \label{eq:ctz}
   \begin{split}
     \pdv{\ctz}{t} &= \qty(\pdv{\cs}{y_1} - \pdv{\cs}{y_2}) \pdv{\ctz}{\xi} - \qty(1 + \pdv{\ct}{y_1}) \pdv{\csz}{\xi} + \qty(\pdv{\cz}{y_2} - \beta) \pdv{\cts}{\xi}\\
-    &  - C |\beta|^{1/2} \ctz + \frac{1}{\Pran} \nabla_1^2 \ctz + \nabla_2^2 \ctz,
+    &  - C |\beta|^{1/2} \ctz + \frac{1}{\Pran} \nabla_1^2 \ctz + \nabla_2^2 \ctz.
   \end{split}
 \end{equation}
-and its image under the exchange of $x_1,y_1$ and $x_2, y_2$, $\czt$.
+Other second cumulant terms can be calculated from symmetry considerations.
 % This could be calculated using symmetry, $\czt(y_1, y_2, \xi) = \ctz(y_2, y_1, -\xi)$.
 % However, because we use IMEX timestepping and such symmetry operations can only be applied at the end of a timestep, this would mean that $\czt$ would not be updated during the implicit step.
 % Instead, we solve an equation for $\czt$ which is identical to equation~(\ref{eq:ctz}) with $x_1,y_1$ and $x_2, y_2$ swapped.
 
 
-\subsection{Parity}
-\label{sec:parity}
+%\subsection{Parity}
+%\label{sec:parity}
 
 We solve the system subject to impenetrable, stress-free boundary conditions in the $y$ dimension; it is periodic in $x$. 
 This means that $\theta$, $\zeta$, and $\psi$ all have odd parity.
 The action of the zonal average preserves the parity, and so we discretize the first cumulants $\cz$, $\ct$ using a $\sin$ series. 
 
-\subsection{Numerical Methods}
-\label{sec:numerical}
+%\subsection{Numerical Methods}
+%\label{sec:numerical}
 
 We use \emph{Dedalus} \citep{2020PhRvR...2b3068B} to solve both the direct equations (\ref{eq:zeta_eom} - \ref{eq:theta}) and the CE2 model equations, (\ref{eq:cz})-~(\ref{eq:ctz}).
 For the CE2 equations, we use explicit timestepping for all variables.
@@ -197,7 +197,7 @@ In order to facilitate comparison with previous work, we adapt the same run nami
   \begin{tabular}{lcccccl}
     Run & $\beta$ & $\Rayleigh$ & $C$ & DNS Resolution & CE2 Resolution & Comment \\[3pt]
     A  & $2.8\times 10^3$ & $7.6 \times 10^4$   & $0$ & $256 \times 64$ & $32^3$ & Two-jet \\
-    B  & $7.07\times 10^5$ & $10^8$ & $0.316$ & $512 \times 256$ & $128 \times 64$ & Six-jet  \\
+    B  & $7.07\times 10^5$ & $10^8$ & $0.316$ & $512 \times 256$ & $128 \times 64$ & Seven-jet  \\
     C  & $5\times 10^5$ & $8\times 10^7$ & $0$ & $512 \times 256$ & $256 \times 64$ & three-jet $\to$ two-jet bursting \\
     R  & $3.16\times 10^5$ & $4\times 10^7$ & $0.316$ & $256 \times 64$ & $128\times 64^2$ & Five-jet\\
   \end{tabular}
