@@ -15,21 +15,21 @@ plt.style.use('prl')
 from dedalus.extras import plot_tools
 
 output = pathlib.Path('../../figs/')
-scale = 4
+scale = 2
 
 limits = (-0.0008,0.0008)
 # Layout
-nrows, ncols = 1,4
+nrows, ncols = 1,3
 image = plot_tools.Box(2, 1)
-pad = plot_tools.Frame(0.2, 0.2, 0.1, 0.1)
-margin = plot_tools.Frame(0.3, 0.2, 0.1, 0.1)
+pad = plot_tools.Frame(0.05, 0.02, 0.2, 0.005)
+margin = plot_tools.Frame(0.3, 0.25, 0.1, 0.05)
 
 # Create multifigure
 mfig = plot_tools.MultiFigure(nrows, ncols, image, pad, margin, scale)
 fig = mfig.figure
 datadir = pathlib.Path('run_B_DNS_restart/data_snapshots')
 
-filenames = [datadir.joinpath(x) for x in ['data_snapshots_s1.h5', 'data_snapshots_s3.h5','data_snapshots_s5.h5','data_snapshots_s117.h5']]
+filenames = [datadir.joinpath(x) for x in ['data_snapshots_s1.h5', 'data_snapshots_s3.h5','data_snapshots_s117.h5']]
 
 title = r'$c_{\theta\theta}(\xi, y_1, y_2=0.5)$'
 for n,fn in enumerate(filenames):
@@ -45,6 +45,7 @@ for n,fn in enumerate(filenames):
         pax.text(0.1,0.8,'t = {:3.2e}'.format(time),bbox={'facecolor': 'grey', 'alpha': 0.5, 'boxstyle':'round'},transform=axes.transAxes,fontsize=18)
         pax.set_xlabel(r"$\xi$")
         pax.set_ylabel(r"$y_1$")
+        cax.ticklabel_format(style='sci', axis='x',scilimits=(0,0))
 
 dpi=300
 for ext in ['png','pdf']:
