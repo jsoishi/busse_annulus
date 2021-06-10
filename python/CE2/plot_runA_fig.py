@@ -5,6 +5,7 @@
 import h5py
 import numpy as np
 import matplotlib
+import colorcet as cc
 matplotlib.use('Agg')
 matplotlib.rcParams['xtick.major.pad'] = 8
 matplotlib.rcParams['ytick.major.pad'] = 8
@@ -49,7 +50,7 @@ xx,yy = np.meshgrid(t_total, dns['scales/y/1'][:])
 
 cu = concatenate_dns_ce2_hov(dns['tasks/<u>_x'][:,0,:], ce2['tasks/cu'][:,0,0,:])
 ct = concatenate_dns_ce2_hov(dns['tasks/<theta>_x'][:,0,:], ce2['tasks/ct'][:,0,0,:])
-cu_img = dns_ce2_cu_hov_ax.pcolormesh(xx,yy,cu.T,shading='nearest', rasterized=True)#[0,3,0,1])
+cu_img = dns_ce2_cu_hov_ax.pcolormesh(xx,yy,cu.T,shading='nearest', rasterized=True, cmap=cc.cm['bwy'])#[0,3,0,1])
 cb = fig.colorbar(cu_img, orientation='horizontal',cax=dns_ce2_cu_hov_cb_ax)
 cb.set_label(label=r'$c_u$',fontsize=14)
 dns_ce2_cu_hov_cb_ax.xaxis.tick_top()
