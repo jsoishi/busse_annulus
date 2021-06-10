@@ -108,11 +108,13 @@ dns_ce2_cu_b_hov_ax.set_ylabel("y")
 # Kinetic energy
 Lx = 2*np.pi
 ce2_b_ts_time   = ce2_b_ts_file['scales/sim_time'][:]+burst_time_transition
+print("b KE duration {}".format(ce2_b_ts_time[-1] - dns_ts_file['scales/sim_time'][trans_index]))
 ce2_b_ts_ekin   = ce2_b_ts_file['tasks/KE'][:,0,0,0]/Lx
 ce2_b_ts_ezonal = ce2_b_ts_file['tasks/KE_mean'][:,0,0,0]/Lx
 ce2_b_ts_nz     = ce2_b_ts_ekin - ce2_b_ts_ezonal
 
 ce2_q_ts_time = ce2_q_ts_file['scales/sim_time'][:]+quiet_time_transition
+print("q KE duration {}".format(ce2_q_ts_time[-1] - dns_ts_file['scales/sim_time'][quiet_index]))
 ce2_q_ts_ekin   = ce2_q_ts_file['tasks/KE'][:,0,0,0]/Lx
 ce2_q_ts_ezonal = ce2_q_ts_file['tasks/KE_mean'][:,0,0,0]/Lx
 ce2_q_ts_nz     = ce2_q_ts_ekin - ce2_q_ts_ezonal
@@ -200,16 +202,17 @@ dns_ce2_cu_mi_hov_cb_ax.tick_params(axis='x', which='major',labelsize=10, pad=2)
 dns_ce2_cu_mi_hov_ax.set_xlabel("t")
 dns_ce2_cu_mi_hov_ax.set_ylabel("y")
 
-
-dns_ce2_ke_mi_ax.plot(ce2_mi_ts_time, ce2_mi_ts_ekin,linewidth=1)
-dns_ce2_ke_mi_ax.plot(ce2_mi_ts_time, ce2_mi_ts_ezonal,linewidth=1,alpha=0.4)
-dns_ce2_ke_mi_ax.plot(ce2_mi_ts_time, ce2_mi_ts_nz,linewidth=1)
+ke_t_select = (ce2_mi_ts_time < 0.4) & (ce2_mi_ts_time > 0.2)
+dns_ce2_ke_mi_ax.plot(ce2_mi_ts_time[ke_t_select], ce2_mi_ts_ekin[ke_t_select],linewidth=1)
+dns_ce2_ke_mi_ax.plot(ce2_mi_ts_time[ke_t_select], ce2_mi_ts_ezonal[ke_t_select],linewidth=1,alpha=0.4)
+dns_ce2_ke_mi_ax.plot(ce2_mi_ts_time[ke_t_select], ce2_mi_ts_nz[ke_t_select],linewidth=1)
 dns_ce2_ke_mi_ax.set_yscale('log')
 dns_ce2_ke_mi_ax.set_xlabel("t")
 dns_ce2_ke_mi_ax.set_ylabel("Kinetic energy",fontsize=14)
-dns_ce2_ke_mi_ax.set_xlim(0.,ce2_mi_ts_time[-1])
+dns_ce2_ke_mi_ax.set_xlim(ce2_mi_ts_time[ke_t_select][0],ce2_mi_ts_time[ke_t_select][-1])
 dns_ce2_ke_mi_ax.set_ylim(3e3,1e7)
 dns_ce2_ke_mi_ax.set_yticks([1e4,1e5,1e6])
+dns_ce2_ke_mi_ax.set_xticks([0.2,0.3])
 
 fig.savefig("../../figs/run_C_fig.png",dpi=300)
 fig.savefig("../../figs/run_C_fig.pdf",dpi=300)
