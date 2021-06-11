@@ -122,7 +122,7 @@ with h5py.File(dns_filename,'r') as dns_data, h5py.File(ce2_filename,'r') as ce2
     pax.set_rasterized(True)
 
     outputdir = pathlib.Path(output)
-    for ext in ['png']:#,'pdf']:
+    for ext in ['png','pdf']:
         outfilen = "power_spectra_{}_dns_run_R.{}".format(field,ext)
         fig.savefig(str(outputdir/outfilen), dpi=400)
     

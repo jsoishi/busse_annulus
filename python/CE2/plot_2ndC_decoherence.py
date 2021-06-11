@@ -43,7 +43,7 @@ for n,fn in enumerate(filenames):
         pax, cax = plot_tools.plot_bot(dset, image_axes, data_slices, axes=axes, title=title, even_scale=True,clim=limits)
         pax.set_rasterized(True)
         time = df['scales/sim_time'][0]
-        pax.text(0.1,0.8,'t = {:3.2e}'.format(time),bbox={'facecolor': 'grey', 'alpha': 0.5, 'boxstyle':'round'},transform=axes.transAxes,fontsize=18)
+        pax.text(0.1,0.8,'t = {:3.2f}'.format(time),bbox={'facecolor': 'grey', 'alpha': 0.5, 'boxstyle':'round'},transform=axes.transAxes,fontsize=18)
         pax.set_xlabel(r"$\xi$")
         pax.set_ylabel(r"$y_1$")
         if n != 0:
