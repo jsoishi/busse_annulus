@@ -13,11 +13,13 @@ class EigenvalueProjection:
         dtype = 'complex128'
         self.recbuf = None
         self.workbuf = None
+        self.rank_recbuf = None
         if self.rank == 0:
             self.local_shape = self.domain.local_coeff_shape
             self.global_shape = self.domain.global_coeff_shape
             self.rec_shape = [self.size,] + list(self.local_shape)
             self.work_shape = [self.local_shape[0],] + list(self.global_shape[1:3])
+            # next line looks hard coded for 4 cumulants...
             self.total_work_shape = [self.local_shape[0],] + [2*i for i in self.global_shape[1:3]]
             self.recbuf = np.zeros(self.rec_shape, dtype=dtype)
             self.workbuf = np.zeros(self.work_shape, dtype=dtype)
@@ -27,12 +29,26 @@ class EigenvalueProjection:
             logger.debug("rec_shape = {}".format(self.rec_shape))
             logger.debug("work_shape = {}".format(self.work_shape))
             logger.debug("total_work_shape = {}".format(self.total_work_shape))
-
+            
+        if self.domain.comm.rank == 0:
+            self.rank_recbuf = np.zeros(self.global_coeff_shape[0], dtype=int)
+        
     def _build_subcommunicator(self):
-        if self.domain.dist.comm_cart.size == 1:
-            self.comm = self.domain.dist.comm_cart
+        comm_cart = self.domain.dist.comm_cart
+        comm_w = self.domain.dist.comm
+        if comm_cart.size == 1:
+            self.comm = comm_cart
+            raise ValueError("Not implemented for meshes of dimension other than 2")
         else:
-            self.comm = self.domain.dist.comm_cart.Sub([False,True])
+            self.comm = comm_cart.Sub([False,True])
+
+            # build communicator for sending rank at each k_x mode
+            group_ranks = []
+            for i in range(comm_cart.dims[1]):
+                group_ranks.append(comm_cart.Get_cart_rank([i,0]))
+            new_group = comm_w.group.Incl(group_ranks)
+            self.rank_comm = comm_w.Create_group(new_group)
+
         self.rank = self.comm.rank
         self.size = self.comm.size
 
@@ -64,9 +80,15 @@ class EigenvalueProjection:
         if self.rank == 0:
             logger.debug("projecting all.")
             nx = self.local_shape[0]
+            rank2c = np.zeros(nx, dtype=int)
             for m in range(nx):
                 A = self.total_workbuf[m,:,:]
-                self.total_workbuf[m,:,:] = self.projection(A, thresh=thresh)
+                Aproj, mrank = self.projection(A, thresh=thresh)
+                rank2c[j] = mrank
+                self.total_workbuf[m,:,:] = Aproj
+            self.rank_comm.Gather(rank2c,self.rank_recbuf, root=0)
+            if self.rank_comm.rank == 0:
+                logger.info("second cumulant rank: {}".format(self.rank_recbuf))
             logger.debug("projection complete.")
         # unpack total second cumulant work buffer and scatter
         for i,field in enumerate(self._variables):
@@ -99,11 +121,13 @@ class EigenvalueProjection:
         index = (evals < -thresh) # find negative eigenvalues
         if np.any(index):
             logger.warning("{} negative eigenvalues found".format(np.sum(index)))
+
+        mrank = (np.abs(evals) < thresh).sum()
         evals[index] = 0
         Qinv = Q.conj().T # if input is Normal, Q is unitary, and all H matricies are Normal!
         Lambda = np.diag(evals)
 
-        return Q @ (Lambda @ Qinv) 
+        return Q @ (Lambda @ Qinv), mrank
 
     def project(self, data, thresh=1e-12):
         self.gather(data)
