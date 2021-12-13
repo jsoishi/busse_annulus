@@ -127,11 +127,11 @@ The CE2 formulation is implemented using a zonal average,
 \end{equation}
 to split all dynamical variables into mean and fluctuating components,
 \begin{equation}
-    f(x,y,t) = \langle f \langle + f'.
+    f(x,y,t) = \langle f \rangle + f'.
 \end{equation}
 We then derive evolution equations for the first cumulants $\cz(y) = \langle \zeta \rangle $ and $\ct(y) = \langle \theta \rangle$ and the second cumulants 
 \begin{equation}
-    \ctt(\xi,y_1,y_2) = \langle \zeta^\prime(x_1,y_1) \zeta^\prime(x_2,y_2) \rangle
+    \ctt(\xi,y_1,y_2) = \langle \theta^\prime(x_1,y_1) \theta^\prime(x_2,y_2) \rangle
 \end{equation}
 with $\xi = x_1 - x_2$.
 Similar definitions are used for the second cumulants $\czz$, $\ctz$, and $\czt$. 
@@ -294,7 +294,7 @@ The degree of success of the quasilinear CE2 models can be investigated at great
 \begin{figure}
   \centering
   \includegraphics[width=\textwidth]{../../figs/power_spectra_zeta_dns_run_R.pdf}
-e  \caption{From left to right: power spectra of $\zeta$ from a) DNS, b) unbiased CE2 c) CE2 biased with initial 3 jet solution.}
+  \caption{NOTE: emphasize the DNS panel shows energy is distributed across many $k$ showing that eddy-eddy NL is very important, but that doesn't seem to affect mean too badly. Perhaps just leading to dissipation? From left to right: power spectra of $\zeta$ in run R from a) DNS, b) unbiased CE2 c) CE2 biased with initial 3 jet solution.}
   \label{fig:power_spec_S}
 \end{figure}
 %DESCRIPTION OF FIGURE 4.
@@ -330,7 +330,7 @@ Parameters may also be selected that yield multiple jets. Case R, for which the 
 \begin{figure}
   \centering
   \includegraphics[width=\textwidth]{../../figs/run_C_fig.pdf}
-  \caption{Run C Hovmuller diagrams of $\cu$ (left) and total, zonal, and non-zonal kinetic energies (right). Solid lines are DNS; dotted lines are CE2. From top to bottom: ``Maximum knowledge'' CE2 run started from quiescent state of DNS solution, ``maximum knowledge'' started from bursting state of DNS solution, ``maximum ignorance'' CE2 initialized from a diagonal $\ctt$. Within each row, left to right: hovmoller diagram. }
+  \caption{NOTE: timing precision of oscillator is stronger in DNS than CE2. Run C Hovmuller diagrams of $\cu$ (left) and total, zonal, and non-zonal kinetic energies (right). From top to bottom:  DNS, ``maximum knowledge'' started from bursting state of DNS solution, ``maximum ignorance'' CE2 initialized from a diagonal $\ctt$.- }
   \label{fig:run_C}
 \end{figure}
 %DESCRIPTION OF FIGURE 5
@@ -350,22 +350,22 @@ Parameters may also be selected that yield multiple jets. Case R, for which the 
 
 The Busse Annulus model is capable of producing extremely complicated nonlinear spatio-temporal dynamics. Perhaps the most nonlinear behaviour exhibited by the DNS model is shown in the top panel Figure~\ref{fig:run_C}(a), which show timeseries of the total, zonal, and non-zonal kinetic energies of the flow and Hovm\"oller plots of the zonally averaged zonal flows for DNS. Here the solution takes the form of a relaxation oscillation; a cycle proceeds as follows. Convection is driven by strong temperature gradients and interacts with the rotation to generate zonal flows (in this case a two-jet solution). As more energy is pumped into the zonal flow, the shear acts so as to switch off the convection (acting as a barrier to transport). This in turn removes the energy source for the zonal flow, which decays on a longer timescale. Once the zonal flow is weak enough convection sets in again and the process is repeated. This behaviour has been described in terms of predator-prey dynamics with the convective turbulence taking the role of the prey and the zonal flows acting as a predator. 
 
-Figure~\ref{fig:run_C}(b) shows one of the "maximum knowledge" solutions for CE2. Here the solution is started from the DNS solution when it has reached a peak in the zonal flow energy. Remarkably, CE2 is able to continue relaxation oscillations from this state; we believe that this is the first time a quasilinear model has reproduced such complicated behaviour; previous quasilinear models have been able to generate either the state at the peak or the trough of such a relaxation oscillation - but not the transition between them. If CE2 is started from the trough in the zonal flow energy, similar results are obtained (not shown). The sensitivity to initial conditions for CE2 is, however, demonstrated in Figure~\ref{fig:run_C}(c), which shows the evolution from small amplitude ``maximal ignorance" initial conditions. This solution clearly does not replicate the correct number of jets --- though it does show some indication of bursting behaviour.
+Figure~\ref{fig:run_C}(b) shows one of the "maximum knowledge" solutions for CE2. Here the solution is started from the DNS solution when it has reached a peak in the zonal flow energy. Remarkably, CE2 is able to continue relaxation oscillations from this state; we believe that this is the first time a quasilinear model has reproduced such complicated behaviour; previous quasilinear models have been able to generate either the state at the peak or the trough of such a relaxation oscillation (REFERENCE TO PLUMMER ET AL)- but not the transition between them. If CE2 is started from the trough in the zonal flow energy, similar results are obtained (not shown). The sensitivity to initial conditions for CE2 is, however, demonstrated in Figure~\ref{fig:run_C}(c), which shows the evolution from small amplitude ``maximal ignorance" initial conditions. This solution clearly does not replicate the correct number of jets --- though it does show some indication of bursting behaviour.
 
 
 
 
-\subsection{Power Spectra}
-\label{sec:powerspec}
-Hi.
+%\subsection{Power Spectra}
+%\label{sec:powerspec}
+%Hi.
 
 
 
-\subsection{PDFs}
-\label{sec:pdf}
+%\subsection{PDFs}
+%\label{sec:pdf}
 
-QL pdf vs NL pdf.
-Does this do better than RB convection?
+%QL pdf vs NL pdf.
+%Does this do better than RB convection?
 
 % \section{To Do}
 % \label{sec:todo}
@@ -388,31 +388,46 @@ Does this do better than RB convection?
 %   \item[\done] Construct 2nd cumulants for DNS
 %   \end{todolist}
 
-\section{Fixed points and DNS to CE2 transitions}
-\label{sec:fixed}
-Statistical methods are most illuminating when we can probe their failures as well as their successes.
-A key question is whether or not a steady-state solution of DNS is \emph{also} a steady-state of CE2.
-In order to probe this, we computed the first and second cumulants from DNS data in three states: the steady, 2-jet solution at run A parameters, and representative burst and quiescent states from run C.
+%\section{Fixed points and DNS to CE2 transitions}
+%\label{sec:fixed}
+%Statistical methods are most illuminating when we can probe their failures as well as their successes.
+%A key question is whether or not a steady-state solution of DNS is %\emph{also} a steady-state of CE2.
+%In order to probe this, we computed the first and second cumulants from DNS data in three states: the steady, 2-jet solution at run A parameters, and representative burst and quiescent states from run C.
 
-As expected from our prior experiment in which CE2 found the same solution as DNS when biased with a high-amplitude $\cu$ initial cindition, at run A parameters, CE2 is able to continue the DNS solution easily.
-The 
+%As expected from our prior experiment in which CE2 found the same solution as DNS when biased with a high-amplitude $\cu$ initial cindition, at run A parameters, CE2 is able to continue the DNS solution easily.
+%The 
 
-\subsection{Run C}
-\label{sec:run_c_dns_ce2}
-
-Burst and quiet.
-
+%\subsection{Run C}
+%\label{sec:run_c_dns_ce2}
+%
+%Burst and quiet.
+\subsection{Rank of Second Cumulants}
+\label{sec:rank}
+One important difference between QL and CE2 simulations is that the former explicitly provides only a single realization of the dynamics, while the latter does not.
+Recently, Nivarti et al (ADD CITATION) have shown that an important difference between the two can be quantified as the difference in the ranks of the second cumulants--that is, the number of non-zero eigenvalues they possess.
+ADD MORE HERE
+\begin{figure}
+    \centering
+    \includegraphics{}
+    \caption{Caption}
+    \label{fig:my_label}
+\end{figure}
 \section{Discussion}
 \label{sec:discussion}
 
-Emerging story: \emph{zonal} QL/CE2 fail to transition among states because they preclude $k_x = 1$ ``satellite'' modes. If we can restore the transition between states by going to \emph{ensemble} CE2, then this would give good evidence that that is the right approach.
+In this paper we have examined the effectiveness of the statistical quasilinear theory (zonally averaged CE2 --- termed zCE2) in reproducing the statistics of turbulent solutions of a model of the interaction of rotating convection and zonal flows. This Busse Annulus model exhibits complicated spatio-temporal dynamics including the formation of large-scale zonal jets, multiple zonal jets and even ``predator-prey" relaxation oscillations between states with strong zonal flows and strong convection.
 
-Other things to discuss:
+We show that zCE2 is capable of reproducing even very complicated mean dynamics (such as the driving and decay of the mean flows and modification of the mean temperature profile) though, for this system, it may have multiple stable attractors for any given parameter set. If the system is initiated with \textit{maximal ignorance} then it is possible to fall into the basin of attraction of an attractor that is not preferred by DNS. It is possible to bias the symmetry of the initial condition in order to achieve solutions that mirror the symmetry of the DNS solutions. Furthermore one may use an \textit{maximal knowledge} initial condition where the zCE2 is initiated using the statistics from the saturated state of a DNS run. In this case, zCE2 appears to be extremely successful --- even reproducing the extremely nonlinear relaxation oscillations of the highly driven system.
 
-Role of noise: clear that CE2 is missing EENL. What is effect of this? Can you model it by noise? Can of course think of unresolved scales as some sort of noise. This is affected by the behaviour of the higher cumulants. Subdominant in asymptotic regime. Could be modelled by coloured noise. Optimise form of noise to reproduce interactions (jovanovic et al). Might be a good strategy for subgrid models to learn the form of the required noise to input into CE2.
+zCE2 relies on the solution of equations for quantities averaged in the zonal direction, i.e. the mean flows and temperature and the two-point correlation functions.  It is a quasilinear theory in that the evolution equation for the two-point correlation function 
+%is quasilinear in the sense that it 
+is linear in the two-point correlation function, though there are terms that involve the product of the means and two-point correlation functions. The results presented here indicate that even the predator-prey dynamics is controlled by the interaction of the mean flows and temperature with the fluctuations, with the eddy/eddy $\rightarrow$ eddy nonlinearity (EENL) being of secondary importance. 
 
-One thing that noise will do is break restricted symmetry classes, in a similar way to the EENL term. Shown by CE2.5
+It is interesting to speculate further on the role of the missing physics encoded in the EENL. This term in the equations can be modelled by deriving evolution equations for the higher order cumulants, and truncating the hierarchy at third order. This extension to DSS is known as CE3 --- and sometimes CE2.5 when an approximate form of the CE3 equations are utilised (REF). However this is a computationally expensive procedure and solution strategies suffer severely from the ``curse of dimensionality". An interesting question then is what is the best strategy for modelling these higher-order interactions. Of course, if the linear operator provided by the mean flows and other fields is sufficiently non-normal (e.g. if for example the shear is sufficiently strong), then the precise form of this modelling term is not critical (since its role will be to act as a driving term for the non-normal modes of the linear operator). In this extreme, one may as well model these terms via delta correlated white noise. However it is possible to optimise the form of the noise provided to the linear operator so as to best match the true dynamics. Similar optimisation procedures have been utilised for the form of the (coloured) noise in transition problems (CITE JOVANOVIC AND COLLABORATORS). One strategy that appeals is to use data-driven methods to ``learn" the optimal form of the term that should be added to CE2 to best reproduce the dynamics. It is to be hoped (though by no means certain) that this optimal form should be relatively insensitive to the form of the large scales since this dependence should be encoded in the interaction between the first and second cumulants of CE2.   
 
+PARAGRAPH BY BRAD:<< One thing that noise will do is break restricted symmetry classes, in a similar way to the EENL term. Shown by CE2.5
+
+\bigskip
 
 
 This work was supported by funding from the European Research Council (ERC) under the EU’s Horizon 2020 research and innovation programme (grant agreement D5S-DLV-786780).Computations presented here were performed on the Bates High Performance Computing Center's \emph{Leavitt} system. Computing Resources supporting this work were also provided by the NASA High-End Computing (HEC) Program through the NASA Advanced Supercomputing (NAS) Division at Ames Research Center with allocation GID s1647.
