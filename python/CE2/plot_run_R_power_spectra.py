@@ -126,3 +126,28 @@ with h5py.File(dns_filename,'r') as dns_data, h5py.File(ce2_filename,'r') as ce2
         outfilen = "power_spectra_{}_dns_run_R.{}".format(field,ext)
         fig.savefig(str(outputdir/outfilen), dpi=400)
     
+    kx_fig = plt.figure(figsize=(8,8))
+    kx_ax = kx_fig.add_axes([0.15,0.1,0.8,0.8])
+
+    kx_dns = dns_data['scales/kx'][:]
+    kx_ce2 = ce2_data['scales/kx'][:]
+    kx_ce2_b = ce2_b_data['scales/kx'][:]
+    kx_spec_dns = np.abs(dns_kspace_data[dns_image_slices].sum(axis=0))
+    kx_spec_ce2 = np.abs(ce2_kspace_data[ce2_image_slices].sum(axis=1))
+    kx_spec_ce2_b = np.abs(ce2_b_kspace_data[ce2_image_slices].sum(axis=1))
+    kx_ax.semilogy(kx_dns, kx_spec_dns, label='DNS')
+    kx_ax.semilogy(kx_ce2, kx_spec_ce2, label='unbiased CE2')
+    kx_ax.semilogy(kx_ce2_b, kx_spec_ce2_b, label='biased CE2')
+
+    # kx_ax.scatter(0, kx_spec_dns[0])
+    # kx_ax.scatter(0, kx_spec_ce2[0])
+    # kx_ax.scatter(0, kx_spec_ce2_b[0])
+    kx_ax.set_xlabel(r"$k_x$")
+    kx_ax.set_ylabel(r"$|\hat{\zeta}|^2$")
+    kx_ax.set_xlim(0,64)
+    kx_ax.legend()
+
+
+    for ext in ['png','pdf']:
+        outfilen = "kx_power_spectra_{}_dns_run_R.{}".format(field,ext)
+        kx_fig.savefig(str(outputdir/outfilen), dpi=400)
