@@ -126,8 +126,8 @@ with h5py.File(dns_filename,'r') as dns_data, h5py.File(ce2_filename,'r') as ce2
         outfilen = "power_spectra_{}_dns_run_R.{}".format(field,ext)
         fig.savefig(str(outputdir/outfilen), dpi=400)
     
-    kx_fig = plt.figure(figsize=(8,8))
-    kx_ax = kx_fig.add_axes([0.15,0.1,0.8,0.8])
+    kx_fig = plt.figure(figsize=(8,4))
+    kx_ax = kx_fig.add_axes([0.18,0.16,0.8,0.8])
 
     kx_dns = dns_data['scales/kx'][:]
     kx_ce2 = ce2_data['scales/kx'][:]
