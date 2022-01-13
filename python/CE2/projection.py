@@ -14,6 +14,7 @@ class EigenvalueProjection:
         self.recbuf = None
         self.workbuf = None
         self.rank_recbuf = None
+        self.rank_kx = None
         if self.rank == 0:
             self.local_shape = self.domain.local_coeff_shape
             self.global_shape = self.domain.global_coeff_shape
@@ -30,8 +31,9 @@ class EigenvalueProjection:
             logger.debug("work_shape = {}".format(self.work_shape))
             logger.debug("total_work_shape = {}".format(self.total_work_shape))
             
-        if self.domain.comm.rank == 0:
-            self.rank_recbuf = np.zeros(self.global_coeff_shape[0], dtype=int)
+        if self.domain.dist.comm.rank == 0:
+            self.rank_recbuf = np.zeros(self.global_shape[0], dtype=int)
+            self.rank_kx = np.zeros(self.global_shape[0], dtype=np.float64)
         
     def _build_subcommunicator(self):
         comm_cart = self.domain.dist.comm_cart
@@ -84,10 +86,13 @@ class EigenvalueProjection:
             for m in range(nx):
                 A = self.total_workbuf[m,:,:]
                 Aproj, mrank = self.projection(A, thresh=thresh)
-                rank2c[j] = mrank
+                rank2c[m] = mrank
                 self.total_workbuf[m,:,:] = Aproj
             self.rank_comm.Gather(rank2c,self.rank_recbuf, root=0)
+            
+            self.rank_comm.Gather(self.domain.elements(0).ravel(),self.rank_kx, root=0)
             if self.rank_comm.rank == 0:
+                logger.info("second cumulant kx:   {}".format(self.rank_kx))
                 logger.info("second cumulant rank: {}".format(self.rank_recbuf))
             logger.debug("projection complete.")
         # unpack total second cumulant work buffer and scatter
@@ -122,7 +127,7 @@ class EigenvalueProjection:
         if np.any(index):
             logger.warning("{} negative eigenvalues found".format(np.sum(index)))
 
-        mrank = (np.abs(evals) < thresh).sum()
+        mrank = (np.abs(evals) > thresh).sum()
         evals[index] = 0
         Qinv = Q.conj().T # if input is Normal, Q is unitary, and all H matricies are Normal!
         Lambda = np.diag(evals)
