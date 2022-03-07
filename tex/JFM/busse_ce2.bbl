@@ -1,0 +1,73 @@
+\begin{thebibliography}{11}
+\expandafter\ifx\csname natexlab\endcsname\relax\def\natexlab#1{#1}\fi
+\def\au#1{#1} \def\ed#1{#1} \def\yr#1{#1}\def\at#1{#1}\def\jt#1{\textit{#1}}
+  \def\bt#1{#1}\def\bvol#1{\textbf{#1}} \def\vol#1{#1} \def\pg#1{#1}
+  \def\publ#1{#1}\def\arxiv#1{#1}\def\org#1{#1}\def\st#1{\textit{#1}}
+
+\bibitem[{Brummell} \& {Hart}(1993)]{bh1993}
+{\sc \au{{Brummell}, Nicholas~H.} \& \au{{Hart}, J.~E.}} \yr{1993}  \at{{High
+  Rayleigh number $\beta$-convection}}.  \jt{Geophysical and Astrophysical
+  Fluid Dynamics}  \bvol{68},  \pg{85--114}.
+
+\bibitem[{Burns} {\em et~al.\/}(2020){Burns}, {Vasil}, {Oishi}, {Lecoanet} \&
+  {Brown}]{2020PhRvR...2b3068B}
+{\sc \au{{Burns}, Keaton~J.}, \au{{Vasil}, Geoffrey~M.}, \au{{Oishi},
+  Jeffrey~S.}, \au{{Lecoanet}, Daniel} \& \au{{Brown}, Benjamin~P.}} \yr{2020}
+  \at{{Dedalus: A flexible framework for numerical simulations with spectral
+  methods}}.  \jt{Physical Review Research}  \bvol{2}~(2),  \pg{023068},
+  \arxiv{arXiv: 1905.10388}.
+
+\bibitem[{Busse}(1976)]{1976Icar...29..255B}
+{\sc \au{{Busse}, F.~H.}} \yr{1976}  \at{{A Simple Model of Convection in the
+  Jovian Atmosphere}}.  \jt{Icarus}  \bvol{29},  \pg{255--260}.
+
+\bibitem[Galperin \& Read(2019)]{galperin_read_2019}
+{\sc \au{Galperin, B.} \& \au{Read, P.~L.}} \yr{2019} {\em Zonal Jets:
+  Phenomenology, Genesis, and Physics\/}.  \publ{Cambridge University Press}.
+
+\bibitem[Marston {\em et~al.\/}(2019)Marston, Qi \&
+  Tobias]{marston_qi_tobias_2019}
+{\sc \au{Marston, J.~Brad}, \au{Qi, Wanming} \& \au{Tobias, Steven~M.}}
+  \yr{2019}  \at{Direct statistical simulation of a jet}.  \bt{In {\em Zonal
+  Jets: Phenomenology, Genesis, and Physics\/} (ed. \ed{Boris Galperin \&
+  Peter~L.Editors Read})},  \pg{p. 332–346}.  \publ{Cambridge University
+  Press}.
+
+\bibitem[{Nivarti} {\em et~al.\/}(2022){Nivarti}, {Kerswell}, {Marston} \&
+  {Tobias}]{nivarti_22}
+{\sc \au{{Nivarti}, G.}, \au{{Kerswell}, R.}, \au{{Marston}, J.~B.} \&
+  \au{{Tobias}, S.~M.}} \yr{2022}  \at{{Non-equivalence of quasilinear
+  dynamical systems and their statistical closures}}.  \jt{Physical Review
+  Letters}  \bvol{submitted},  \arxiv{arXiv: 2202.04127}.
+
+\bibitem[{Plummer} {\em et~al.\/}(2019){Plummer}, {Marston} \&
+  {Tobias}]{pmt_2019}
+{\sc \au{{Plummer}, A.}, \au{{Marston}, J.~B.} \& \au{{Tobias}, S.~M.}}
+  \yr{2019}  \at{{Joint instability and abrupt nonlinear transitions in a
+  differentially rotating plasma}}.  \jt{Journal of Plasma Physics}
+  \bvol{85}~(1),  \pg{905850113},  \arxiv{arXiv: 1809.00921}.
+
+\bibitem[Rotvig \& Jones(2006)]{rj2006}
+{\sc \au{Rotvig, Jon} \& \au{Jones, Chris~A.}} \yr{2006}  \at{Multiple jets and
+  bursting in the rapidly rotating convecting two-dimensional annulus model
+  with nearly plane-parallel boundaries}.  \jt{Journal of Fluid Mechanics}
+  \bvol{567},  \pg{117--140}.
+
+\bibitem[{Tobias} \& {Marston}(2013)]{2013PhRvL.110j4502T}
+{\sc \au{{Tobias}, S.~M.} \& \au{{Marston}, J.~B.}} \yr{2013}  \at{{Direct
+  Statistical Simulation of Out-of-Equilibrium Jets}}.  \jt{Physical Review
+  Letters}  \bvol{110},  \pg{104502},  \arxiv{arXiv: 1209.3862}.
+
+\bibitem[{Tobias} {\em et~al.\/}(2018){Tobias}, {Oishi} \& {Marston}]{tom_2018}
+{\sc \au{{Tobias}, S.~M.}, \au{{Oishi}, J.~S.} \& \au{{Marston}, J.~B.}}
+  \yr{2018}  \at{{Generalized quasilinear approximation of the interaction of
+  convection and mean flows in a thermal annulus}}.  \jt{Proceedings of the
+  Royal Society of London Series A}  \bvol{474}~(2219),  \pg{20180422},
+  \arxiv{arXiv: 1809.02523}.
+
+\bibitem[Zare {\em et~al.\/}(2017)Zare, Jovanović \& Georgiou]{zjg_2017}
+{\sc \au{Zare, Armin}, \au{Jovanović, Mihailo~R.} \& \au{Georgiou,
+  Tryphon~T.}} \yr{2017}  \at{Colour of turbulence}.  \jt{Journal of Fluid
+  Mechanics}  \bvol{812},  \pg{636–680}.
+
+\end{thebibliography}
