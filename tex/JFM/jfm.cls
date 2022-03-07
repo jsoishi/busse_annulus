@@ -41,22 +41,19 @@
 %%
 
 \NeedsTeXFormat{LaTeX2e}[1996/06/01]
-\ProvidesClass{jfm}[2007/03/13 v1.28 Journal of Fluid Mechanics document class]
+\ProvidesClass{jfm}[2006/11/13 v1.27 Journal of Fluid Mechanics document class]
 
 \usepackage{graphicx}
 
 \newif\ifNAT@numbers\NAT@numbersfalse
-
-\RequirePackage{etoolbox}
-\AtEndPreamble{%
-  \RequirePackage{natbib}
-}
-%\AtBeginDocument{\usepackage{natbib}}
+\AtBeginDocument{\usepackage{natbib}}
 
 \newif\if@index
 \newif\if@referee
 \newif\ifCUPmtlplainloaded
 \newif\ifflm@rapids
+\newif\iflineno% 3-8-20
+\DeclareOption{lineno}{\linenotrue}% 3-8-20
 
 \DeclareOption{oneside}{\relax}
 \DeclareOption{twoside}{\@twosidetrue \@mparswitchtrue}
@@ -82,7 +79,8 @@
 \setlength\normallineskip{1\p@}
 \renewcommand\baselinestretch{}
 
-\edef\t@xtsize{\ifCUPmtlplainloaded 10.5\else 10\fi}
+\edef\t@xtsize{10.5}% 8-8-20 %\edef\t@xtsize{\ifCUPmtlplainloaded 10.5\else 10\fi}
+
 
 \renewcommand\normalsize{%
   \@setfontsize\normalsize{\t@xtsize}\@xiipt
@@ -212,7 +210,7 @@
 \setlength\headheight{12\p@}
 \setlength\headsep{6\p@}
 \setlength\topskip{12\p@}
-\setlength\footskip{\z@}
+\setlength\footskip{28pt}
 
 \newlength\halflineskip
 \setlength\halflineskip{6\p@ \@plus .5\p@ \@minus .5\p@}
@@ -300,9 +298,11 @@
 
 \newcommand\section{%
   \ifno@eqnreset
+  %\ifappendix\setcounter{section}{0}
     \ifappendix \setcounter{equation}\z@\fi
   \else
-    \setcounter{equation}\z@
+ % \setcounter{equation}{0}
+   \setcounter{equation}\z@
   \fi
   \@startsection {section}{1}{\z@}
     {\ifflm@rapids 12\p@ \@plus 6\p@ \@minus 2\p@\else
@@ -325,7 +325,8 @@
     {\raggedright\normalfont\normalsize\itshape}%
 }
 
-\newcommand\paragraph{}
+
+%\newcommand\paragraph{}
 \newcommand\subparagraph{}
 
 \def\@seccntformat#1{% FROM LATEX.LTX
@@ -380,7 +381,22 @@
         \fi
         #7}}%
   \fi
-  \@xsect{#5}}
+  \@xsect{#5}\@afterindentfalse\@afterheading}%%% 3-8-20
+
+%%%%%%% 3-8-20 %%%%
+\def\@ssect#1#2#3#4#5{%
+  \@tempskipa #3\relax
+  \ifdim \@tempskipa>\z@
+    \begingroup
+      #4{%
+        \@hangfrom{\hskip #1}%
+          \interlinepenalty \@M #5\@@par}%
+    \endgroup
+  \else
+    \def\@svsechd{#4{\hskip #1\relax #5}}%
+  \fi
+  \@xsect{#3}\@afterindentfalse\@afterheading}
+%%%%%%%%%%%%%%%%
 
 \newif\ifappendix
 \newif\ifoneappendix
@@ -388,8 +404,10 @@
 
 \newcommand\oneappendix{\global\oneappendixtrue \appendix}
 \newcommand\appendix{\par
-  \setcounter{section}\z@
-  \setcounter{equation}\z@
+\setcounter{section}{0}
+ % \setcounter{section}\z@
+ \setcounter{equation}{0}
+  %\setcounter{equation}\z@
   \renewcommand\thesection{\@Alph\c@section}%
   \renewcommand\thesubsection{\thesection.\@arabic\c@subsection}%
   \renewcommand\thesubsubsection{\thesubsection.\@arabic\c@subsubsection}%
@@ -404,6 +422,7 @@
 \newcounter {subsection}[section]
 \newcounter {subsubsection}[subsection]
 \newcounter {paragraph}[subsubsection]
+\newcounter{refsection}[section]
 \renewcommand\thepart          {\@arabic\c@part}
 \renewcommand\thesection       {\@arabic\c@section}
 \renewcommand\thesubsection    {\thesection.\@arabic\c@subsection}
@@ -428,7 +447,7 @@
 \def\@listI{\parsep\z@ \topsep\z@ \partopsep\z@ \itemsep\z@ \rightmargin\z@
   \leftmargin\labelwidth \advance\leftmargin\labelsep
   }
-  
+
 \def\@listi{\@listI \leftmargin\leftmargini \itemindent 1em}
 \def\@listii{\@listI \advance\leftmargin .5em}
 \def\@listiii{\@listI}
@@ -469,7 +488,7 @@
     {\settowidth\labelwidth{#1}
     \labelwidth 1.5pc
     \labelsep .5em%
-%     \advance\itemindent\labelsep 
+%     \advance\itemindent\labelsep
      \advance\itemindent\labelwidth
      \usecounter\@enumctr\relax}%
 }
@@ -677,6 +696,7 @@
 
 \def\@ysubeqncr{\@ifnextchar [{\@xsubeqncr}{\@xsubeqncr[\z@]}}
 
+
 \def\@xsubeqncr[#1]{\ifnum0=`{\fi}\@@subeqncr
    \noalign{\penalty\@eqpen\vskip\jot\vskip #1\relax}}
 
@@ -726,15 +746,15 @@
 \newcommand\affiliation[1]{\gdef\@affiliation{\let\aff\aff@inst#1}}
 \gdef\@affiliation{}
 
-\newcommand\maketitle{\appendixfalse
+\newcommand\maketitle{\appendixfalse \iflineno\relax\nolinenumbers\fi%% 3-8-20
   \@ifnextchar [{\m@ketitleone}{\m@ketitletwo}}%
 \def\m@ketitletwo{\m@ketitleone[n]}
 
 \newif\iffofootnote
 \newcommand\fulloutfootnote{\global\fofootnotetrue}
 
-\def\m@ketitleone[#1]{\par
-  \begingroup
+\def\m@ketitleone[#1]{\par\iflineno\relax\runninglinenumbers\fi% 3-8-20
+  \begingroup \iflineno\relax\runninglinenumbers\fi%% 3-8-20
   \bgroup
     \def\@makefntext##1{%
       \iffofootnote
@@ -776,7 +796,7 @@
  \fontsize{12pt}{12pt}\sffamily\bfseries journals.cambridge.org/rapids\\[-3pt]
  \hrule width \linewidth height 1pt
  \endminipage\par\vskip 24pt\fi}
- 
+
 \def\put@absrule{\ifflm@rapids\par\vskip1pc\hrule\fi}
 
 \def\@title@alignment{\ifflm@rapids\raggedright\fi}
@@ -787,8 +807,8 @@
 
 \def\@maketitle#1{%
  \newpage
- \vspace*{10\p@}%
- {\centering \sloppy
+ \vspace*{10\p@}\addvspace{5pc}%
+ {\flushleft
   {\normalfont\LARGE\fontswitch\bfseries
   \put@rapidsHead%
   \@title@alignment%
@@ -868,27 +888,50 @@
   \vbox to 5.5\p@{\noindent
     \parbox[t]{4.5in}{\normalfont\indexsize\baselineskip 9\p@
       {\itshape J.\ Fluid\ Mech.} (\@pubyear), {\itshape vol.} \@volume,
-      {\itshape pp.} \@pagerange.\quad \copyright\ \@pubyear\ Cambridge University 
+      {\itshape pp.} \@pagerange.\quad \copyright\ \@pubyear\ Cambridge University
         Press\\[2.5\p@]
       DOI: \@doi\quad {Printed in the United Kingdom}}%
   \vss}%
 }
 \gdef\@underjournal{%
   \vbox to 5.5\p@{\noindent
-    %\parbox[t]{4.5in}{\normalfont\indexsize{\itshape% 
-    \parbox[t]{5in}{\normalfont\indexsize{\itshape% 
-      %Under consideration for publication in J.\ Fluid\ Mech.
-      This draft was prepared using the LaTeX style file belonging 
-      to the Journal of Fluid Mechanics}\\[2.5\p@]
+    \parbox[t]{4.5in}{\normalfont\indexsize{\itshape Under consideration
+      for publication in J.\ Fluid\ Mech.}\\[2.5\p@]
       {\ \ }}%
   \vss}%
 }
+
+\def\footerflagdefns#1{\hbox to \hsize{\hfill\colorbox{mycol}{\color{white}\fontsize{14}{16}\bfseries\selectfont#1}\hfill}}%
+
+\def\absfooterflag{\footerflagdefns{Abstract must not spill onto p.2}}%
+
+\def\pagelimitfooter{\bgroup%
+\ifnum\c@page=4\relax%
+\footerflagdefns{Focus on Fluids articles must not exceed this page length}%
+\else%
+\ifnum\c@page=10\relax%
+\footerflagdefns{Rapids articles must not exceed this page length}%
+\fi\fi%
+\egroup}%
 
 \def\ps@headings{\let\@mkboth\markboth
   \def\@oddhead{\hfil{\itshape\@shorttitle}\hfil\llap{\thepage}}%
   \def\@evenhead{\rlap{\thepage}\hfil\itshape\@shortauthor\hfil}%
   \def\@oddfoot{}%
-  \def\@evenfoot{}%
+  \def\@evenfoot{}%\pagelimitfooter}%
+  \def\sectionmark##1{\markboth{##1}{}}%
+  \def\subsectionmark##1{\markright{##1}}%
+}
+
+\usepackage{color}
+\definecolor{mycol}{cmyk}{0,1,0,0}
+
+\def\flmspecialinstruction#1{#1}
+\def\ps@spheadings{\let\@mkboth\markboth
+  \def\@oddhead{\hfil{\itshape\@shorttitle}\hfil\llap{\thepage}}%
+  \def\@evenhead{\rlap{\thepage}\hfil\itshape\@shortauthor\hfil}%
+  \def\@oddfoot{\vbox{\vskip10pt\colorbox{mycol}{\textcolor{white}{\fontseries{b}\fontsize{14}{16}\selectfont \flmspecialinstruction}}}}%
+  \def\@evenfoot{\vbox{\vskip10pt\colorbox{mycol}{\textcolor{white}{\fontseries{b}\fontsize{14}{16}\selectfont \flmspecialinstruction}}}}%
   \def\sectionmark##1{\markboth{##1}{}}%
   \def\subsectionmark##1{\markright{##1}}%
 }
@@ -909,10 +952,12 @@
 \fi
 
 \def\ps@titlepage{\leftskip\z@\let\@mkboth\@gobbletwo\vfuzz=5\p@
-  \def\@oddhead{\@j@urnal \hfil\llap{\thepage}}%
+  \def\@oddhead{\vbox{\vspace*{-1pc}\hbox to \textwidth{\@j@urnal \hfil\llap{\thepage}}\par\vskip4pt%
+\hbox to \textwidth{{\fboxsep0pt\fbox{\parbox{\textwidth}{\par\vskip2.7pc\centerline{Banner appropriate to article type will appear here in typeset article}\par\vskip2.7pc}}}}
+}}
   \def\@evenhead{\@j@urnal \hfil\llap{\thepage}}%
-  \def\@oddfoot{}%
-  \def\@evenfoot{}%
+  \def\@oddfoot{}%\absfooterflag}%
+  \def\@evenfoot{}%\absfooterflag}%
   \def\sectionmark##1{}%
   \def\subsectionmark##1{}%
 }
@@ -1039,21 +1084,24 @@
   \@float{figure}\fstyle@figure}
   {\end@float}
 
-\long\def\@makecaption#1#2{%
-  \ifbot@fig \rule{\textwidth}{.25pt}\fi
-  \vskip 5\p@ \@plus .4\p@ \@minus .4\p@
-  \begingroup
-    \small\setbox\@tempboxa\hbox{{\normalfont\scshape
-     #1\ifrem@fullpt\else .\fi} #2}%
-    \ifdim \wd\@tempboxa >\tw@\hsize
-      \unhbox\@tempboxa\par
-    \else
-      {\centering \unhbox\@tempboxa\par}%
-    \fi
-  \endgroup
-  \global\rem@fullptfalse
-  \global\bot@figfalse
-}
+\usepackage[hang,small,center]{caption}
+\setlength{\captionmargin}{30pt}
+
+%\long\def\@makecaption\normalfont%{%
+ % \ifbot@fig \rule{\textwidth}{.25pt}\fi
+%  \vskip 5\p@ \@plus .4\p@ \@minus .4\p@
+ % \begingroup
+   % \small\setbox\@tempboxa\hbox{{\normalfont\scshape
+    % #1\ifrem@fullpt\else .\fi} #2}%
+    %\ifdim \wd\@tempboxa >\tw@\hsize
+     % \unhbox\@tempboxa\par
+  %  \else
+      %{\centering \unhbox\@tempboxa\par}%
+    %\fi
+ % \endgroup
+  %\global\rem@fullptfalse
+ % \global\bot@figfalse
+%}
 
 \newcounter{table}
 \renewcommand\thetable{\@arabic\c@table}
@@ -1139,16 +1187,16 @@
   \par\vskip 20\p@ \@plus 1\p@ \@minus 1\p@
   \ifflm@rapids\section*{References}\else
   \centerline{\normalfont\small\scshape R\bibls E\bibls F\bibls E\bibls
-              R\bibls E\bibls N\bibls C\bibls E\bibls S}\fi%
-  \nobreak
-  \vskip 4\p@ \@plus .5\p@ \@minus .5\p@
-  \nobreak
-  \list{}{\labelwidth\z@ \leftmargin 2.5em \itemindent -2.5em \itemsep 1\p@}%
-  \normalfont\small\parindent\z@
-  \parskip\z@ \@plus .1\p@\relax
-  \sloppy\clubpenalty\z@ \widowpenalty\@M
-  \sfcode`\.\@m\relax}
-  {\endlist}
+             R\bibls E\bibls N\bibls C\bibls E\bibls S}\fi%
+ \nobreak
+ \vskip 4\p@ \@plus .5\p@ \@minus .5\p@
+ \nobreak
+ \list{}{\labelwidth\z@ \leftmargin 2.5em \itemindent -2.5em \itemsep 1\p@}%
+ \normalfont\small\parindent\z@
+ \parskip\z@ \@plus .1\p@\relax
+ \sloppy\clubpenalty\z@ \widowpenalty\@M
+ \sfcode`\.\@m\relax}
+ {\endlist}
 
 
 \let\JFMthebib\thebibliography
@@ -1228,9 +1276,9 @@
   }
 
   \def\ps@titlepage{\leftskip\z@\let\@mkboth\@gobbletwo\vfuzz=5\p@
-    \def\@oddhead{\small\textsc{J\ls o\ls u\ls r\ls n\ls a\ls l\ns 
-      o\ls f\ns 
-      F\ls l\ls u\ls i\ls d\ns 
+    \def\@oddhead{\small\textsc{J\ls o\ls u\ls r\ls n\ls a\ls l\ns
+      o\ls f\ns
+      F\ls l\ls u\ls i\ls d\ns
       M\ls e\ls c\ls h\ls a\ls n\ls i\ls c\ls s}%
       \hfill\textsc{V\ls o\ls l\ls u\ls m\ls e\ns \@volume\quad 25\ns N\ls o\ls v\ls e\ls m\ls b\ls e\ls r\ns 2000}}%
     \def\@evenhead{\@j@urnal}%
@@ -1348,12 +1396,14 @@
   \fi
 \fi
 
+
+
 % See if the author has AMS symbol fonts installed: If they have, attempt
 % to use the 'amssymb' package to provide the AMS symbol characters.
 
 \ifCUPmtlplainloaded \else
   \checkfont{msam10}
-  \iffontfound               
+  \iffontfound
     \IfFileExists{amssymb.sty}
       {\typeout{^^JFound AMS Symbol fonts on the system, using the
                 'amssymb' package.^^J}%
@@ -1414,7 +1464,7 @@
 % \textsfbi, \mathsfbi : sans-serif bold slanted (doesnt exist in CM fonts)
 %
 % For san-serif roman use \textsf and \mathsf as normal.
-
+\iflineno\AtBeginDocument{\usepackage{lineno-FLM}}\fi% 3-8-20
 % Greek letters
 \let\rmGamma  \Gamma
 \let\rmDelta  \Delta
@@ -1442,6 +1492,27 @@
 
 \let\mathbi\boldsymbol
 
+%%%%%% 8-8-20 %% Introduced for back section with small font size
+\newcounter{savesecnumdepth}
+\providecommand{\backsectionname}{Acknowledgements}
+\newcommand{\backsection}[2][\backsectionname]{\begingroup\par%
+  \small%
+  \setcounter{savesecnumdepth}{\value{secnumdepth}}%
+  \setcounter{secnumdepth}{0}%
+\vskip6pt
+\noindent \textbf{#1.} #2\par%
+  \setcounter{secnumdepth}{\value{savesecnumdepth}}%
+  \endgroup}
+%%%%%%
+
 \endinput
+
+%%% Date: 3-8-20 
+%%% Updated the template to get the line numbers using lineno.sty
+%%% Inserted \@afterindentfalse\@afterheading to avoid indentation after headings
+
+%%% Date 8-8-20
+%%% Changed the default point size as 10.5 for FLM new style \edef\t@xtsize{\ifCUPmtlplainloaded 10.5\else 10\fi}
+%%% Introduced \backsection tag to make the heading run on style with small font size as like references.
 
 % end of file jfm.cls

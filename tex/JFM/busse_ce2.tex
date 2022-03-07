@@ -9,25 +9,13 @@
 
 \documentclass{jfm}
 \usepackage{graphicx}
-%\usepackage{amsmath}
-%\usepackage{amssymb}
-%\usepackage{epstopdf, epsfig}
-\usepackage{physics}
-\usepackage{xcolor}
-
-\usepackage{enumitem,amssymb}
-\newlist{todolist}{itemize}{2}
-\setlist[todolist]{label=$\square$}
-\usepackage{pifont}
-\newcommand{\cmark}{\ding{51}}%
-\newcommand{\xmark}{\ding{55}}%
-\newcommand{\done}{\rlap{$\square$}{\raisebox{2pt}{\large\hspace{1pt}\cmark}}%
-\hspace{-2.5pt}}
-\newcommand{\wontfix}{\rlap{$\square$}{\large\hspace{1pt}\xmark}}
-
+\usepackage{amsmath}
+%\usepackage{physics}
+\usepackage{derivative}
 \newtheorem{lemma}{Lemma}
 \newtheorem{corollary}{Corollary}
 
+\newcommand{\laplacian}[1]{\nabla^2 #1}
 \newcommand{\cz}{c_{\zeta}}
 \newcommand{\cs}{c_{\psi}}
 \newcommand{\ct}{c_{\theta}}
@@ -43,8 +31,6 @@
 \newcommand{\cts}{c_{\theta \psi}}
 \newcommand{\Rayleigh}{\mbox{\textit{Ra}}}  % Rayleigh number
 \newcommand{\Pra}{\mbox{\textit{Pr}}}  % Prandtl number
-
-\def\JBM#1{\textcolor{cyan}{#1}}
 
 \shorttitle{CE2 Busse Annulus}
 \shortauthor{J. S. Oishi, K. J. Burns, J. B. Marston, S. M. Tobias}
@@ -88,7 +74,7 @@ The fundamental problem in studying such systems via direct numerical simulation
 One way to make progress is to study the statistics of the flow rather than detailed flow variables themselves \citep{marston_qi_tobias_2019}. However, one should bear in mind that these systems are often inhomogeneous and strongly anisotropic, and such a statistical description should respect this, despite the simplifications that are afforded with assumptions of homogeneity and isotropy.
 
 Rotation is a hallmark of geophysical and astrophysical fluid dynamics.
-Through the breaking of reflection symmetry, rotating systems are known to generate mean flows such as zonal jets; examples of which include the bands on Jupiter, the jet stream on Earth and the differential rotation in stars \citep{galperin_read_2019}.
+Through the breaking of reflection symmetry, rotating systems generate mean flows such as zonal jets; examples of which include the bands on Jupiter, the jet stream on Earth and the differential rotation in stars \citep{galperin_read_2019}.
 In these systems, turbulence that is driven at moderate scales interacts with rotation to produce non-trivial correlations that lead to Reynolds stresses that drive differential rotation and jets. Here, the turbulence is often described as having an anti-frictional character as it moves the system \textit{away} from solid body rotation; this provides a stern test for theories that seek to describe the statistical properties of the turbulence. We also note that it is common astrophysically for the source of the turbulence to be thermal convection, and that the convection itself is sensitive to the presence or absence of large-scale flows; this leads to non-trivial feedbacks between the mean flows and the turbulence.
 
 %Understanding the interaction between turbulence and mean flows remains a major challenge as such systems are often at extreme parameters inaccessible to direct numerical simulation (DNS).
@@ -100,7 +86,7 @@ Here, we explore the simplest system that describes the interaction of convectio
 %Our recent work \citep{2018RSPSA.47480422T} has shown that in direct simulation, the generalized quasilinear approximation (GQL) outperforms QL models at all parameter values explored.
 
 
-As such, the Busse Annulus system presents an important challenge for CE2, not least because it is known to host multiple solutions at modest Rayleigh numbers \citep{bh1993}.
+Thus, the Busse Annulus system presents an important challenge for CE2, not least because it is known to host multiple solutions at modest Rayleigh numbers \citep{bh1993}.
 How does a quasilinear statistical theory fare when faced with multiple potential solution basins?
 In particular, we investigate the sensitivity of CE2 to initial conditions for a case with multiple solution branches.
 
@@ -158,20 +144,20 @@ Because the equations require both $\psi$ and $\zeta$ cumulants, we solve for $\
 The  dynamical equations for the first cumulants are given by
 \begin{equation}
   \label{eq:cz}
-  \pdv{\cz}{t} = - \qty(\pdv{y_1} + \pdv{y_2}) \pdv{\csz}{\xi}\eval_{\xi \to 0}^{y_1 \to y_2} - C |\beta|^{1/2} \cz + \pdv[2]{\cz}{y_1},
+  \pdv{\cz}{t} = - \left(\pdv{}{y_1} + \pdv{}{y_2}\right) \pdv{\csz}{\xi}\Big|_{\xi \to 0}^{y_1 \to y_2} - C |\beta|^{1/2} \cz + \pdv[2]{\cz}{y_1}
+\end{equation}
+and
+\begin{equation}
+  \label{eq:ct}
+  \pdv{\ct}{t} = - \left(\pdv{}{y_1} + \pdv{}{y_2}\right) \pdv{\cst}{\xi} \Big|_{\xi \to 0}^{y_1 \to y_2} + \frac{1}{\Pran} \pdv[2]{\ct}{y_1},
 \end{equation}
 whilst those for the second cumulants are given by
 \begin{equation}
   \label{eq:czz}
   \begin{split}
-    \pdv{\czz}{t} &= \pdv{\cs}{y_1} \pdv{\czz}{\xi} - \qty(\pdv{\cz}{y_1} - \beta) \pdv{\csz}{\xi} - \pdv{\cs}{y_2} \pdv{\czz}{\xi}  + \qty(\pdv{\cz}{y_2} - \beta) \pdv{\czs}{\xi}\\
-    &+ \frac{\Rayleigh}{\Pran} \qty(\pdv{\czt}{\xi} -  \pdv{\ctz}{\xi}) - 2C |\beta|^{1/2} \czz + (\nabla_1^2 + \nabla_2^2) \czz,    
+    \pdv{\czz}{t} &= \pdv{\cs}{y_1} \pdv{\czz}{\xi} - \left(\pdv{\cz}{y_1} - \beta\right) \pdv{\csz}{\xi} - \pdv{\cs}{y_2} \pdv{\czz}{\xi}  + \left(\pdv{\cz}{y_2} - \beta\right) \pdv{\czs}{\xi}\\
+    &+ \frac{\Rayleigh}{\Pran} \left(\pdv{\czt}{\xi} -  \pdv{\ctz}{\xi}\right) - 2C |\beta|^{1/2} \czz + (\nabla_1^2 + \nabla_2^2) \czz,    
   \end{split}
-\end{equation}
-
-\begin{equation}
-  \label{eq:ct}
-  \pdv{\ct}{t} = - \qty(\pdv{y_1} + \pdv{y_2}) \pdv{\cst}{\xi} \eval_{\xi \to 0}^{y_1 \to y_2} + \frac{1}{\Pran} \pdv[2]{\ct}{y_1},
 \end{equation}
 
 \begin{equation}
@@ -185,7 +171,7 @@ and
 \begin{equation}
   \label{eq:ctz}
   \begin{split}
-    \pdv{\ctz}{t} &= \qty(\pdv{\cs}{y_1} - \pdv{\cs}{y_2}) \pdv{\ctz}{\xi} - \qty(1 + \pdv{\ct}{y_1}) \pdv{\csz}{\xi} + \qty(\pdv{\cz}{y_2} - \beta) \pdv{\cts}{\xi}\\
+    \pdv{\ctz}{t} &= \left(\pdv{\cs}{y_1} - \pdv{\cs}{y_2}\right) \pdv{\ctz}{\xi} - \left(1 + \pdv{\ct}{y_1}\right) \pdv{\csz}{\xi} + \left(\pdv{\cz}{y_2} - \beta\right) \pdv{\cts}{\xi}\\
     &  - C |\beta|^{1/2} \ctz + \frac{1}{\Pran} \nabla_1^2 \ctz + \nabla_2^2 \ctz.
   \end{split}
 \end{equation}
@@ -201,19 +187,15 @@ the second cumulants may be discretised using sine series in $y_1$ and $y_2$ and
 %All variables in the DNS simulations are discretised on $\sin$ series in $y$ and Fourier bases in $x$.
 
 We use \emph{Dedalus} \citep{2020PhRvR...2b3068B} to solve both the direct equations (\ref{eq:zeta_eom} - \ref{eq:theta}) and the CE2 model equations, (\ref{eq:cz})-~(\ref{eq:ctz}).
-For the CE2 equations, we use RK222 timestepping with all terms evaluated explicitly.
-We have found this to be more stable than the typical approach of using implicit-explicit (IMEX) timesteppers with implicit integration for linear terms and explicit integration non-linear terms.
-The DNS simulations use the SBDF2 IMEX scheme with linear terms implicit.
+DNS use the SBDF2 time-stepper with linear terms implicit, while
+the CE2 equations use RK222 scheme with all terms evaluated explicitly.
+We have found fully explicit timestepping to be more stable for CE2.
+The second cumulants must be positive definite in order to ensure the corresponding probability density function is realisable.
+At higher $\Rayleigh$, we have found it necessary to remove negative eigenvalues from the second cumulant every 10 timesteps.
+While this is required for CE2.5 \citep{marston_qi_tobias_2019}, it is also necessary in these CE2 simulations.
 
 \section{Results}
 \label{sec:results}
-
-
-
-
-
-
-
 Given that the Busse Annulus system is known to exhibit strong hysteresis, it is key to examine the role of initial conditions when solving the cumulant system.
 Minimally, we begin each CE2 simulation using one of two extreme initial conditions: \emph{maximum ignorance}, in which we assume a completely uncorrelated $\ctt$ and all other cumulants (both first and second) zero, and \emph{maximum knowledge}, in which we initialise all fields using cumulants calculated from the statistics of a DNS solution. This allows the evaluation of CE2's ability to both \emph{find} solutions and \emph{continue} solutions already known. In addition, we begin some solutions with biased initial conditions that are designed to ensure solutions are not trapped in symmetry subspaces.
 In order to facilitate comparison with previous work, we adapt the same run naming scheme as \citet{tom_2018}.
@@ -427,7 +409,6 @@ Although we do not investigate these instabililities in detail here, it is inter
 For a maximum knowledge initial condition for Run A, when CE2 gives the correct answer, the solution accesses a higher rank solution than QL; note QL obtains the incorrect answer. The solutions clearly undergoes a rank instability to access the correct answer. However, for a maximum ignorance initial condition both QL and CE2 give the incorrect answer. The CE2 solution eventually returns to a low rank solution and reproduces the QL (rather than the correct) dynamics. Finally, for the 
 biased initial condition case (with the first cumulant correct but the second cumulant incorrect) the second cumulant remains high rank and one gets the correct behaviour for the first cumulant. We stress again here that in all cases the second cumulant is necessarily delocalised for these quasilinear theories and hence incorrect.
 
-
 \begin{figure}
     \centering
     \includegraphics[width=0.3\textwidth]{figs/rank_vs_t_run_A_max_knowl_kx.pdf}
@@ -456,7 +437,7 @@ biased initial condition case (with the first cumulant correct but the second cu
 \section{Discussion}
 \label{sec:discussion}
 
-In this paper we have examined the effectiveness of the statistical quasilinear theory (zonally averaged) CE2 in reproducing the statistics of turbulent solutions of a model of the interaction of rotating convection and zonal flows. This Busse Annulus model exhibits complicated spatio-temporal dynamics including the formation of large-scale zonal jets, multiple zonal jets and even ``predator-prey" relaxation oscillations between states with strong zonal flows and strong convection.
+In this paper we have examined the effectiveness of the statistical quasilinear theory zCE2 in reproducing the statistics of turbulent solutions of a model of the interaction of rotating convection and zonal flows. This Busse Annulus model exhibits complicated spatio-temporal dynamics including the formation of large-scale zonal jets, multiple zonal jets and even ``predator-prey" relaxation oscillations between states with strong zonal flows and strong convection.
 
 We show that zCE2 is capable of reproducing even very complicated mean dynamics (such as the driving and decay of the mean flows and modification of the mean temperature profile) though, for this system, it may have multiple stable attractors for any given parameter set. If the system is initiated with \textit{maximal ignorance} then it is possible to fall into the basin of attraction of an attractor that is not preferred by DNS. It is possible to bias the symmetry of the initial condition in order to achieve solutions that mirror the symmetry of the DNS solutions. Furthermore one may use an \textit{maximal knowledge} initial condition where the zCE2 is initiated using the statistics from the saturated state of a DNS run. In this case, zCE2 appears to be extremely successful --- even reproducing the extremely nonlinear relaxation oscillations of the highly driven system.
 
@@ -471,16 +452,9 @@ It is interesting to speculate further on the role of the missing physics encode
 \bigskip
 
 
-This work was supported by funding from the European Research Council (ERC) under the EU’s Horizon 2020 research and innovation programme (grant agreement D5S-DLV-786780). Computations presented here were performed on the Bates High Performance Computing Center's \emph{Leavitt} system. Computing Resources supporting this work were also provided by the NASA High-End Computing (HEC) Program through the NASA Advanced Supercomputing (NAS) Division at Ames Research Centre with allocation GID s1647.
-JSO was supported by NASA LWS grant No. NNX16AC92G, Research Corporation Scialog Collaborative Award (TDA) ID\#24231. JBM and SMT are supported in part by a grant from the Simons Foundation (Grant No. 662962, GF).
-
-
-\appendix
-\section{}\label{appA}
-In order to ensure stability of the calculations at higher $\Rayleigh$, we have found it necessary to remove negative eigenvalues from the second cumulant at an interval of 10 timesteps.
-While this is required for CE2.5 \citep{marston_qi_tobias_2019}, it appears necessary even in the CE2 simulations presented here.
-The second cumulants must be positive definite in order to ensure the corresponding probability density function is realisable (that is, nowhere negative).
-
+This work was supported by funding from the European Research Council (ERC) under the EU’s Horizon 2020 research and innovation programme (grant agreement D5S-DLV-786780). 
+JSO was supported by NASA LWS grant No. NNX16AC92G and Research Corporation Scialog Collaborative Award (TDA) ID\#24231. JBM and SMT are supported in part by a grant from the Simons Foundation (Grant No. 662962, GF).
+Computations were performed on the Bates High Performance Computing Center's \emph{Leavitt} system and the NASA High-End Computing Program through the NASA Advanced Supercomputing Division at Ames Research Centre under allocation GID s1647.
 
 \bibliographystyle{jfm}
 % Note the spaces between the initials
