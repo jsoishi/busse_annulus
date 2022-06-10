@@ -141,4 +141,8 @@ Specific comments
 
 16. "The authors don't comment..." **We have simplified this and and clarified.**
 
-17. "It is interesting to me..." **STEVE/BRAD/KEATON, this is actually interesting
+17. "It is interesting to me..." **STEVE/BRAD/KEATON, this is actually interesting. Need to think on it a bit. Given our speculation that EENL just adds dissipation, why is this not more energetic? It may be a non-obvious interaction with the convection as the referee points out, but I'm not sure.
+
+18. "The discussion surrounding..." **STEVE/BRAD/KEATON, it is surprising. Do we want to try to provide more info for some kind of physical interpretation, as this referee suggests?
+
+19. "Is there a good reason..." **We provided the enstrophy spectrum because it connects with the dynamical variable of interest $c_{\zeta \zeta}$. 
