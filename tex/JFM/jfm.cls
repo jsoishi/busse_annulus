@@ -918,7 +918,7 @@
   \def\@oddhead{\hfil{\itshape\@shorttitle}\hfil\llap{\thepage}}%
   \def\@evenhead{\rlap{\thepage}\hfil\itshape\@shortauthor\hfil}%
   \def\@oddfoot{}%
-  \def\@evenfoot{}%\pagelimitfooter}%
+  \def\@evenfoot{\pagelimitfooter}%
   \def\sectionmark##1{\markboth{##1}{}}%
   \def\subsectionmark##1{\markright{##1}}%
 }
@@ -956,8 +956,8 @@
 \hbox to \textwidth{{\fboxsep0pt\fbox{\parbox{\textwidth}{\par\vskip2.7pc\centerline{Banner appropriate to article type will appear here in typeset article}\par\vskip2.7pc}}}}
 }}
   \def\@evenhead{\@j@urnal \hfil\llap{\thepage}}%
-  \def\@oddfoot{}%\absfooterflag}%
-  \def\@evenfoot{}%\absfooterflag}%
+  \def\@oddfoot{\absfooterflag}%
+  \def\@evenfoot{\absfooterflag}%
   \def\sectionmark##1{}%
   \def\subsectionmark##1{}%
 }

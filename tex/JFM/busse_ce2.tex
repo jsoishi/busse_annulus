@@ -55,7 +55,7 @@ Lewiston, ME 04240, USA
 \maketitle
 
 \begin{abstract}
-We consider direct statistical simulation (DSS) of a paradigm system of convection interacting with mean flows. In the Busse Annulus model zonal jets are generated through the interaction of convectively driven turbulence and rotation; non-trivial dynamics including the emergence of multiple jets and bursting `predator-prey' type dynamics can be found. We formulate the DSS by expanding around the mean flow in terms of equal-time cumulants and arrive at a closed set of equations of motion for the cumulants. Here, we present results using an expansion terminated at the second cumulant (CE2); it is fundamentally a quasi-linear theory.
+We consider direct statistical simulation (DSS) of a paradigm system of convection interacting with mean flows. In the Busse annulus model zonal jets are generated through the interaction of convectively driven turbulence and rotation; non-trivial dynamics including the emergence of multiple jets and bursting `predator-prey' type dynamics can be found. We formulate the DSS by expanding around the mean flow in terms of equal-time cumulants and arrive at a closed set of equations of motion for the cumulants. Here, we present results using an expansion terminated at the second cumulant (CE2); it is fundamentally a quasi-linear theory.
 We focus on particular cases including bursting and bistable multiple jets and demonstrate that CE2 can reproduce the results of direct numerical simulation if particular attention is given to symmetry considerations. 
 \end{abstract}
 
@@ -72,12 +72,12 @@ One way to make progress is to study the statistics of the flow rather than deta
 
 Rotation is a hallmark of geophysical and astrophysical fluid dynamics.
 Through the breaking of reflection symmetry, rotating systems generate mean flows such as zonal jets; examples of which include the bands on Jupiter, the jet stream on Earth and the differential rotation in stars \citep{galperin_read_2019}.
-In these systems, turbulence that is driven at moderate scales interacts with rotation to produce non-trivial correlations that lead to Reynolds stresses that drive differential rotation and jets. Here, the turbulence is often described as having an anti-frictional character as it moves the system \textit{away} from solid body rotation; this provides a stern test for theories that seek to describe the statistical properties of the turbulence. We also note that it is common astrophysically for the source of the turbulence to be thermal convection, and that the convection itself is sensitive to the presence or absence of large-scale flows; this leads to non-trivial feedbacks between the mean flows and the turbulence.
+In these systems, turbulence that is driven at moderate scales interacts with rotation to produce non-trivial correlations that lead to Reynolds stresses that drive differential rotation and jets. In $\beta$-plane turbulence without convection, the interaction of the jets and the turbulence serves to reinforce the jet structure even in the absence of rotation \citep[see][figure 25.1]{farrel_ioannou_2019}. Here, the turbulence is often described as having an anti-frictional character as it moves the system \textit{away} from solid body rotation; this provides a stern test for theories that seek to describe the statistical properties of the turbulence. We also note that it is common astrophysically for the source of the turbulence to be thermal convection, and that the convection itself is sensitive to the presence or absence of large-scale flows; this leads to non-trivial feedbacks between the mean flows and the turbulence.
 
-Here, we explore the simplest system that describes the interaction of convection with mean flows --- the Busse Annulus. The Busse Annulus models rotating convection in an annulus with slanted ends leading to a topographic $\beta$ effect; this effect leads to vortex stretching and the generation of systematic large-scale flows 
-\citep[see e.g.][]{1976Icar...29..255B,bh1993,rj2006}. We use this system to test the effectiveness of the statistical description termed CE2. CE2 is a quasilinear approximation of direct statistical simulation (DSS), and is a cumulant expansion truncated at second order. CE2 has been shown to be effective for simple systems where tightly coupled correlations control the dynamics and driving is either stochastic or arises through the instability of a shear flow. However the case of thermal convection, where buoyancy provides the driving in the vorticity equation and there is nonlinearity in both the vorticity and temperature equations, has been much less studied. 
+Here, we explore a simple system that involves the interaction of convection with mean flows --- the Busse annulus. The Busse annulus models rotating convection in an annulus with slanted ends leading to a topographic $\beta$ effect; this effect leads to vortex stretching and the generation of systematic large-scale flows 
+\citep[see e.g.][]{1976Icar...29..255B,bh1993,rj2006}. While Rayleigh-Benard convection can produce large-scale flows in itself \citep[e.g.][]{1970JAtS...27.1107T,2014JFM...759..360G}, the solutions we study here do not generate large-scale flows by a spontaneous symmetry breaking pitchfork bifurcation as in that case. Instead, the $\beta$ effect breaks the symmetry and therefore provides an easily tunable parameter for the effect. We use this system to test the effectiveness of the statistical description termed CE2. CE2 is a quasilinear approximation of direct statistical simulation (DSS), and is a cumulant expansion truncated at second order. CE2 has been shown to be effective for simple systems where tightly coupled correlations control the dynamics and driving is either stochastic \citep[e. g.][]{2007JAtS...64.3652F, 2013PhRvL.110j4502T} or arises through the instability of a shear flow \citep[e.g.][]{2008JAtS...65.1955M}. However the case of thermal convection, where buoyancy provides the driving in the vorticity equation and there is nonlinearity in both the vorticity and temperature equations, has been much less studied \citep[though we note][studied stably stratified Boussinesq dynamics with S3T]{2018JFM...854..544F,2018JAtS...75.4201F}. 
 
-Thus, the Busse Annulus system presents an important challenge for CE2, not least because it is known to host multiple solutions at modest Rayleigh numbers \citep{bh1993}.
+Thus, the Busse annulus system presents an important challenge for CE2, not least because it is known to host multiple solutions at modest Rayleigh numbers \citep{bh1993}.
 How does a quasilinear statistical theory fare when faced with multiple potential solution basins?
 In particular, we investigate the sensitivity of CE2 to initial conditions for a case with multiple solution branches.
 
@@ -85,8 +85,9 @@ In particular, we investigate the sensitivity of CE2 to initial conditions for a
 \label{sec:model-eqations}
 
 
-The Busse Annulus we consider  is a locally Cartesian model of rotating (at angular velocity ${\boldsymbol \Omega = \Omega {\bf e}_z}$), incompressible Boussinesq fluid with viscosity $\nu$ and thermal diffusivity $\kappa$. Here, gravity is uniform and in the $y$-direction. 
-The system is non-dimensionalised, with a fiducial length being the width of the annulus in the $y$-direction ($d$), a typical timescale being the viscous timescale $d^2/\nu$ and a typical velocity scale $\nu/d$; a typical temperature is chosen to be $\Delta T$, the temperature difference between the inner and outer walls. 
+The Busse annulus is a two-dimensional, locally Cartesian model of rotating, incompressible Boussinesq fluid with viscosity $\nu$ and thermal diffusivity $\kappa$. The $x$-direction corresponds to the zonal direction, the $y$-direction corresponds to the radial direction with uniform gravitational acceleration pointing inwards, and the rotation is perpendicular to both with angular velocity ${\boldsymbol \Omega = \Omega {\bf e}_z}$. 
+For additional information on the geometry, see \citep[][particularly figure 1]{tom_2018}.
+The system is non-dimensionalised with the width of the annulus in the $y$-direction ($d$) such that $0 \le y le 1$,  the viscous timescale $d^2/\nu$ and the temperature difference between the inner and outer walls $\Delta T$. 
 
 Following \citet{bh1993, rj2006}, 
 the temperature  $T = T_{BS} +{\hat \theta(x,y)}$ is decomposed into a basic state profile $T_{BS}$ satisfying $\nabla^2 T_{BS} = 0$ and a perturbation ${\hat \theta}$. 
@@ -107,8 +108,8 @@ The equation for the temperature perturbation  $\theta$ is given by
   \label{eq:theta}
   \pdv{\theta}{t} + J(\psi, \theta) = -\pdv{\psi}{x} + \frac{1}{\Pran} \nabla^2 \theta.
 \end{equation}
-The system is governed by four dimensionless parameters, $\beta$, $C$, $\Pran$, and $\Rayleigh$ \citep[see e.g.][for the definition of these parameters]{tom_2018}. Here $\beta$ measures the degree of vortex stretching engendered by the sloping endwalls and $C$ measures the degree of friction, whilst the more familiar Rayleigh number and thermal Prandtl number have their usual physical interpretations.
-
+The system is governed by four dimensionless parameters, the degree of vortex stretching caused by the sloping endwalls $\beta$, the friction at the endwalls $C$, the ratio of viscosity to thermal diffusivity $\Pran$, and $\Rayleigh$, the ratio of thermal driving to dissipation. Here $\beta$ measures the degree of vortex stretching engendered by the sloping endwalls and $C$ measures the degree of friction, whilst the more familiar Rayleigh number and thermal Prandtl number have their usual physical interpretations.
+The limit $C = 0$ formally corresponds to vanishing Ekman number.
 
 A zonal CE2 formulation (sometimes termed zCE2) is implemented using a zonal average, 
 \begin{equation}
@@ -120,13 +121,11 @@ to split all dynamical variables into mean and fluctuating components,
 \end{equation}
 We then derive evolution equations for the first cumulants $\cz(y) = \langle \zeta \rangle $ and $\ct(y) = \langle \theta \rangle$ and the second cumulants 
 \begin{equation}
-    \ctt(\xi,y_1,y_2) = \langle \theta^\prime(x_1,y_1) \theta^\prime(x_2,y_2) \rangle
+    c_{\alpha\beta}(\xi,y_1,y_2) = \langle \alpha^\prime(x_1,y_1) \beta^\prime(x_1-\xi,y_2) \rangle
 \end{equation}
-with $\xi = x_1 - x_2$.
-Similar definitions are used for the second cumulants $\czz$, $\ctz$, and $\czt$. 
-Cumulants involving $\psi$ and $\zeta$ are related by differential operators \citep{2013PhRvL.110j4502T}.
-Because the equations require both $\psi$ and $\zeta$ cumulants, we solve for $\cs$, $\ct$, $\css$, $\cts$, $\cst$, and $\ctt$, though we write equations in terms of $\zeta$ cumulants.
-
+for $\ctt$, $\czz$, $\ctz$, and $\czt$ where $\xi = x_1 - x_2$ . 
+We solve for $\cs$, $\ct$, $\css$, $\cts$, $\cst$, and $\ctt$, though we write equations in terms of $\zeta$ cumulants.
+The required $\zeta$ cumulants, for example $\czs = \nabla^2_1 \css$, are computed via differential operators $\nabla^2_1 = \partial_x^2 + \partial_{y_1}^2$ and $\nabla^2_2 = \partial_x^2 + \partial_{y_2}^2$ \citep[as in][]{2013PhRvL.110j4502T}.
 The  dynamical equations for the first cumulants are given by
 \begin{equation}
   \label{eq:cz}
@@ -161,10 +160,10 @@ and
     &  - C |\beta|^{1/2} \ctz + \frac{1}{\Pran} \nabla_1^2 \ctz + \nabla_2^2 \ctz.
   \end{split}
 \end{equation}
-The other second cumulant terms (e.g. $\czt$) do not need their own evolution equations, as they can be calculated from symmetry considerations.
+The other second cumulant terms (e.g. $\czt$) do not need their own evolution equations, as they can be calculated from symmetry considerations, $\czt(\xi, y_1, y_2) = \ctz(-\xi, y_2, y_1)$.
 
-We solve both the dynamical PDE (DNS) system and the cumulant system subject to impenetrable, stress-free, zero temperature perturbation boundary conditions in the $y$ dimension; both systems are periodic in $x$. 
-This implies that $\theta$, $\zeta$, and $\psi$ all have odd parity in $y$ (and are periodic in $x$). As
+We solve both the DNS and the cumulant system subject to impenetrable, stress-free, zero temperature perturbation boundary conditions in the $y$ dimension; both systems are periodic in $x$. 
+This implies that $\theta$, $\zeta$, and $\psi$ all have odd parity with respect to the boundary conditions in $y$ (and are periodic in $x$). As
 the action of the zonal average preserves the parity, we discretise the first cumulants using a sine series in $y$. Likewise,
 the second cumulants may be discretised using sine series in $y_1$ and $y_2$ and a Fourier basis in $x$.
 
@@ -174,12 +173,12 @@ the CE2 equations use RK222 scheme with all terms evaluated explicitly.
 We have found fully explicit timestepping to be more stable for CE2.
 The second cumulants must be positive definite in order to ensure the corresponding probability density function is realisable.
 At higher $\Rayleigh$, we have found it necessary to remove negative eigenvalues from the second cumulant every 10 timesteps.
-While this is required for CE2.5 \citep{marston_qi_tobias_2019}, it is also necessary in these CE2 simulations.
+These negative eigenvalues are caused by the rank instability that we describe in section~\ref{sec:rank}.
 
 \section{Results}
 \label{sec:results}
-Given that the Busse Annulus system is known to exhibit strong hysteresis, it is key to examine the role of initial conditions when solving the cumulant system.
-Minimally, we begin each CE2 simulation using one of two extreme initial conditions: \emph{maximum ignorance}, in which we assume a completely uncorrelated $\ctt$ and all other cumulants (both first and second) zero, and \emph{maximum knowledge}, in which we initialise all fields using cumulants calculated from the statistics of a DNS solution. This allows the evaluation of CE2's ability to both \emph{find} solutions and \emph{continue} solutions already known. In addition, we begin some solutions with biased initial conditions that are designed to ensure solutions are not trapped in symmetry subspaces.
+Given that the Busse annulus system is known to exhibit strong hysteresis, it is key to examine the role of initial conditions when solving the cumulant system.
+Minimally, we begin each CE2 simulation using one of two extreme initial conditions: \emph{maximum ignorance}, in which we draw a Gaussian random field for $\theta$ and use its $\ctt$ with all other cumulants (both first and second) zero, and \emph{maximum knowledge}, in which we initialise all fields using cumulants calculated from the statistics of a DNS solution. This allows the evaluation of CE2's ability to both \emph{find} solutions and \emph{continue} solutions already known. In addition, we begin some solutions with biased initial conditions that are designed to ensure solutions are not trapped in symmetry subspaces.
 In order to facilitate comparison with previous work, we adapt the same run naming scheme as \citet{tom_2018}.
 
 \begin{table}
@@ -188,8 +187,8 @@ In order to facilitate comparison with previous work, we adapt the same run nami
   \begin{tabular}{lcccccl}
     Run & $\beta$ & $\Rayleigh$ & $C$ & DNS Resolution & CE2 Resolution & Comment \\[3pt]
     A  & $2.8\times 10^3$ & $7.6 \times 10^4$   & $0$ & $256 \times 64$ & $32^3$ & Two-jet \\
-    B  & $7.07\times 10^5$ & $10^8$ & $0.316$ & $512 \times 256$ & $128 \times 64$ & Seven-jet  \\
-    C  & $5\times 10^5$ & $8\times 10^7$ & $0$ & $512 \times 256$ & $256 \times 64$ & three-jet $\to$ two-jet bursting \\
+    B  & $7.07\times 10^5$ & $10^8$ & $0.316$ & $512 \times 256$ & $128 \times 64^2$ & Seven-jet  \\
+    C  & $5\times 10^5$ & $8\times 10^7$ & $0$ & $512 \times 256$ & $256 \times 64^2$ & three-jet $\to$ two-jet bursting \\
     R  & $3.16\times 10^5$ & $4\times 10^7$ & $0.316$ & $256 \times 64$ & $128\times 64^2$ & Five-jet\\
     Rb  & $3.16\times 10^5$ & $4\times 10^7$ & $0.316$ & - & $128\times 64^2$ & CE2 3-jet initial bias\\
   \end{tabular}
@@ -208,20 +207,19 @@ In order to facilitate comparison with previous work, we adapt the same run nami
   \label{fig:run_A}
 \end{figure}
 
-The first case we consider (case A) exhibits relatively simple dynamics in DNS. Started from random initial conditions, the driven convection interacts with the $\beta$-effect to drive large-scale zonal flows (jets). These takes the form of one prograde and one retrograde jet as shown in the solutions for the mean zonal velocity $\langle u \rangle(y, t)$ and mean temperature $\langle \theta\rangle(y,t) $ in the Hovm\"oller plots of Figure~\ref{fig:run_A}. 
-Started from maximum ignorance initial conditions, however, CE2 evolves to a 3-jet solution, which is symmetric about the midplane ($y=0.5$). These results are similar to the strictly quasilinear run in \citet{tom_2018}, which also produces a 3-jet solution; an unsurprising result given that 
- CE2 is fundamentally a quasi-linear theory. Interestingly, generalized quasilinear (GQL) solutions do however yield the correct number of jets \citet{tom_2018}. At these parameters it has been demonstrated in DNS that there is hysteresis between 2-jet and 3-jet solutions, but that 3-jet solutions are unstable to perturbations that break shift-reflect symmetry \citep{bh1993}. To test this, we ran a DNS with initial conditions that respect this symmetry and, owing to our highly accurate spectral methods, the solution remained in the symmetry class and the 3-jet solution remained stable in DNS.
+The first case we consider (case A) exhibits relatively simple dynamics in DNS. Started from random initial conditions, the driven convection interacts with the $\beta$-effect to drive large-scale zonal flows (jets). These take the form of one prograde and one retrograde jet as shown in the solutions for the mean zonal velocity $\langle u \rangle(y, t)$ and mean temperature $\langle \theta\rangle(y,t) $ in the Hovm\"oller plots of Figure~\ref{fig:run_A}. 
+Started from maximum ignorance initial conditions, however, CE2 evolves to a 3-jet solution (not shown), which is symmetric about the midplane ($y=0.5$). These results are similar to the strictly quasilinear run in \citet{tom_2018}, which also produces a 3-jet solution, an unsurprising result given that both results are from fundamentally quasi-linear methods. Interestingly, generalized quasilinear (GQL) solutions do however yield the correct number of jets \citep{tom_2018}. At these parameters it has been demonstrated in DNS that there is hysteresis between 2-jet and 3-jet solutions, but that 3-jet solutions are unstable to perturbations that break shift-reflect symmetry \citep{bh1993}. To test this, we ran a DNS with initial conditions that respect this symmetry and, owing to our highly accurate spectral methods, the solution remained in the symmetry class and the 3-jet solution remained stable in DNS.
 
 Better comparison with DNS for these parameter values is achieved when the CE2 solution is biased 
  by initialising the first cumulant of the x-velocity, $\cu$ to
 \begin{equation}
   \label{eq:bias}
-  \cu(t=0, y_0) = A_0 \left( \lambda \cos(2\pi/L_y y_0) + (1-\lambda) \cos (\pi/L_y y_0)\right).
+  \cu(t=0, y) = A \cos(2\pi y/L_y) + B \cos (\pi y/L_y).
 \end{equation}
 The first term is odd about the center of the domain, while the second is even.
-We find that CE2 \emph{is} capable of finding and sustaining a 2-jet solution, with amplitude comparable with the DNS results, if the symmetry of the initial condition is sufficiently biased.
+We find that CE2 \emph{is} capable of finding and sustaining a 2-jet solution, with amplitude comparable with the DNS results, if the symmetry of the initial condition is such that $B \gg A$ (here $B = 10^{-3}$ and $A = 0$, though we have shown that).
 This strongly suggests that the transition from 3 to 2 jets in DNS is the product of a subcritical, non-linear transition mediated by eddy-eddy $\to$ eddy interactions excluded both from CE2 and our previous quasilinear results.
-Regardless, this solution remains a fixed point of the CE2 system, suggesting that the \emph{selection} of a given multi-jet solution is distinct from its \emph{maintenence}.
+Regardless, the 2-jet solution remains a fixed point of the CE2 system, suggesting that the \emph{selection} of a given multi-jet solution is distinct from its \emph{maintenence}.
 This hypothesis is supported by our ``maximal knowledge" calculation where the CE2 solution is initialised with the cumulants calculated from the saturated state of the DNS run (see Figure~\ref{fig:run_A}). CE2 is certainly capable of maintaining the form of these fully nonlinear solutions (even maintaining the slight asymmetry in the temperature distribution) even though the eddy-eddy non-linearity (EENL) term is missing from the system.
 \begin{figure}
     \centering
@@ -243,7 +241,7 @@ The degree of success of the quasilinear CE2 models can be investigated further 
 \begin{figure}
   \centering
   \includegraphics[width=0.6\textwidth]{kx_power_spectra_zeta_dns_run_R.pdf}
-  \caption{Power spectra of $\zeta$ for run R as a function of $k_x$ for DNS, unbiased CE2, and biased CE2. Note that DNS has energy distributed across many $k$, demonstrating the importance of the EENL. However, both CE2 runs show power only at $k_x 0$ and a band from $20 \lesssim k_x \lesssim 50$ despite the fact that the biased solution gets the correct $\cu$ and the unbiased one does not. Taken together, this suggests that EENL is not crucial for maintaining the mean flow and may only lead to additional dissipation.}
+  \caption{Power spectra of $\zeta$ for run R as a function of $k_x$ for DNS, unbiased CE2, and biased CE2. Note that DNS has energy distributed across many $k$, demonstrating the importance of the EENL. However, both CE2 runs show power only at $k_x = 0$ and a band from $20 \lesssim k_x \lesssim 50$ despite the fact that the biased solution gets the correct $\cu$ and the unbiased one does not. Taken together, this suggests that EENL is not crucial for maintaining the mean flow and may only lead to additional dissipation.}
   \label{fig:power_spec_S}
 \end{figure}
 %DESCRIPTION OF FIGURE 4.
@@ -266,7 +264,7 @@ The degree of success of the quasilinear CE2 models can be investigated further 
 %    \end{itemize}
 %\end{itemize}
 
-Parameters may also be selected that yield multiple jet solutions; case R, for which the DNS is shown in Figure~\ref{fig:hov_run_R}(a), is such a case. Here, after an initial transient that takes the form of a six jet solution, a jet merging leads to the solution settling down into a five jet solution. DNS exhibits a solution for the second cumulant that is very localised in space, which is suggested by the broad power spectrum of the DNS shown in Figure~\ref{fig:power_spec_S}. For this case, the maximally ignorant quasilinear CE2 model yields an incorrect seven jet solution. Remarkably, if the CE2 calculation is biased  initially to yield a three jet solution, the solution evolves via a seven jet solution to form a five jet solution of the correct amplitude, obviously driven by the corresponding evolution of the second cumulants; the basin of attraction for CE2 is clearly very sensitive to the initial condition here. The power spectra of the CE2 calculations shown in Figure~\ref{fig:power_spec_S} demonstrate that power is concentrated in a finite number of $k_x$ values indicating a delocalisation of the second cumulant; the second cumulant is again a superposition of wave-like solutions. The precise wavenumbers that receive energy for CE2 are sensitive to the structure of the first cumulant and therefore the initial conditions. Moreover, the  ``zigzag'' structure of the power spectra in CE2 shows that most of the power is trapped within a symmetry subspace and is not efficiently scattered into all modes. Nonetheless we stress that the interactions are sufficient to drive the correct mean flows.  As for Case A, the CE2 solution also tracks the DNS solution well if a ``maximal knowledge'' initial condition is used (not shown).
+Parameters may also be selected that yield multiple jet solutions; case R, for which the DNS is shown in Figure~\ref{fig:hov_run_R}(a), is such a case. Here, after an initial transient that takes the form of a six jet solution, a jet merging leads to the solution settling down into a five jet solution. DNS exhibits a solution for the second cumulant that is very localised in space, which is suggested by its broad power spectrum in Figure~\ref{fig:power_spec_S}. For this case, the maximally ignorant quasilinear CE2 model yields an incorrect seven jet solution. Remarkably, if the CE2 calculation is biased  initially to yield a three jet solution, the solution evolves via a seven jet solution to form a five jet solution of the correct amplitude, obviously driven by the corresponding evolution of the second cumulants; the basin of attraction for CE2 is clearly very sensitive to the initial condition here. The power spectra of the CE2 calculations shown in Figure~\ref{fig:power_spec_S} demonstrate that power is concentrated in a finite number of $k_x$ values indicating a delocalisation of the second cumulant; the second cumulant is again a superposition of wave-like solutions. The precise wavenumbers that receive energy for CE2 are sensitive to the structure of the first cumulant and therefore the initial conditions. Moreover, the  ``zigzag'' structure of the power spectra in CE2 shows that most of the power is trapped within a symmetry subspace and is not efficiently scattered into all modes. Nonetheless we stress that the interactions are sufficient to drive the correct mean flows.  As for Case A, the CE2 solution also tracks the DNS solution well if a ``maximal knowledge'' initial condition is used (not shown).
 
 % CE2 for bursting?
 % What does CE2 get for 6 jet?
@@ -279,7 +277,7 @@ Parameters may also be selected that yield multiple jet solutions; case R, for w
 \begin{figure}
   \centering
   \includegraphics[width=\textwidth]{run_C_fig.pdf}
-  \caption{ Left: Run C Hovmuller diagrams of $\cu$. Right: total (blue), zonal (orange), and non-zonal kinetic energies (green). In both columns, top: DNS, middle: ``maximum knowledge'' CE2 initialised from the DNS data in a bursting state, bottom: ``maximum ignorance'' CE2 initialised from a diagonal $\ctt$.}
+  \caption{ Left: Run C Hovmuller diagrams of $\cu$. Right: total (blue), zonal (orange), and non-zonal kinetic energies (green). In both columns, top: DNS, middle: ``maximum knowledge'' CE2 initialised from the DNS data in a bursting state, bottom: ``maximum ignorance'' CE2 initialised from a diagonal $\ctt$. In the top and middle columns, nearly all kinetic energy is zonal, so the blue and orange lines are indistinguishable.}
   \label{fig:run_C}
 \end{figure}
 %DESCRIPTION OF FIGURE 5
@@ -297,9 +295,9 @@ Parameters may also be selected that yield multiple jet solutions; case R, for w
 %    \end{itemize}
 %\end{itemize}
 
-The Busse Annulus model is capable of producing extremely complicated nonlinear spatio-temporal dynamics. Perhaps the most nonlinear behaviour exhibited by the DNS model is shown in the top panel Figure~\ref{fig:run_C}(a), which show timeseries of the total, zonal, and non-zonal kinetic energies of the flow and Hovm\"oller plots of the zonally averaged zonal flows for DNS. Here the solution takes the form of a relaxation oscillation; a cycle proceeds as follows. Convection is driven by strong temperature gradients and interacts with the rotation to generate zonal flows (in this case a two-jet solution). As more energy is pumped into the zonal flow, the shear acts so as to switch off the convection (acting as a barrier to transport). This in turn removes the energy source for the zonal flow, which decays on a longer timescale. Once the zonal flow is weak enough convection sets in again and the process is repeated. This type of behaviour has been described in terms of predator-prey dynamics with the convective turbulence taking the role of the prey and the zonal flows acting as a predator. 
+The Busse annulus model is capable of producing extremely complicated nonlinear spatio-temporal dynamics. Perhaps the most nonlinear behaviour exhibited by the DNS model is shown in the top panel Figure~\ref{fig:run_C}(a), which show timeseries of the total, zonal, and non-zonal kinetic energies of the flow and Hovm\"oller plots of the zonally averaged zonal flows for DNS. Here the solution takes the form of a relaxation oscillation; a cycle proceeds as follows. Convection is driven by strong temperature gradients and interacts with the rotation to generate zonal flows (in this case a two-jet solution). As more energy is pumped into the zonal flow, the shear acts so as to switch off the convection (acting as a barrier to transport). This in turn removes the energy source for the zonal flow, which decays on a longer timescale. Once the zonal flow is weak enough convection sets in again and the process is repeated. This type of behaviour has been described in terms of predator-prey dynamics with the convective turbulence taking the role of the prey and the zonal flows acting as a predator \citep[e.g.][]{rj2006, tom_2018}. 
 
-Figure~\ref{fig:run_C}(b) shows one of the ``maximum knowledge'' solutions for CE2. Here the solution is started from the DNS solution when it has reached a peak in the zonal flow energy. Remarkably, CE2 is able to continue relaxation oscillations from this state; we believe that this is the first time a quasilinear model has reproduced such complicated behaviour; previously they have been able to generate either the state at the peak or the trough of such a relaxation oscillation --- but not the transition between them \citep{pmt_2019}. If CE2 is started from the trough in the zonal flow energy, similar results are obtained (not shown). The sensitivity to initial conditions for CE2 is, however, demonstrated in Figure~\ref{fig:run_C}(c), which shows the evolution from small amplitude ``maximal ignorance'' initial conditions. This solution clearly does not replicate the correct number of jets --- though it does show some indication of bursting behaviour, as the strength of each zonal jet waxes and wanes in response to the driving.
+Figure~\ref{fig:run_C}(b) shows one of the ``maximum knowledge'' solutions for CE2. Here the solution is started from the DNS solution when it has reached a peak in the zonal flow energy. CE2 is able to continue relaxation oscillations from this state. If CE2 is started from the trough in the zonal flow energy, similar results are obtained (not shown). The sensitivity to initial conditions for CE2 is, however, demonstrated in Figure~\ref{fig:run_C}(c), which shows the evolution from small amplitude ``maximal ignorance'' initial conditions. This solution clearly does not replicate the correct number of jets --- though it does show some indication of bursting behaviour, as the strength of each zonal jet waxes and wanes in response to the driving.
 
 
 
@@ -355,8 +353,9 @@ Figure~\ref{fig:run_C}(b) shows one of the ``maximum knowledge'' solutions for C
 One important difference between QL and CE2 simulations is that the former explicitly provides only a single realization of the dynamics, while the latter does not; it provides a description of the low-order statistics of the system and hence can be thought of as averaging over a number of simulations of the system. 
 Recently, \citet{nivarti_22}  have shown that an important difference between the two can be quantified as the difference in the ranks of the second cumulants --- that is, the number of non-zero eigenvalues they possess. They have demonstrated that the statistical description CE2 is open to instabilities that can lead to higher rank solutions for the second cumulant than are accessible for QL. Moreover this can lead to different behaviour for CE2 from that found for a single run of a QL system.
 
-Although we do not investigate these instabililities in detail here, it is interesting to note the rank of the modes of the solutions for CE2. Figure~\ref{fig:rank_runs} shows the rank of the modes of the second cumulant as a function of time, for run A and various initial conditions. For a QL system the rank of the solution should be three (note the counting of the rank here is different from that in \citet[][]{nivarti_22}).
-For a maximum knowledge initial condition for Run A, when CE2 gives the correct answer, the solution accesses a higher rank solution than QL; note QL obtains the incorrect answer. The solutions clearly undergoes a rank instability to access the correct answer. However, for a maximum ignorance initial condition both QL and CE2 give the incorrect answer. The CE2 solution eventually returns to a low rank solution and reproduces the QL (rather than the correct) dynamics. Finally, for the 
+Although we do not investigate these instabilities in detail here, it is interesting to note the rank of the modes of the solutions for CE2. Figure~\ref{fig:rank_runs} shows the rank of the modes of the second cumulant as a function of time, for run A and various initial conditions. For a QL system the rank of the solution should be three (note the counting of the rank here is different from that in \citet[][]{nivarti_22}).
+For a maximum knowledge initial condition for Run A, when CE2 gives the correct answer, the solution accesses a higher rank solution than QL. The QL simulation obtains the incorrect answer 
+\citep{tom_2018}. The solutions clearly undergoes a rank instability to access the correct answer. However, for a maximum ignorance initial condition both QL and CE2 give the incorrect answer. The CE2 solution eventually returns to a low rank solution and reproduces the QL (rather than the correct) dynamics. Finally, for the 
 biased initial condition case (with the first cumulant correct but the second cumulant incorrect) the second cumulant remains high rank and one gets the correct behaviour for the first cumulant. We stress again here that in all cases the second cumulant is necessarily delocalised for these quasilinear theories and hence incorrect.
 
 \begin{figure}
@@ -371,7 +370,7 @@ biased initial condition case (with the first cumulant correct but the second cu
 \section{Discussion}
 \label{sec:discussion}
 
-In this paper we have examined the effectiveness of the statistical quasilinear theory zCE2 in reproducing the statistics of turbulent solutions of a model of the interaction of rotating convection and zonal flows. This Busse Annulus model exhibits complicated spatio-temporal dynamics including the formation of large-scale zonal jets, multiple zonal jets and even ``predator-prey'' relaxation oscillations between states with strong zonal flows and strong convection.
+In this paper we have examined the effectiveness of the statistical quasilinear theory zCE2 in reproducing the statistics of turbulent solutions of a model of the interaction of rotating convection and zonal flows. This Busse annulus model exhibits complicated spatio-temporal dynamics including the formation of large-scale zonal jets, multiple zonal jets and even ``predator-prey'' relaxation oscillations between states with strong zonal flows and strong convection.
 
 We show that zCE2 is capable of reproducing even very complicated mean dynamics (such as the driving and decay of the mean flows and modification of the mean temperature profile) though, for this system, it may have multiple stable attractors for any given parameter set. If the system is initiated with \textit{maximal ignorance} then it is possible to fall into the basin of attraction of an attractor that is not preferred by DNS. It is possible to bias the symmetry of the initial condition in order to achieve solutions that mirror the symmetry of the DNS solutions. Furthermore one may use an \textit{maximal knowledge} initial condition where the zCE2 is initiated using the statistics from the saturated state of a DNS run. In this case, zCE2 appears to be extremely successful --- even reproducing the extremely nonlinear relaxation oscillations of the highly driven system.
 
@@ -380,6 +379,7 @@ is linear in the two-point correlation function, though there are terms that inv
 
 It is interesting to speculate further on the role of the missing physics encoded in the EENL. This term in the equations can be modelled by deriving evolution equations for the higher order cumulants, and truncating the hierarchy at third order. This extension to DSS is known as CE3 --- and sometimes CE2.5 when an approximate form of the CE3 equations are utilised \citep{marston_qi_tobias_2019}. However this is a computationally expensive procedure and solution strategies suffer severely from the ``curse of dimensionality''. An interesting question then is what is the best strategy for modelling these higher-order interactions. Of course, if the linear operator provided by the mean flows and other fields is sufficiently non-normal (e.g. if for example the shear is sufficiently strong), then the precise form of this modelling term is not critical (since its role will be to act as a driving term for the non-normal modes of the linear operator). In this case, one may as well model these terms via delta correlated white noise. However it is possible to optimise the form of the noise provided to the linear operator so as to best match the true dynamics. Similar optimisation procedures have been utilised for the form of the (coloured) noise in transition problems \citep[][]{zjg_2017}. One strategy that appeals is to use data-driven methods to ``learn'' the optimal form of the term that should be added to CE2 to best reproduce the dynamics. It is to be hoped (though by no means certain) that this optimal form should be relatively insensitive to the form of the large scales since this dependence should be encoded in the interaction between the first and second cumulants of CE2.   
 
+\backsection[Declaration of interests]{The authors report no conflict of interest.}
 \backsection[Acknolwedgements]{Computations were performed on the Bates High Performance Computing Center's \emph{Leavitt} system and the NASA High-End Computing Program through the NASA Advanced Supercomputing Division at Ames Research Centre under allocation GID s1647.}
 \backsection[Funding]{This work was supported by funding from the European Research Council (ERC) under the EU’s Horizon 2020 research and innovation programme (grant agreement D5S-DLV-786780). 
 JSO was supported by NASA LWS grant number NNX16AC92G and Research Corporation Scialog Collaborative Award (TDA) ID\#24231. JBM and SMT are supported in part by a grant from the Simons Foundation (Grant No. 662962, GF).}
