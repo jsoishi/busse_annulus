@@ -1,0 +1,175 @@
+\documentclass[11pt]{article}
+\usepackage{graphicx}
+\usepackage{amsmath,bbm}
+\usepackage[letterpaper, centering, top=1in, bottom=1in, left=1in, right=1in]{geometry}
+\usepackage{times}
+\usepackage{amssymb}
+\usepackage{amsmath}
+\usepackage{xcolor}             % Colors
+\usepackage[bookmarks,colorlinks,breaklinks]{hyperref}  % PDF
+\usepackage{makecell}
+\usepackage{nicematrix,tikz}
+\usetikzlibrary{fit}
+\newcommand{\tikznode}[2]{\relax
+\ifmmode%
+  \tikz[remember picture,baseline=(#1.base),inner sep=0pt] \node (#1) {$#2$};
+\else
+  \tikz[remember picture,baseline=(#1.base),inner sep=0pt] \node (#1) {#2};%
+\fi}
+\tikzset{box around/.style={
+    draw,rounded corners,
+    inner sep=2pt,outer sep=0pt,
+    node contents={},fit=#1
+},      
+}
+\urlstyle{same}
+\hypersetup{
+  colorlinks,
+  linkcolor=red,
+  urlcolor=olive
+}
+\newcommand{\BoxAround}[2][]{
+\tikz[overlay,remember picture]{%
+\node[blue,dash pattern=on 2pt off 1.25pt,thick,#1,box around=#2];}}
+\newcommand{\htt}{\hat{\theta}}
+\newcommand{\htz}{\hat{\zeta}}
+\newcommand{\cz}{c_{\zeta}}
+\newcommand{\cs}{c_{\psi}}
+\newcommand{\ct}{c_{\theta}}
+\newcommand{\cu}{c_u}
+\newcommand{\css}{c_{\psi \psi}}
+\newcommand{\csz}{c_{\psi \zeta}}
+\newcommand{\czs}{c_{\zeta \psi}}
+\newcommand{\czz}{c_{\zeta \zeta}}
+\newcommand{\ctz}{c_{\theta \zeta}}
+\newcommand{\czt}{c_{\zeta \theta}}
+\newcommand{\ctt}{c_{\theta \theta}}
+\newcommand{\cst}{c_{\psi \theta}}
+\newcommand{\cts}{c_{\theta \psi}}
+\title{Busse Annulus Second Cumulant Rank}
+\begin{document}
+\maketitle
+
+\section{Introduction}
+\label{sec:intro}
+
+What should the rank of the second cumulant be for the Busse Annulus?
+
+We define the first cumulant using a zonal average in a periodic domain in $x$,
+\begin{equation}
+  \label{eq:first_c}
+  c_\alpha(y) = \left< \alpha(x, y)\right> \equiv \frac{1}{L_x} \int_0^{L_x} \alpha(x, y) dx.
+\end{equation}
+With $\alpha'(x, y) = \alpha(x, y) - c_\alpha(y)$, we have the second cumulant 
+\begin{equation}
+  \label{eq:second_c}
+  c_{\alpha \beta}(\xi, y_1, y_2) = \frac{1}{L_x} \int_0^{L_x} \alpha'(x, y_1) \beta'(x-\xi, y_2) dx.
+\end{equation}
+For the Busse annulus, we have two dynamical variables, $\theta$ and $\zeta$.
+Formally, we have $c_{\theta \theta}$, $c_{\zeta \zeta}$, $c_{\theta \zeta}$, and $c_{\zeta \theta}$, though the latter two are not linearly independent.
+
+We can compute these cumulants in two different ways, which I will show below lead to two different counts for the rank of the second cumulant.
+
+\section{All cumulants at once}
+\label{sec:all_c}
+In order to calculate the rank of the second cumulant, it is helpful to define the state vector,
+\begin{equation}
+  \label{eq:state_vec}
+  \mathbf{q} = \left[\theta(x, y), \zeta(x,y)\right]^T.
+\end{equation}
+We can discretize this either on the grid or in coefficient space.
+Let's do the latter,
+\begin{equation}
+  \label{eq:state_vec_discr}
+  \mathbf{\hat{q}} = \left[\htt_{00}, \htt_{01}, \ldots, \htt_{M-1,N-1}, \htz_{00}, \htz_{01}, \ldots, \htz_{M-1,N-1}\right]^T,
+\end{equation}
+where
+\begin{equation}
+  \label{eq:coefficent_def}
+  \theta(x, y) = \sum_{i=0}^{M-1} \sum_{j=0}^{N-1} \htt_{ij} e^{i (k_i x + k_j y)}.
+\end{equation}
+Then the perturbation is
+\begin{equation}
+  \label{eq:perturbcoefficent_def}
+  \theta'(x, y) = \sum_{i = 1}^{M-1} \sum_{j=0}^{N-1} \htt_{ij} e^{i (k_i x + k_j y)}.
+\end{equation}
+We can then write the second cumulant as a single matrix:
+\begin{equation}
+  \label{eq:second_c_state_vec}
+  c_{q q} = \left< \hat{q}'_i \hat{q}'_j \right>.
+\end{equation}
+Let's consider a two-by-two set of modes, where we can drop the zero mode in $x$ since we are considering only perturbations in the second cumulant.
+We will also assume that $k_y = 0$ term is also zero, though this will not affect the general argument.
+However, for our simulations, we are using $\sin$ modes to discretize in $y$ and so $k_y$ is zero anyway.
+\begin{equation}
+  \label{eq:example_2x2}
+  c_{q q} = \left<
+    \begin{bNiceMatrix}
+    \htt_{11} \htt_{11} & \htt_{11} \htt_{12} & \tikznode{tt-1-2-1}{\htt_{11} \htt_{21}} & \htt_{11} \htt_{22} & \htt_{11} \htz_{11} & \htt_{11} \htz_{12} & \tikznode{tz-1-2-1}{\htt_{11} \htz_{21}} & \htt_{11} \htz_{22}\\
+    \htt_{12} \htt_{11} & \htt_{12} \htt_{12} & \htt_{12} \htt_{21} & \tikznode{tt-1-2-4}{\htt_{12} \htt_{22}} & \htt_{12} \htz_{11} & \htt_{12} \htz_{12} & \htt_{12} \htz_{21} & \tikznode{tz-1-2-4}{\htt_{12} \htz_{22}}\\
+    \tikznode{tt-2-1-1}{\htt_{21} \htt_{11}} & \htt_{21} \htt_{12} & \htt_{21} \htt_{21} & \htt_{21} \htt_{22} & \tikznode{tz-2-1-1}{\htt_{21} \htz_{11}} & \htt_{21} \htz_{12} & \htt_{21} \htz_{21} & \htt_{21} \htz_{22}\\
+    \htt_{22} \htt_{11} & \tikznode{tt-2-1-4}{\htt_{22} \htt_{12}} & \htt_{22} \htt_{21} & \htt_{22} \htt_{22} & \htt_{22} \htz_{11} & \tikznode{tz-2-1-4}{\htt_{22} \htz_{12}} & \htt_{22} \htz_{21} & \htt_{22} \htz_{22}\\
+    \htz_{11} \htt_{11} & \htz_{11} \htt_{12} & \tikznode{zt-1-2-1}{\htz_{11} \htt_{21}} & \htz_{11} \htt_{22} & \htz_{11} \htz_{11} & \htz_{11} \htz_{12} & \tikznode{zz-1-2-1}{\htz_{11} \htz_{21}} & \htz_{11} \htz_{22}\\
+    \htz_{12} \htt_{11} & \htz_{12} \htt_{12} & \htz_{12} \htt_{21} & \tikznode{zt-1-2-4}{\htz_{12} \htt_{22}} & \htz_{12} \htz_{11} & \htz_{12} \htz_{12} & \htz_{12} \htz_{21} & \tikznode{zz-1-2-4}{\htz_{12} \htz_{22}}\\
+    \tikznode{zt-2-1-1}{\htz_{21} \htt_{11}} & \htz_{21} \htt_{12} & \htz_{21} \htt_{21} & \htz_{21} \htt_{22} & \tikznode{zz-2-1-1}{\htz_{21} \htz_{11}} & \htz_{21} \htz_{12} & \htz_{21} \htz_{21} & \htz_{21} \htz_{22}\\
+    \htz_{22} \htt_{11} & \tikznode{zt-2-1-4}{\htz_{22} \htt_{12}} & \htz_{22} \htt_{21} & \htz_{22} \htt_{22} & \htz_{22} \htz_{11} & \tikznode{zz-2-1-4}{\htz_{22} \htz_{12}} & \htz_{22} \htz_{21} & \htz_{22} \htz_{22}\\
+  \end{bNiceMatrix}
+  \right>.
+\end{equation}
+\BoxAround{(tt-1-2-1)(tt-1-2-4)}
+\BoxAround{(tz-1-2-1)(tz-1-2-4)}
+\BoxAround{(tz-2-1-1)(tz-2-1-4)}
+\BoxAround{(tt-2-1-1)(tt-2-1-4)}
+\BoxAround{(zt-1-2-1)(zt-1-2-4)}
+\BoxAround{(zz-1-2-1)(zz-1-2-4)}
+\BoxAround{(zt-2-1-1)(zt-2-1-4)}
+\BoxAround{(zz-2-1-1)(zz-2-1-4)}
+
+For the next step, we need to realize that each of these terms 
+
+\begin{equation}
+  \label{eq:hathat_eqn}
+  \htt_{ij} \htt_{lm} \to \left(\htt_{ij} e^{i k_i x} e^{i k_j y_1}\right) \left(\htt_{lm}  e^{i k_l (x - \xi)} e^{i k_m y_2}\right).
+\end{equation}
+Thus, when we compute the zonal average, we end up with
+\begin{align}
+  \label{eq:zonal_hathat}
+  \frac{1}{L_z} \int_0^{L_x} \left(\htt_{ij} e^{i (k_i x + k_j y_1)}\right) \left(\htt_{lm}  e^{i (k_l (x - \xi) + k_m y_2)}\right) dx & \\
+  = &\frac{\htt_{ij}\htt_{lm} e^{i (k_j y_1 + k_m y_2)}}{L_z} \int_0^{L_x} e^{i k_i x} e^{i k_l (x - \xi)} dx\\
+  = & \frac{\htt_{ij}\htt_{lm} e^{-i (k_l \xi + k_j y_1 + k_m y_2)}}{L_z} \delta_{il}\\
+  = & \frac{\htt_{ij}\htt_{im} e^{-i (k_i \xi + k_j y_1 + k_m y_2)}}{L_z}.
+\end{align}
+The final equality shows that all of the terms with boxes in equation~(\ref{eq:example_2x2}) are zero.
+
+If we rearrange the rows of equation~(\ref{eq:example_2x2}) to put all terms with the same zonal mode together, and consider only the $k_x = 1$ mode, we have
+\begin{equation}
+  \label{eq:final_example}
+  c_{q q} = \left<
+    \begin{bmatrix}
+    \htt_{11} \htt_{11} & \htt_{11} \htt_{12} & 0 & 0 & \htt_{11} \htz_{11} & \htt_{11} \htz_{12} & 0 & 0\\
+    \htt_{12} \htt_{11} & \htt_{12} \htt_{12} & 0 & 0 & \htt_{12} \htz_{11} & \htt_{12} \htz_{12} & 0 & 0\\
+    \htz_{11} \htt_{11} & \htz_{11} \htt_{12} & 0 & 0 & \htz_{11} \htz_{11} & \htz_{11} \htz_{12} & 0 & 0\\
+    \htz_{12} \htt_{11} & \htz_{12} \htt_{12} & 0 & 0 & \htz_{12} \htz_{11} & \htz_{12} \htz_{12} & 0 & 0\\
+  \end{bmatrix}
+  \right>,
+\end{equation}
+which quite clearly has rank 1: all rows are multiples of $\begin{bmatrix} \htt_{11} & \htt_{12} & 0 & 0 & \htz_{11} & \htz_{12} & 0 & 0\end{bmatrix}^T$.
+
+
+\section{$\ctt$, $\czz$, $\czt$ one at a time}
+\label{sec:one_c}
+However, if instead of constructing the state vector $\mathbf{q}$, we consider each of the three linearly independent second cumulants in the Busse annulus problem, we can see that the very same argument above applies to each separately.
+For example, the $\theta-\theta$ cumulant would be
+\begin{equation}
+  \label{eq:one_example}
+  c_{q q} = \left<
+    \begin{bmatrix}
+    \htt_{11} \htt_{11} & \htt_{11} \htt_{12} & 0 & 0 \\
+    \htt_{12} \htt_{11} & \htt_{12} \htt_{12} & 0 & 0\\
+  \end{bmatrix}
+  \right>
+\end{equation}
+for the $k_x = 1$ mode of a $M = N = 2$ system.
+
+Since each of $\ctt$, $\czz$, and $\czt$ will each have rank 1 in this case, the sum of all of them is 3.
+\end{document}
