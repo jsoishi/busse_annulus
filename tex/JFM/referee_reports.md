@@ -9,6 +9,8 @@ My only major comment comments are:
 1.  This paper does not make its place in the hierarchy of the papers by (combinations of) the authors at all clear.  Readers may be mystified as to why CE2 is being discussed when Marston et al (2018) and Tobias et al (2018) have already shown that Generalized QuasiLinear and CE2.5 or CE3 (other levels of DSS) are required to give accurate results.   The paper here *does* provide new insight on the role of initial conditions and symmetries for CE2 that is not in the other papers, but this is not made clear in the title, abstract or introduction.   I think rectification of this omission would really help the reader who has some acquaintance with the problem.
 
 2.  Do the authors in conclusion wish to offer guidance as to how and when to use CE2 then?  If one is starting a new problem where not much is known, how should a researcher proceed?  Some assessment of when and where CE2 is likely to be useful would be helpful and again, justify the place of this paper in amongst the others a bit more.   (However, I do appreciate the discussion of how to *improve* beyond CE2 in the Discussion).
+3.  
+**We agree with the referee's sentiments here that it would be nice to know in advance whether CE2 is good enough. As a community, we believe we are making some inroads into the question of when and whether quasilinear models are applicable, but we think it is fair to say that we are not at the stage yet to make unqualified recommendations. It may be that the form of averaging chosen is important. We would recommend starting with CE2 and seeing if it works. As discussed in the text it is important to find the minimal advance on CE2 that yields robust results (and this may involve some form of data-driven approach).**
 
 The rest of my comments are very minor, but here they are, more in chronological order than any order of importance:
 
@@ -90,7 +92,7 @@ Page 6 equation 3.1. Not sure why you have a subscript 0 for y here, and it woul
 Page 6 line 2 up. ‘settling down into a five jet solution’. Do you know whether DNS always settles down to the 5 jet solution irrespective of initial conditions? The paragraph is written as though there is only one final solution in DNS for a given set of parameters, but is it possible there can be several different jet solutions in DNS if different initial conditions are tried? Maybe you don’t know the answer to this, but a comment on it might be helpful.
 <p>
 
-**We have only ever found five jet solutions; this is consistent with similar parameters in Rotvig and Jones (JFM 2006). It is certainly not out of the question that another solution may be stable, however.**
+**We have only ever found five jet solutions; this is consistent with similar parameters in Rotvig and Jones (JFM 2006). It is certainly not out of the question that another solution may be found for different initial condition, however. We have noted that the Busse model can exhibit strong hysteresis in the text.**
 Page 8, Figure 5. The orange and blue curves overlap in the top and middle panel, so orange is invisible. Note the overlap in the figure caption.
 **Noted.**
 
@@ -104,7 +106,8 @@ General comment 2
 **Steve, do you want to have a look at this?**
 
 General comment 3
-**While this is an intriguing idea, and one that should absolutely be pursued, we do not believe we can address it in this work due to the space constraints.**
+**We thank the referee for this suggestion and it is definitely something we are interested in pursuing, though we do not believe we can address it in this work due to the space constraints. We would also like to stress that the role of rotation for the model considered here is slightly different than for the stratified beta-plane problem with stochastic forcing. In that model the strong constraint that leads to two-dimensionality and subsequent formation of large-scale flows arises due to the stratification and rotation can be seen modifying the basic dynamics (introducing, for example, anisotropy. Hence it makes sense to examine the limit of zero rotation. For the Busse annulus model it is rotation that leads to the strong constraint of two-dimensionality (and the nearly z-invariant solutions) and the model is certainly not valid in the limit of zero rotation. Thus the role of rotation is subtle. It is of course possible to examine the limit of zero slope for the end walls, which is equivalent to what is suggested by the referee.**
+
 
 Specific comments
 
@@ -141,7 +144,7 @@ Specific comments
 
 16. "The authors don't comment..." **We have simplified this and and clarified.**
 
-17. "It is interesting to me..." **STEVE/BRAD/KEATON, this is actually interesting. Need to think on it a bit. Given our speculation that EENL just adds dissipation, why is this not more energetic? It may be a non-obvious interaction with the convection as the referee points out, but I'm not sure.
+17. "It is interesting to me..." **This is indeed interesting. We have computed the Nusselt numbers for the DNS and maximum knowledge CE2 solution and found that the former is slightly larger than the latter. This demonstrates that fully non-linear convection is more efficient at extracting energy from the walls, and therefore DNS has a higher kinetic energy despite having a cascade that leads to enhanced dissipation. We have added text to the manuscript illustrating this point.**
 
 18. "The discussion surrounding..." **STEVE/BRAD/KEATON, it is surprising. Do we want to try to provide more info for some kind of physical interpretation, as this referee suggests?
 
