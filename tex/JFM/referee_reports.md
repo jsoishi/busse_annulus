@@ -8,6 +8,8 @@ My only major comment comments are:
 
 1.  This paper does not make its place in the hierarchy of the papers by (combinations of) the authors at all clear.  Readers may be mystified as to why CE2 is being discussed when Marston et al (2018) and Tobias et al (2018) have already shown that Generalized QuasiLinear and CE2.5 or CE3 (other levels of DSS) are required to give accurate results.   The paper here *does* provide new insight on the role of initial conditions and symmetries for CE2 that is not in the other papers, but this is not made clear in the title, abstract or introduction.   I think rectification of this omission would really help the reader who has some acquaintance with the problem.
 
+**We have added a clarification on this point in the introduction.**
+
 2.  Do the authors in conclusion wish to offer guidance as to how and when to use CE2 then?  If one is starting a new problem where not much is known, how should a researcher proceed?  Some assessment of when and where CE2 is likely to be useful would be helpful and again, justify the place of this paper in amongst the others a bit more.   (However, I do appreciate the discussion of how to *improve* beyond CE2 in the Discussion).
 3.  
 **We agree with the referee's sentiments here that it would be nice to know in advance whether CE2 is good enough. As a community, we believe we are making some inroads into the question of when and whether quasilinear models are applicable, but we think it is fair to say that we are not at the stage yet to make unqualified recommendations. It may be that the form of averaging chosen is important. We would recommend starting with CE2 and seeing if it works. As discussed in the text it is important to find the minimal advance on CE2 that yields robust results (and this may involve some form of data-driven approach).**
@@ -103,7 +105,7 @@ General comment 1
 **We have added references to both S3T and the work of Thompson (1970). For the latter, we point out that the Busse annulus is a bit different from Thompson's shearing convection state. In the Busse annulus system, the symmetry is broken by the $\beta$ parameter. It does not feature sponaneous symmetry breaking pitchfork bifurcation to the shearing state.**
 
 General comment 2
-**Steve, do you want to have a look at this?**
+**We thank the referee for this thoughtful comment. The referee is indeed correct that solving the CE2 (i.e. statistical) theory, seems to give better results than solving one instance of a quasilinear dynamical run. As discussed in the paper, we have shown in a recent paper ( https://arxiv.org/abs/2202.04127 ) that the results of these two procedures are not guaranteed to agree owing to the presence of a rank instability in the statistical theory. In this sense CE2 acts in some way as an ensemble over initial conditions, whilst one realisation of QL is simply that and may be more sensitive. For this reason we believe the statistical theories (such as S3T or CE2) to be a better description. We have put some extra text discussing this in both the introduction and the conclusion.**
 
 General comment 3
 **We thank the referee for this suggestion and it is definitely something we are interested in pursuing, though we do not believe we can address it in this work due to the space constraints. We would also like to stress that the role of rotation for the model considered here is slightly different than for the stratified beta-plane problem with stochastic forcing. In that model the strong constraint that leads to two-dimensionality and subsequent formation of large-scale flows arises due to the stratification and rotation can be seen modifying the basic dynamics (introducing, for example, anisotropy. Hence it makes sense to examine the limit of zero rotation. For the Busse annulus model it is rotation that leads to the strong constraint of two-dimensionality (and the nearly z-invariant solutions) and the model is certainly not valid in the limit of zero rotation. Thus the role of rotation is subtle. It is of course possible to examine the limit of zero slope for the end walls, which is equivalent to what is suggested by the referee.**
@@ -117,7 +119,7 @@ Specific comments
 
 3. **References added**
 
-4. 
+4. **References added**
 
 5. sec2 **We have rewritten the description to aid understanding.**
 
@@ -146,6 +148,16 @@ Specific comments
 
 17. "It is interesting to me..." **This is indeed interesting. We have computed the Nusselt numbers for the DNS and maximum knowledge CE2 solution and found that the former is slightly larger than the latter. This demonstrates that fully non-linear convection is more efficient at extracting energy from the walls, and therefore DNS has a higher kinetic energy despite having a cascade that leads to enhanced dissipation. We have added text to the manuscript illustrating this point.**
 
-18. "The discussion surrounding..." **STEVE/BRAD/KEATON, it is surprising. Do we want to try to provide more info for some kind of physical interpretation, as this referee suggests?
+18. "The discussion surrounding..." **The referee is quite right that this is an interesting point. It is often the case that CE2 can get the first cumulant correct where the second cumulant is incorrect. CE2 tends to overestimate long-range correlations whilst the stresses rely on what is happening at y1=y2 \xi=0. This is a simple system, given that the mean fields are accurately represented, the local values of the driving from the second cumulant must be correct. However, there is not sufficient space in the manuscript to include a full discussion of the Reynolds stresses and heat fluxes.**
 
 19. "Is there a good reason..." **We provided the enstrophy spectrum because it connects with the dynamical variable of interest $c_{\zeta \zeta}$. 
+
+# Referee 4 #
+
+p.2  **We have extended the discussion of these points in response to these comments and those of another referee**
+
+p. 4 **We have added a new section detailing the rank instability of CE2 as the cause of the negative eigenvalues.**
+
+p 5. **We have added the more correct statement.**
+
+p 9. **We thank the referee for pointing this oversight out and have removed the claim from the text.**
